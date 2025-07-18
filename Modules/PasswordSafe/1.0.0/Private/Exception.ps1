@@ -2,12 +2,13 @@ Set-Variable EXCEPTION_INVALID_PARAMETER -Option Constant -Value "Invalid parame
 Set-Variable EXCEPTION_NOT_FOUND -Option Constant -Value "Not found"
 #Set-Variable EXCEPTION_DUPLICATE -Option Constant -Value "Duplicate" 
 #Set-Variable EXCEPTION_DEPENDENCY -Option Constant -Value "Dependency"
-#Set-Variable EXCEPTION_NOT_AUTHORIZED -Option Constant -Value "Not authorized"
+Set-Variable EXCEPTION_NOT_AUTHORIZED -Option Constant -Value "Not authorized"
 #Set-Variable EXCEPTION_FORBIDDEN -Option Constant -Value "Forbidden"
 Set-Variable EXCEPTION_NOT_SINGLE -Option Constant -Value "Not single"
 
-Set-Variable EXCEPTION_NOT_SINGLE_DETAILS -Option Constant -Value "Multiple elements found when using parameter '-Single'"
-Set-Variable EXCEPTION_NOT_FOUND_DETAILS -Option Constant -Value "Nothing found when using parameter '-NoEmptySet'"
+Set-Variable DETAILS_EXCEPTION_NOT_SINGLE_01 -Option Constant -Value "Multiple elements found when using parameter '-Single'"
+Set-Variable DETAILS_EXCEPTION_NOT_FOUND_01 -Option Constant -Value "Nothing found when using parameter '-NoEmptySet'"
+Set-Variable DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -Option Constant -Value "API user '{0}' is not authorized"
 
 
 Set-Variable DETAILS_FUNCTIONALACCOUNT_01 -Option Constant -Value "Functional account not found"

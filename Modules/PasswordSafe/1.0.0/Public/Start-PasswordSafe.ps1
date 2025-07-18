@@ -43,8 +43,11 @@ function Start-PasswordSafe (
             $challengeResponse = Read-Host $challengeMessage;
             PSafe-SignAppinChallenge $challengeResponse;
         }
-        else
-        {
+        elseif ($_.Exception.Response.StatusCode -eq "Unauthorized") {
+            $details = $DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -f $apiUsername
+            throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_AUTHORIZED, $details ) )
+        }
+        else {
             throw;
         }
     }

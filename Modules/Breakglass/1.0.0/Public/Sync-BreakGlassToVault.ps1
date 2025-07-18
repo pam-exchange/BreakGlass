@@ -4,10 +4,6 @@ with a KeePassXC database
 
 #>
 
-enum VAULT_TYPE {
-	KeePassXC
-}
-
 
 function Sync-BreakglassToVault {
     param (

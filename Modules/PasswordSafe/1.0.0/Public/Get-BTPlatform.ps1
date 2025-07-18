@@ -57,14 +57,14 @@ function Get-BTPlatform () {
 			# Check boundary conditions
 			#
             if ($NoEmptySet -and $res.Count -eq 0) {
-                $details= $EXCEPTION_NOT_FOUND_DETAILS
+                $details= $DETAILS_EXCEPTION_NOT_FOUND_01
                 #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
             }
 
             if ($single -and $res.Count -ne 1) {
                 # More than one managed system found with -single option 
-                $details= $EXCEPTION_NOT_SINGLE_DETAILS
+                $details= $DETAILS_EXCEPTION_NOT_SINGLE_01
                 #Write-PSFMessage -Level Error "Get-BTManagedSystem: Message= '$EXCEPTION_INVALID_PARAMETER', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_SINGLE, $details ) )
             }

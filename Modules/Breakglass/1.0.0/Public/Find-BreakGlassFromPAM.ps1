@@ -4,10 +4,6 @@ password and return a list of entries
 
 #>
 
-enum PAM_TYPE {
-	PasswordSafe
-}
-
 
 # ------------------------------------------------------------------------------------
 function Find-BreakglassFromPAM {

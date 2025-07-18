@@ -10,10 +10,18 @@ History
 ------------------------------------------------------------
 #>
 
+# ----------------------------------------------------------------------------------
 param (
-    [Parameter(Mandatory=$false)][string]$ConfigPath= "c:\temp",
-    [Parameter(Mandatory=$false)][switch]$Quiet= $false,
-    [Parameter(Mandatory=$false)][switch]$WhatIf= $false
+    [ValidateSet("PasswordSafe")]
+    [Parameter(Mandatory=$false)][String] $PAMType= "PasswordSafe",
+
+    [ValidateSet("KeePassXC")]
+    [Parameter(Mandatory=$false)][String] $VaultType= "KeePassXC",
+
+    [Parameter(Mandatory=$false)][string] $ConfigPath= "c:\temp",
+
+    [Parameter(Mandatory=$false)][switch] $Quiet= $false,
+    [Parameter(Mandatory=$false)][switch] $WhatIf= $false
 )
 
 try {$startTime= (Get-Date -ErrorAction SilentlyContinue)} catch {$now= 0}
@@ -45,38 +53,17 @@ Import-Module PasswordSafe -Force
 Import-Module KeePassXC -Force
 Import-Module Breakglass -Force
 
-
-# ************************************************************************************
+# ----------------------------------------------------------------------------------
 try {
 
-    # 
-    # Start-Breakglass will read configuration and 
-    # start PasswordSafe and KeePassXC
-    #
-    Start-Breakglass -ConfigPath $ConfigPath
-
-    #
-    # Fetch breakglass accounts from PAM
-    #
-    if (-not $Quiet -or $WhatIf) {Write-Host "Fetching breakglass accounts from PAM"}
-    $pamAccounts= Find-BreakglassFromPAM -PAMType PasswordSafe -Quiet:$Quiet -WhatIf:$WhatIf
-    
-    if (-not $Quiet -or $WhatIf) {Write-Host "Found $($pamAccounts.count) breakglass accounts in PAM" -ForegroundColor Gray}
-
-    #
-    # Sync accounts from PAM with KeePassXC
-    #
-    if (-not $Quiet -or $WhatIf) {Write-Host "Aligning PAM accounts with KeePassXC"}
-    $res= Sync-BreakglassToVault -VaultType KeePassXC -BreakGlassEntries $pamAccounts -CreateDatabase -Quiet:$Quiet -WhatIf:$WhatIf
+    Backup-BreakglassAccounts -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Quiet:$Quiet -WhatIf:$WhatIf
 
 } 
 catch {
-    Write-Host "$($_.Exception.Message) - $($_.Exception.Details)" -ForegroundColor Yellow
+    Write-Host "Exception: $($_.Exception.GetType().FullName)`nMessage: $($_.Exception.Message)`nDetails: $($_.Exception.Details)" -ForegroundColor Yellow
     Write-Host $_.ScriptStackTrace -ForegroundColor Gray
 }
 finally {
-    Stop-Breakglass
-
     if (-not $Quiet -or $WhatIf) {
         try {
             # --- Elapsed time ---
@@ -94,3 +81,5 @@ finally {
         Write-Host "Finished synchronizing breakglass accounts in PAM to KeePassXC "
     }
 }
+
+# -- end-of-file ---
