@@ -1,11 +1,19 @@
-function Sync-BGAccount {
+<#
+This function will synchronize or align information from PAM
+with a KeePassXC database
+
+#>
+
+function Sync-BreakglassToKeePassXC {
     param (
         [Parameter(Mandatory=$false)][string]$DatabasePath= $Script:kpDatabasePath,
         [Parameter(Mandatory=$false)][string]$KeyFilePath= $Script:kpKeyFilePath,
         [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$false)][string]$Group= $Script:kpGroup,
-        [Parameter(Mandatory=$true)][Object[]]$BreakGlassEntries,
         [Parameter(Mandatory=$false)][switch]$CreateDatabase= $false,
+
+        [Parameter(Mandatory=$true)][Object[]]$BreakGlassEntries,
+
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
         [Parameter(Mandatory=$false)][switch]$WhatIf= $false
     )

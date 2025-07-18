@@ -5,22 +5,23 @@ function Start-Breakglass (
 {
 	#Write-PSFMessage -Level Debug ("Start-BeyondTrust: start")
 
-    $config= Read-BGConfig -ConfigPath $ConfigPath
+    $config= Read-BreakglassConfig -ConfigPath $ConfigPath
 
     #
     # Login to PAM with credentials from Credentials file
     #
     $LoginPasswordSafe= @{
-        apiDomain= $config["API"].DNS;
-        apiKey= $config["API"].apiKey;
-        apiUsername= $config["API"].username;
-        apiPassword= $config["API"].password;
-        apiWorkgroup= $config["API"].Workgroup;
+        apiDNS= $config["PasswordSafe"].DNS;
+        apiKey= $config["PasswordSafe"].apiKey;
+        apiUsername= $config["PasswordSafe"].username;
+        apiPassword= $config["PasswordSafe"].password;
+        apiWorkgroup= $config["PasswordSafe"].Workgroup;
     }
     $res= Start-PasswordSafe @LoginPasswordSafe
 
-
-    
+    #
+    # KeePassXC credentials
+    #
     $Script:kpDatabasePath= $config["KeePassXC"].databasePath
 	$script:kpKeyFilePath= $config["KeePassXC"].KeyFilePath
 	$Script:kpGroup= $config["KeePassXC"].Group

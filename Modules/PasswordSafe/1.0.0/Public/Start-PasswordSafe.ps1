@@ -1,8 +1,8 @@
 #--------------------------------------------------------------------------------------
 function Start-PasswordSafe (
 
+    [Parameter(Mandatory = $true)] [string]$apiDNS,
     [Parameter(Mandatory = $true)] [string]$apiWorkgroup,
-    [Parameter(Mandatory = $true)] [string]$apiDomain,
     [Parameter(Mandatory = $true)] [string]$apiKey,
     [Parameter(Mandatory = $true)] [string]$apiUsername,
     [Parameter(Mandatory = $false)] [string]$apiPassword
@@ -11,7 +11,7 @@ function Start-PasswordSafe (
 	#Write-PSFMessage -Level Debug ("Start-BeyondTrust: start")
 
     $script:apiWorkgroup= $apiWorkgroup
-    $script:apiURL= "https://$apiDomain/BeyondTrust/api/public/v3/"
+    $script:apiURL= "https://$apiDNS/BeyondTrust/api/public/v3/"
     $script:apiKey= $apiKey
     $script:apiUsername= $apiUsername
     $script:apiPassword= $apiPassword

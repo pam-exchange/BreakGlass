@@ -8,19 +8,14 @@ $configKeePassXC= @{
         Group= "BreakGlass";
     }
 
-$configAPI = @{
-        type="API"; 
-		domain= "cwpws.ps.beyondtrustcloud.com"; 
-		shortDomain= "beyondtrustcloud"; 
-		DNS= "cwpws.ps.beyondtrustcloud.com";
-        pamHostname= "cwpws";
+$configPasswordSafe = @{
+        type="PasswordSafe"; 
+		DNS= "<pam server hostname>";
 		username= "api_Breakglass"; 
-		password= "Admin4cspm!1234!"; 
-		apiKey= "4ef96448db2aaf8f09b9b25614245bb498d8fe284a66ce3ddaeab8620200afc3699f8c6e630bcdce15f6ff02ce6ec09926196706953e862f0efd03ddcd5af146";
+		password= "<some password>"; 
+		apiKey= "<api key from PasswordSafe";
         Workgroup= "Default Workgroup";
     }
-
-
 
 try {
     Write-Host "Credentials start, version=$($version) -----------------------------------"
@@ -43,17 +38,20 @@ try {
     $configKeePassXC.MasterPassword= $securePassword | ConvertFrom-SecureString 
 
     #
-    # prepare configKeePassXC
+    # prepare configPasswordSafe
     #
-    $securePassword= $configAPI.password | ConvertTo-SecureString -AsPlainText -Force 
-    $configAPI.password= $securePassword | ConvertFrom-SecureString 
+    $securePassword= $configPasswordSafe.password | ConvertTo-SecureString -AsPlainText -Force 
+    $configPasswordSafe.password= $securePassword | ConvertFrom-SecureString 
 
-    $securePassword= $configAPI.apiKey | ConvertTo-SecureString -AsPlainText -Force 
-    $configAPI.apiKey= $securePassword | ConvertFrom-SecureString 
+    $securePassword= $configPasswordSafe.apiKey | ConvertTo-SecureString -AsPlainText -Force 
+    $configPasswordSafe.apiKey= $securePassword | ConvertFrom-SecureString 
 
+    #
+    # Convert to Json and save to file
+    # 
     $config= New-Object System.Collections.ArrayList
     $config.add( $configKeePassXC )| Out-Null
-    $config.add( $configAPI )| Out-Null
+    $config.add( $configPasswordSafe )| Out-Null
     
     $configJson= $config | ConvertTo-Json
 

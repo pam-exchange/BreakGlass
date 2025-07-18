@@ -59,7 +59,7 @@ try {
     # Fetch breakglass accounts from PAM
     #
     if (-not $Quiet -or $WhatIf) {Write-Host "Fetching breakglass accounts from PAM"}
-    $pamAccounts= Find-BGAccount -Quiet:$Quiet -WhatIf:$WhatIf
+    $pamAccounts= Find-BreakglassFromPAM -PAMType PasswordSafe -Quiet:$Quiet -WhatIf:$WhatIf
     
     if (-not $Quiet -or $WhatIf) {Write-Host "Found $($pamAccounts.count) breakglass accounts in PAM" -ForegroundColor Gray}
 
@@ -67,7 +67,7 @@ try {
     # Sync accounts from PAM with KeePassXC
     #
     if (-not $Quiet -or $WhatIf) {Write-Host "Aligning PAM accounts with KeePassXC"}
-    $res= Sync-BGAccount -BreakGlassEntries $pamAccounts -CreateDatabase -Quiet:$Quiet -WhatIf:$WhatIf
+    $res= Sync-BreakglassToVault -VaultType KeePassXC -BreakGlassEntries $pamAccounts -CreateDatabase -Quiet:$Quiet -WhatIf:$WhatIf
 
 } 
 catch {
