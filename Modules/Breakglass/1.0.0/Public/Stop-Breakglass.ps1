@@ -5,8 +5,23 @@ function Stop-Breakglass ()
 	#Write-PSFMessage -Level Debug ("Signout from BryondTrust")
 	try
 	{
-		$res= Stop-PasswordSafe
-		$res= Stop-KeePassXC
+        switch ($script:PAMType) {
+            "PasswordSafe" 
+            {
+    		    $res= Stop-PasswordSafe
+            }
+            "SymantecPAM"
+            {
+                $res= Stop-SymantecPAM
+            }
+        }
+
+        switch ($Script:VaultType) {
+            "KeePassXC"
+            {
+        		$res= Stop-KeePassXC
+            }
+        }
 	}
 	catch [System.Net.WebException]
 	{

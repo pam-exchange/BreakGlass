@@ -1,10 +1,14 @@
+<#
 enum PAM_TYPE {
 	PasswordSafe
+    SymantecPAM
 }
 
 enum VAULT_TYPE {
 	KeePassXC
 }
+
+#>
 
 # ----------------------------------------------------------------------------------
 function Backup-BreakglassAccounts {
@@ -23,7 +27,7 @@ function Backup-BreakglassAccounts {
         # Start-Breakglass will read configuration and 
         # start PasswordSafe and KeePassXC
         #
-        Start-Breakglass -ConfigPath $ConfigPath
+        Start-Breakglass -ConfigPath $ConfigPath -PAMType $PAMType -VaultType $VaultType 
 
         #
         # Fetch breakglass accounts from PAM

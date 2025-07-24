@@ -16,10 +16,16 @@ function Find-BreakglassFromPAM {
 
     $WhatIf= $false
 
-    switch ($PAMType) {
-        "PasswordSafe" {
+    switch ($PAMType) 
+    {
+        "PasswordSafe" 
+        {
             return Find-BreakglassFromPasswordSafe -Quiet:$Quiet -WhatIf:$WhatIf
-            }
+        }
+        "SymantecPAM" 
+        {
+            return Find-BreakglassFromSymantecPAM -Quiet:$Quiet -WhatIf:$WhatIf
+        }
     }
 }
 

@@ -60,12 +60,19 @@ function Read-BreakglassConfig {
                 $pamApiKey= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
                 [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
 
-                #$Script:pamDNS= $_.DNS
-                #$Script:pamApiUsername= $_.username
-                #$Script:pamWorkgroup= $_.workgroup
-
                 $finalConfig.Add("PasswordSafe", [PSCustomObject]@{ DNS= $_.DNS; username= $_.username; workgroup= $_.workgroup; apiKey=$pamApiKey; password=$pamApiPassword } )
+            }
 
+            if ($_.type -eq "SymantecPAM") {
+                #
+                # PAM API credentials and configuration
+                #
+                $securePwd = $($_.password) | ConvertTo-SecureString
+                $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePwd)
+                $cliPassword= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
+
+                $finalConfig.Add("SymantecPAM", [PSCustomObject]@{ DNS= $_.DNS; username= $_.username; password=$cliPassword } )
             }
         }
     }

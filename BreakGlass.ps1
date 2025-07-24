@@ -12,8 +12,8 @@ History
 
 # ----------------------------------------------------------------------------------
 param (
-    [ValidateSet("PasswordSafe")]
-    [Parameter(Mandatory=$false)][String] $PAMType= "PasswordSafe",
+    [ValidateSet("PasswordSafe","SymantecPAM")]
+    [Parameter(Mandatory=$false)][String] $PAMType= "SymantecPAM",
 
     [ValidateSet("KeePassXC")]
     [Parameter(Mandatory=$false)][String] $VaultType= "KeePassXC",
@@ -48,12 +48,27 @@ if ($env:PSModulePath -notmatch ";"+$($modulePath.replace("\","\\"))+"\\modules"
 if ($(Get-Module).name -contains "Breakglass") { Remove-Module Breakglass }
 if ($(Get-Module).name -contains "KeePassXC") { Remove-Module KeePassXC }
 if ($(Get-Module).name -contains "PasswordSafe") { Remove-Module PasswordSafe }
+if ($(Get-Module).name -contains "SymantecPAM") { Remove-Module SymantecPAM }
 
-Import-Module PasswordSafe -Force
+
+if ($PAMType -eq "PasswordSafe") { Import-Module PasswordSafe -Force }
+if ($PAMType -eq "SymantecPAM") { Import-Module SymantecPAM -Force }
 Import-Module KeePassXC -Force
 Import-Module Breakglass -Force
 
+
 # ----------------------------------------------------------------------------------
+
+enum PAM_TYPE {
+	PasswordSafe
+    SymantecPAM
+}
+
+enum VAULT_TYPE {
+	KeePassXC
+}
+
+
 try {
 
     Backup-BreakglassAccounts -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Quiet:$Quiet -WhatIf:$WhatIf

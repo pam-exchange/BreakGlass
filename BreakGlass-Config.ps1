@@ -17,6 +17,13 @@ $configPasswordSafe = @{
         Workgroup= "Default Workgroup";
     }
 
+$configSymantecPAM = @{
+        type="SymantecPAM"; 
+		DNS= "192.168.242.5";
+		username= "cli_breakglass"; 
+		password= "Admin4cspm!"; 
+    }
+
 try {
     Write-Host "Credentials start, version=$($version) -----------------------------------"
 
@@ -47,11 +54,18 @@ try {
     $configPasswordSafe.apiKey= $securePassword | ConvertFrom-SecureString 
 
     #
+    # prepare configSymantecPAM
+    #
+    $securePassword= $configSymantecPAM.password | ConvertTo-SecureString -AsPlainText -Force 
+    $configSymantecPAM.password= $securePassword | ConvertFrom-SecureString 
+
+    #
     # Convert to Json and save to file
     # 
     $config= New-Object System.Collections.ArrayList
-    $config.add( $configKeePassXC )| Out-Null
-    $config.add( $configPasswordSafe )| Out-Null
+    $config.add( $configKeePassXC ) | Out-Null
+    $config.add( $configPasswordSafe ) | Out-Null
+    $config.add( $configSymantecPAM ) | Out-Null
     
     $configJson= $config | ConvertTo-Json
 
