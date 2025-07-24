@@ -1,6 +1,8 @@
 <#
-This function will lookup breakglass accounts in PAM (Password Safe), fetch the 
+This function will lookup breakglass accounts in PAM (Symantec PAM), fetch the 
 password and return a list of entries
+
+Exceptions may be thrown by underlying methods
 
 #>
 # ------------------------------------------------------------------------------------
@@ -11,20 +13,14 @@ function Find-BreakglassFromSymantecPAM {
     )
 
     $WhatIf= $false
-
     $list= New-Object System.Collections.ArrayList
 
-    try {
-        $accounts= Get-SPTargetAccount
+    $accounts= Get-SymTargetAccount
 
-        foreach ($acc in $accounts) {
-            $pwd= Get-SPTargetAccountPassword -AccountID $acc.TargetAccountID
+    foreach ($acc in $accounts) {
+        $pwd= Get-SymTargetAccountPassword -AccountID $acc.TargetAccountID
 
-            $list.add( [PSCustomObject]@{server=$($acc.TargetServerName); accountType=$($acc.TargetApplicationName); accountName=$($acc.TargetAccountName); accountPassword=$pwd} ) | Out-Null
-        }
-    } 
-    catch {
-        throw
+        $list.add( [PSCustomObject]@{server=$($acc.TargetServerName); accountType=$($acc.TargetApplicationName); accountName=$($acc.TargetAccountName); accountPassword=$pwd} ) | Out-Null
     }
 
     return $list

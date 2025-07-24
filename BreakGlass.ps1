@@ -56,19 +56,7 @@ if ($PAMType -eq "SymantecPAM") { Import-Module SymantecPAM -Force }
 Import-Module KeePassXC -Force
 Import-Module Breakglass -Force
 
-
 # ----------------------------------------------------------------------------------
-
-enum PAM_TYPE {
-	PasswordSafe
-    SymantecPAM
-}
-
-enum VAULT_TYPE {
-	KeePassXC
-}
-
-
 try {
 
     Backup-BreakglassAccounts -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Quiet:$Quiet -WhatIf:$WhatIf

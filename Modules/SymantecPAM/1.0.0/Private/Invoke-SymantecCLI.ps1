@@ -30,23 +30,23 @@ function Invoke-SymantecCLI () {
     try {
         $res= Invoke-RestMethod -Uri $url -Method Get
 
-        $statusCode= $($res.DocumentElement.statusCode)
+        $statusCode= [int]$($res.DocumentElement.statusCode)
         if ($statusCode -eq 400) {
             return ([xml]($res.DocumentElement.content.'#cdata-section')).CommandResult
         }
 
-        if ($statudCode -eq 401) {
-            $details= DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -f $($script:apiUsername)
-            throw (New-Object PasswordSafeException($EXCEPTION_NOT_AUTHORIZED, $details))
+        if ($statusCode -eq 401) {
+            $details= $DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -f $($script:cliUsername)
+            throw (New-Object SymantecPamException($EXCEPTION_NOT_AUTHORIZED, $details))
         }
         else {
             $details= $res.DocumentElement.statusMessage
-            throw (New-Object PasswordSafeException($EXCEPTION_INVALID_PARAMETER, $details))
+            throw (New-Object SymantecPamException($EXCEPTION_INVALID_PARAMETER, $details))
         }
 
     }
     catch {
-        Write-Host $_.Exception
+        #Write-Host $_.Exception
         # Invalid Hostname: $_.Exception.Message -eq "Unable to connect to the remote server"
         # URL valid: The remote server returned an error: (404) Not Found.
 

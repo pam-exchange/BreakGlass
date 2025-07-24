@@ -56,7 +56,6 @@ function Start-Breakglass (
     $Script:VaultType= $VaultType
     switch ($VaultType) 
     {
-
         "KeePassXC"
         {
             $Script:kpDatabasePath= $config[ "KeePassXC" ].databasePath

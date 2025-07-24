@@ -27,7 +27,7 @@ Author = 'PAM Exchange'
 CompanyName = 'PAM Exchange'
 
 # Copyright statement for this module
-Copyright = '(c) 2021-2025 PAM Exchange. All rights reserved.'
+Copyright = '(c) 2025 PAM Exchange. All rights reserved.'
 
 # Description of the functionality provided by this module
 # Description = ''
@@ -51,7 +51,7 @@ Copyright = '(c) 2021-2025 PAM Exchange. All rights reserved.'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @('KeePassXC', 'PasswordSafe')
+RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()

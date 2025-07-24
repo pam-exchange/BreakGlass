@@ -1,15 +1,3 @@
-<#
-enum PAM_TYPE {
-	PasswordSafe
-    SymantecPAM
-}
-
-enum VAULT_TYPE {
-	KeePassXC
-}
-
-#>
-
 # ----------------------------------------------------------------------------------
 function Backup-BreakglassAccounts {
     param (
@@ -38,7 +26,7 @@ function Backup-BreakglassAccounts {
         if (-not $Quiet -or $WhatIf) {Write-Host "Found $($pamAccounts.count) breakglass accounts in PAM" -ForegroundColor Gray}
 
         #
-        # Sync accounts from PAM with KeePassXC
+        # Sync accounts from PAM with local Vault
         #
         if (-not $Quiet -or $WhatIf) {Write-Host "Aligning PAM accounts with KeePassXC"}
         $res= Sync-BreakglassToVault -VaultType $VaultType -BreakGlassEntries $pamAccounts -CreateDatabase -Quiet:$Quiet -WhatIf:$WhatIf

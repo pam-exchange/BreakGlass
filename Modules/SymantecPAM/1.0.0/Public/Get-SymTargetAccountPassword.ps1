@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------------------
-function Get-SPTargetAccountPassword () 
+function Get-SymTargetAccountPassword () 
 {
     Param(
         [Parameter(Mandatory=$true)][int] $AccountID,
@@ -22,7 +22,7 @@ function Get-SPTargetAccountPassword ()
 		}
         catch
         {
-            Write-Host $e_.Exception
+            #Write-Host $e_.Exception
             throw
         }
     }

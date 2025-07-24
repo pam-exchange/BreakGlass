@@ -2,6 +2,17 @@ $ScriptPath = Split-Path $MyInvocation.MyCommand.Path
 $PSModule = $ExecutionContext.SessionState.Module
 $PSModuleRoot = $PSModule.ModuleBase
 
+
+enum PAM_TYPE {
+	PasswordSafe
+    SymantecPAM
+}
+
+enum VAULT_TYPE {
+	KeePassXC
+}
+
+
 #region Load Private Functions
 Try {
     if (Test-Path "$ScriptPath\Private") {

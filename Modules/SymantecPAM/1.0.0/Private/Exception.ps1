@@ -8,7 +8,7 @@ Set-Variable EXCEPTION_NOT_SINGLE -Option Constant -Value "Not single"
 
 Set-Variable DETAILS_EXCEPTION_NOT_SINGLE_01 -Option Constant -Value "Multiple elements found when using parameter '-Single'"
 Set-Variable DETAILS_EXCEPTION_NOT_FOUND_01 -Option Constant -Value "Nothing found when using parameter '-NoEmptySet'"
-Set-Variable DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -Option Constant -Value "API user '{0}' is not authorized"
+Set-Variable DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -Option Constant -Value "PAM user '{0}' is not authorized"
 
 
 Set-Variable DETAILS_FUNCTIONALACCOUNT_01 -Option Constant -Value "Functional account not found"

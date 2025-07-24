@@ -8,7 +8,7 @@ enum DETAILS {
 
 
 #--------------------------------------------------------------------------------------
-function Get-SPTargetAccount () 
+function Get-SymTargetAccount () 
 {
     Param(
 		[Alias("AccountID")]
@@ -30,11 +30,21 @@ function Get-SPTargetAccount ()
     
 	process {
 		try {
-            $res= Invoke-SymantecCLI -cmd "listTargetAccounts"
 
-            $result= $res.'cr.result'.'c.cw.m.tacs'
-            $res= $result | ForEach-Object {[PSCustomObject]@{TargetServerID=$_.'ts.id'; TargetServerName=$_.hn; TargetapplicationID=$_.'ta.id'; TargetapplicationName=$_.na; TargetAccountID=$_.'bm.id'; TargetAccountName=$_.un}}
+            if ($details -eq "COMPACT") {
 
+                $res= Invoke-SymantecCLI -cmd "listTargetAccounts"
+
+                $result= $res.'cr.result'.'c.cw.m.tacs'
+                $res= $result | ForEach-Object {[PSCustomObject]@{TargetServerID=$_.'ts.id'; TargetServerName=$_.hn; TargetapplicationID=$_.'ta.id'; TargetapplicationName=$_.na; TargetAccountID=$_.'bm.id'; TargetAccountName=$_.un}}
+
+            }
+            else {
+                #
+                # TO-DO: Detailed TargetAccount
+                # Fetch TargetApplication and TargetServer
+                [System.Collections.ArrayList]$res = @()
+            }
 
 			#
 			# Check boundary conditions
@@ -42,14 +52,14 @@ function Get-SPTargetAccount ()
             if ($NoEmptySet -and $res.Count -eq 0) {
                 $details= $DETAILS_EXCEPTION_NOT_FOUND_01
                 #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
-                throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
+                throw ( New-Object SymantecPamException( $EXCEPTION_NOT_FOUND, $details ) )
             }
 
             if ($single -and $res.Count -ne 1) {
                 # More than one managed system found with -single option 
                 $details= $DETAILS_EXCEPTION_NOT_SINGLE_01
                 #Write-PSFMessage -Level Error "Get-BTManagedSystem: Message= '$EXCEPTION_INVALID_PARAMETER', Details= '$($details)'"
-                throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_SINGLE, $details ) )
+                throw ( New-Object SymantecPamException( $EXCEPTION_NOT_SINGLE, $details ) )
             }
 
             #Write-PSFMessage -Level Debug "Found $($res2.Count) ManagedAccount (filtered)"
