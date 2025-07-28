@@ -5,11 +5,11 @@ $script:cacheManagedAccountByID= New-Object System.Collections.HashTable		# Inde
 function Get-BTManagedAccount () 
 {
     Param(
-		[Alias("AccountID")]
-        [Parameter(Mandatory=$false)][int] $ID= -1,
+		[Alias("ID")]
+        [Parameter(Mandatory=$false)][int] $AccountID= -1,
 		
-		[Alias("AccountName")]
-        [Parameter(Mandatory=$false)][string] $Name,
+		[Alias("Name")]
+        [Parameter(Mandatory=$false)][string] $AccountName,
 
         [Parameter(Mandatory=$false)][int] $SystemID= -1,			# Filter by ManagedSystem ID
         [Parameter(Mandatory=$false)][string] $SystemName,			# Filter by ManagedSystem Name
@@ -25,8 +25,6 @@ function Get-BTManagedAccount ()
     )
     
 	process {
-        #Write-PSFMessage -Level Debug "Start -- ID='$($ID)', Name='$($Name)', ManagedSystemID='$($ManagedSystemID)', ManagedSystemName='$($ManagedSystemName)', Description='$($Description)', Single='$($Single)', Refresh='$($Refresh)', NoEmptySet='$($NoEmptySet)'"
-
 		try {
 			#
 			# Fetch and build cache
@@ -35,6 +33,24 @@ function Get-BTManagedAccount ()
 				$script:cacheManagedAccountBase.Clear()
 				$script:cacheManagedAccountByID.Clear()
 				
+                #
+                # Directory accounts are found using "ManagedSystem/{ID}/ManagedAccounts"
+                #
+                $directory= Get-BTManagedSystem -PlatformName "Active Directory"
+                foreach ($d in $directory) {
+                    $res= PSafe-Get "ManagedSystems/$($d.ID)/ManagedAccounts"
+				    $res | %{
+					    $tmp= _Normalize-ManagedAccount2($_)
+
+					    $key= $tmp.ID
+					    $idx= $script:cacheManagedAccountBase.Add( $tmp ) 
+					    $script:cacheManagedAccountByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
+				    }
+                }
+
+                #
+                # Other accounts are found using "ManagedAccounts"
+                #
 				$res = PSafe-Get "ManagedAccounts";
 				$res | %{
 					$tmp= _Normalize-ManagedAccount($_)
@@ -55,39 +71,31 @@ function Get-BTManagedAccount ()
             }
 			else {
 				$res= $script:cacheManagedAccountBase
-				if ($Name -or $ManagedSystemID -or $ManagedSystemName -or $Description) {
-					#if (-not $Name) {$Name= "*")
-					#if (-not $ManagedSystemName) {$ManagedSystemName= "*")
-					#if (-not $Description) {$Description= "*"}
-					#if (-not $Workgroup) {$Workgroup= "*"}
-					# $res= $script:cacheManagedSystemBase | Where-Object {($_.name -like $Name) -and ($_.SystemName -like $ManagedSystemName) -and ($_.Description -like $Description) -and ($_.Workgroup -like $Workgroup)}
 
-					# search cache by name, hostname, description and workgroup
-					if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
-					if ($SystemID -ge 0) {$res= $res | Where-Object {$_.ManagedSystemId -eq $SystemID}}
-					if ($SystemName) {$res= $res | Where-Object {$_.ManagedSystemName -like $SystemName}}
-					#if ($Description) {$res= $res | Where-Object {$_.Description -like $Description}}
-					#if ($Workgroup) {$res= $res | Where-Object {$_.Workgroup -like $Workgroup}}
-				}
+				if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
+				if ($SystemID -ge 0) {$res= $res | Where-Object {$_.SystemId -eq $SystemID}}
+				if ($SystemName) {$res= $res | Where-Object {$_.SystemName -like $SystemName}}
+				#if ($Description) {$res= $res | Where-Object {$_.Description -like $Description}}
+				#if ($Workgroup) {$res= $res | Where-Object {$_.Workgroup -like $Workgroup}}
 			}
 
 			#
 			# Check boundary conditions
 			#
-            if ($NoEmptySet -and $res.Count -eq 0) {
+            if ($res -eq $null) {$cnt= 0}
+            elseif ($res.GetType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $res.count}
+
+            if ($NoEmptySet -and $cnt -eq 0) {
                 $details= $DETAILS_EXCEPTION_NOT_FOUND_01
-                #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
             }
 
-            if ($single -and $res.Count -ne 1) {
+            if ($single -and $cnt -ne 1) {
                 # More than one managed system found with -single option 
                 $details= $DETAILS_EXCEPTION_NOT_SINGLE_01
-                #Write-PSFMessage -Level Error "Get-BTManagedSystem: Message= '$EXCEPTION_INVALID_PARAMETER', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_SINGLE, $details ) )
             }
 
-            #Write-PSFMessage -Level Debug "Found $($res2.Count) ManagedAccount (filtered)"
             return $res
 		}
         catch
@@ -98,18 +106,14 @@ function Get-BTManagedAccount ()
                 # 404 - NotFound
                 if ($_.ErrorDetails -imatch "Managed Account not found") {
                     $details= $DETAILS_MANAGEDACCOUNT_01
-                    #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
                     throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
                 }
                 if ($_.ErrorDetails -imatch "Managed System not found") {
                     $details= $DETAILS_MANAGEDSYSTEM_01
-                    #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
                     throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
                 }
             }
-            #Write-PSFMessage -Level Error ("Exception - Type= $($_.Exception.GetType().FullName), Message= $($_.Exception.Message), Details= $($_.ErrorDetails)")
-            #Write-PSFMessage -Level Debug ($_)
-            #Write-PSFMessage -Level Debug "ScriptStackTrace:`n$($_.ScriptStackTrace)"
+
             throw
         }
     }

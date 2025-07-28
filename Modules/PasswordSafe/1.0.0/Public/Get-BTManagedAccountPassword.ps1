@@ -2,15 +2,12 @@
 function Get-BTManagedAccountPassword () 
 {
     Param(
-		[Alias("RequestID")]
-        [Parameter(Mandatory=$true)][int] $ID
+        [Parameter(Mandatory=$true)][int] $RequestID
     )
     
 	process {
-        #Write-PSFMessage -Level Debug "Start -- RequestID='$($RequestID)'"
-
 		try {
-			$pwd= PSafe-Get "Credentials/$($ID)";
+			$pwd= PSafe-Get "Credentials/$($RequestID)";
             return $pwd
 		}
         catch

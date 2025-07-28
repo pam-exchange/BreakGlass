@@ -5,6 +5,7 @@ Set-Variable EXCEPTION_NOT_FOUND -Option Constant -Value "Not found"
 Set-Variable EXCEPTION_NOT_AUTHORIZED -Option Constant -Value "Not authorized"
 #Set-Variable EXCEPTION_FORBIDDEN -Option Constant -Value "Forbidden"
 Set-Variable EXCEPTION_NOT_SINGLE -Option Constant -Value "Not single"
+Set-Variable EXCEPTION_PASSWORD_UPDATE -Option Constant -Value "Password update failed"
 
 Set-Variable DETAILS_EXCEPTION_NOT_SINGLE_01 -Option Constant -Value "Multiple elements found when using parameter '-Single'"
 Set-Variable DETAILS_EXCEPTION_NOT_FOUND_01 -Option Constant -Value "Nothing found when using parameter '-NoEmptySet'"

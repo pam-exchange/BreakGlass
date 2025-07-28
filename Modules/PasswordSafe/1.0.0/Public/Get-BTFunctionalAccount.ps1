@@ -17,8 +17,6 @@ function Get-BTFunctionalAccount ()
     )
     
 	process {
-        #Write-PSFMessage -Level Debug "Start -- ID='$($ID)', AccountName='$($AccountName)', Single='$($Single)', NoEmptySet='$($NoEmptySet)'"
-
 		try {
 			#
 			# Fetch and build cache
@@ -56,20 +54,20 @@ function Get-BTFunctionalAccount ()
 			#
 			# Check boundary conditions
 			#
-            if ($NoEmptySet -and $res.Count -eq 0) {
+            if ($res -eq $null) {$cnt= 0}
+            elseif ($res.GetType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $res.count}
+
+            if ($NoEmptySet -and $cnt -eq 0) {
                 $details= $DETAILS_EXCEPTION_NOT_FOUND_01
-                #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
             }
 
-            if ($single -and $res.Count -ne 1) {
+            if ($single -and $cnt -ne 1) {
                 # More than one managed system found with -single option 
                 $details= $DETAILS_EXCEPTION_NOT_SINGLE_01
-                #Write-PSFMessage -Level Error "Get-BTManagedSystem: Message= '$EXCEPTION_INVALID_PARAMETER', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_SINGLE, $details ) )
             }
 
-            #Write-PSFMessage -Level Debug "Found $($res2.Count) functional accounts (filtered)"
             return $res
 		}
         catch
@@ -79,10 +77,9 @@ function Get-BTFunctionalAccount ()
             if ($_.Exception.GetType().FullName -eq "System.Net.WebException" -and $_.Exception.Response.StatusCode -eq 404) {
                 #404 not found
                 $details= $DETAILS_FUNCTIONALACCOUNT_01
-                #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
             }
-            #Write-PSFMessage -Level Error ("Exception - Type= $($_.Exception.GetType().FullName), Message= $($_.Exception.Message), Details= $($_.ErrorDetails)")
+
             throw
         }
     }

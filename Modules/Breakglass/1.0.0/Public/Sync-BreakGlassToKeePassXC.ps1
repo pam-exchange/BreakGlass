@@ -6,19 +6,21 @@ with a KeePassXC database
 
 function Sync-BreakglassToKeePassXC {
     param (
-        [Parameter(Mandatory=$false)][string]$DatabasePath= $Script:kpDatabasePath,
-        [Parameter(Mandatory=$false)][string]$KeyFilePath= $Script:kpKeyFilePath,
-        [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
-        [Parameter(Mandatory=$false)][string]$Group= $Script:kpGroup,
-        [Parameter(Mandatory=$false)][switch]$CreateDatabase= $false,
+        [Parameter(Mandatory=$false)][string] $DatabasePath= $Script:kpDatabasePath,
+        [Parameter(Mandatory=$false)][string] $KeyFilePath= $Script:kpKeyFilePath,
+        [Parameter(Mandatory=$false)][string] $MasterPassword= $Script:kpMasterPassword,
+        [Parameter(Mandatory=$false)][string] $Group= $Script:kpGroup,
+        [Parameter(Mandatory=$false)][switch] $CreateDatabase= $false,
 
-        [Parameter(Mandatory=$true)][Object[]]$BreakGlassEntries,
+        [Parameter(Mandatory=$true)][Object[]] $Accounts,
 
-        [Parameter(Mandatory=$false)][switch]$Quiet= $false,
-        [Parameter(Mandatory=$false)][switch]$WhatIf= $false
+        [Parameter(Mandatory=$false)][switch] $Quiet= $false,
+        [Parameter(Mandatory=$false)][switch] $WhatIf= $false
     )
 
-    if (-not $Quiet -or $WhatIf) {
+    if ($WhatIf) {$quiet= $false}
+
+    if (-not $Quiet) {
         Write-Host "KeePassXC files and group"
         Write-Host "DatabasePath '$DatabasePath'" -ForegroundColor Gray
         Write-Host "KeyFilePath '$KeyFilePath'" -ForegroundColor Gray
@@ -47,7 +49,7 @@ function Sync-BreakglassToKeePassXC {
     # Build hash table with key using server, type and username
     #
     $bgHash= New-Object System.Collections.Hashtable
-    $BreakGlassEntries | %{
+    $Accounts | %{
 		
         $key= $($_.Server)+" | "+$($_.accountType)
         $key+= " | "+$($_.accountName)
@@ -57,7 +59,7 @@ function Sync-BreakglassToKeePassXC {
         }
         else 
         {
-            $bgHash.Add($key, [PSCustomObject]@{server=$_.server; type=$_.accountType; username=$_.accountName; password=$_.accountPassword}) | Out-Null
+            $bgHash.Add($key, [PSCustomObject]@{server=$_.server; type=$_.accountType; username=$_.accountName; password=$_.accountPassword; verified=[bool]($_.verified)}) | Out-Null
         }
     }
 
@@ -65,20 +67,24 @@ function Sync-BreakglassToKeePassXC {
     # Fetch entries for group from KeePassXC
     # Build hash table 
     #
-    if (-not $Quiet -or $WhatIf) {Write-Host "Reading accounts from KeePassXC group '$Group'"}
+    if (-not $Quiet) {Write-Host "Finding accounts from KeePassXC group '$Group'"}
     $entries= Get-KeePassXCEntry -Group $Group
-
-    if (-not $Quiet -or $WhatIf) {Write-Host "Found $($entries.count) accounts in KeePassXC" -ForegroundColor Gray}
 
     $kpHash= New-Object System.Collections.Hashtable
     $entries | %{
         $title= $_.title
+        if (-not $Quiet) {Write-Host $title -ForegroundColor Gray}
         $kpHash.Add( $title, [PSCustomObject]@{username=$_.username; password=$_.password}) | Out-Null
     }
+    if (-not $Quiet) {
+        if ($entries.getType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $entries.count}
+        Write-Host "Found '$cnt' accounts in KeePassXC" -ForegroundColor Gray
+    }
+
 
     $diff= Compare-Object @($bghash.Keys) @($kphash.Keys) -IncludeEqual -CaseSensitive  | Sort-Object InputObject
 
-    if (-not $Quiet -or $WhatIf) {Write-Host "Alining accounts from PAM with KeePassXC"}
+    if (-not $Quiet) {Write-Host "Alining accounts from PAM with KeePassXC"}
     foreach ($d in $diff) {
 
         #Write-Host $d
@@ -88,19 +94,20 @@ function Sync-BreakglassToKeePassXC {
             # Same entry from BreakGlass list and KeePassXC list is found
             #
             if ($bgHash[$d.InputObject].password -ne $kpHash[$d.InputObject].password) {
-                #Password has changed
+                # Password has changed
 
                 $title= $d.InputObject
 			    $userName= $($bgHash[$d.InputObject].username)
                 $password= $($bgHash[$d.InputObject].password)
+                $verified= $($bgHash[$d.InputObject].verified)
 
-                if ($WhatIf) {
-                    Write-Host "WhatIf: Updating '$Title'" -ForegroundColor Green
-                }
-                else {
-                    if (-not $Quiet) {Write-Host "Updating '$title'" -ForegroundColor Green}
-                    $res= Update-KeePassXCEntry -Group $Group -Title $Title -Username $userName -Password $password
-                }
+				if ($WhatIf) {
+					Write-Host "WhatIf: Updating '$Title'" -ForegroundColor Green
+				}
+				else {
+					if (-not $Quiet) {Write-Host "Updating '$title'" -ForegroundColor Green}
+					$res= Update-KeePassXCEntry -Group $Group -Title $Title -Username $userName -Password $password -Verified:$verified
+				}
             }
             else {
                 if (-not $Quiet) {Write-Host "No update '$($d.InputObject)'" -ForegroundColor Gray}
@@ -113,13 +120,14 @@ function Sync-BreakglassToKeePassXC {
             $title= $d.InputObject
 			$userName= $($bgHash[$d.InputObject].username)
 			$password= $($bgHash[$d.InputObject].password)
+            $verified= $($bgHash[$d.InputObject].verified)
 
             if ($WhatIf) {
                 Write-Host "WhatIf: Adding '$Title'" -ForegroundColor Green
             }
             else {
                 if (-not $Quiet) {Write-Host "Adding '$title'" -ForegroundColor Green}
-                $res= New-KeePassXCEntry -Group $Group -Title $Title -Username $userName -Password $password
+                $res= New-KeePassXCEntry -Group $Group -Title $Title -Username $userName -Password $password -Verified:$Verified
             }
         }
         else {

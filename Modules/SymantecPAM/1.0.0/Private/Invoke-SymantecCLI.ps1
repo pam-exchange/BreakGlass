@@ -35,9 +35,15 @@ function Invoke-SymantecCLI () {
             return ([xml]($res.DocumentElement.content.'#cdata-section')).CommandResult
         }
 
-        if ($statusCode -eq 401) {
+        if ($statusCode -eq 401 -or $statusCode -eq 22) {
             $details= $DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -f $($script:cliUsername)
             throw (New-Object SymantecPamException($EXCEPTION_NOT_AUTHORIZED, $details))
+        }
+        elseif ($statusCode -eq 5753 -or $statusCode -eq 15212) {
+            # 5753 - PAM-CM-3432: Cannot connect to a domain controller on the specified domain
+            # 15212 - PAM-CM-1341: Failed to establish a communications channel to the remote host.
+            $details= $res.DocumentElement.statusMessage
+            throw (New-Object SymantecPamException($EXCEPTION_PASSWORD_UPDATE, $details))
         }
         else {
             $details= $res.DocumentElement.statusMessage

@@ -4,13 +4,13 @@ password and return a list of entries
 
 #>
 # ------------------------------------------------------------------------------------
-function Find-BreakglassFromPasswordSafe {
+function Get-BreakglassFromPasswordSafe {
     param (
-        [Parameter(Mandatory=$false)][switch]$Quiet= $false,
-        [Parameter(Mandatory=$false)][switch]$WhatIf= $false
+        [Parameter(Mandatory=$false)][switch] $Quiet= $false,
+        [Parameter(Mandatory=$false)][switch] $WhatIf= $false
     )
 
-    $WhatIf= $false
+    if ($WhatIf) {$quiet= $false}
 
     $list= New-Object System.Collections.ArrayList
 
@@ -19,6 +19,10 @@ function Find-BreakglassFromPasswordSafe {
     # PAM smartrule will filter accounts for breakglass
     #
     $accounts= Get-BTManagedAccount
+
+    #
+    # Get all existing requests
+    #
     $requests= Get-BTRequest -Refresh
 
     #
@@ -26,6 +30,7 @@ function Find-BreakglassFromPasswordSafe {
     # it is required to have a request for fetching a password
     #
     foreach ($acc in $accounts) {
+
         #
         # Platform is the type of account, e.g. Windows, Linux, AD, MSSQL, ...
         #
@@ -49,23 +54,15 @@ function Find-BreakglassFromPasswordSafe {
             try {
                 # Find request by IDs and filter request already expired
                 $now= Get-Date
-                $req= $requests | Where-Object {($_.accountID -eq $acc.ID) -and ($_.SystemID -eq $acc.SystemId) -and ($now -lt [DateTime]$($_.ExpiresDate))}
+                $req= $requests | Where-Object {($_.accountID -eq $acc.AccountID) -and ($now -lt [DateTime]$($_.ExpiresDate))}
 
-                if ($WhatIf) {
-                    Write-Host "WhatIf: Fetch password for '$($acc.Name)' on '$($acc.SystemName)'"  -ForegroundColor Gray
-                    $pwd= "WhatIf-Password"
+                if (-not $req) {
+                    $reqID= New-BTRequest -AccountID $acc.AccountID -SystemID $acc.SystemID -Duration 15
+                } else {
+                    $reqID= $req.RequestID
                 }
-                else {
-                    if (-not $Quiet) {Write-Host "Fetch password for '$($acc.SystemName) | $platformName | $($acc.Name)'" -ForegroundColor Gray}
 
-                    if (-not $req) {
-                        $reqID= New-BTRequest -AccountID $acc.ID -SystemID $acc.SystemId -Duration 1
-                    } else {
-                        $reqID= $req.RequestID
-                    }
-
-                    $pwd= Get-BTManagedAccountPassword -RequestID $reqID
-                }
+                $pwd= Get-BTManagedAccountPassword -RequestID $reqID
                 break
             } 
             catch {
@@ -78,7 +75,7 @@ function Find-BreakglassFromPasswordSafe {
             }
         } while ($true)
 
-        $list.add( [PSCustomObject]@{server=$($acc.SystemName); accountType=$platformName; accountName=$($acc.Name); accountPassword=$pwd} ) | Out-Null
+        $list.add( [PSCustomObject]@{server=$($acc.SystemName); accountType=$platformName; accountID=$($acc.AccountID); accountName=$($acc.AccountName); accountPassword=$pwd; verified=$($acc.Verified)} ) | Out-Null
     }
 
     return $list

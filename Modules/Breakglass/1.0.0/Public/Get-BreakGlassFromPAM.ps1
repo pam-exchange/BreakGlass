@@ -6,7 +6,7 @@ password and return a list of entries
 
 
 # ------------------------------------------------------------------------------------
-function Find-BreakglassFromPAM {
+function Get-BreakglassFromPAM {
     param (
         [Parameter(Mandatory=$false)][PAM_TYPE] $PAMType= "PasswordSafe",
 
@@ -14,17 +14,17 @@ function Find-BreakglassFromPAM {
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
     )
 
-    $WhatIf= $false
+    if ($WhatIf) {$quiet= $false}
 
     switch ($PAMType) 
     {
         "PasswordSafe" 
         {
-            return Find-BreakglassFromPasswordSafe -Quiet:$Quiet -WhatIf:$WhatIf
+            return Get-BreakglassFromPasswordSafe -Quiet:$Quiet -WhatIf:$WhatIf
         }
         "SymantecPAM" 
         {
-            return Find-BreakglassFromSymantecPAM -Quiet:$Quiet -WhatIf:$WhatIf
+            return Get-BreakglassFromSymantecPAM -Quiet:$Quiet -WhatIf:$WhatIf
         }
     }
 }

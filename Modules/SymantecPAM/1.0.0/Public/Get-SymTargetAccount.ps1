@@ -36,7 +36,7 @@ function Get-SymTargetAccount ()
                 $res= Invoke-SymantecCLI -cmd "listTargetAccounts"
 
                 $result= $res.'cr.result'.'c.cw.m.tacs'
-                $res= $result | ForEach-Object {[PSCustomObject]@{TargetServerID=$_.'ts.id'; TargetServerName=$_.hn; TargetapplicationID=$_.'ta.id'; TargetapplicationName=$_.na; TargetAccountID=$_.'bm.id'; TargetAccountName=$_.un}}
+                $res= $result | ForEach-Object {[PSCustomObject]@{TargetServerID=$_.'ts.id'; TargetServerName=$_.hn; TargetapplicationID=$_.'ta.id'; TargetapplicationName=$_.na; TargetAccountID=$_.'bm.id'; TargetAccountName=$_.un; Verified=([System.convert]::ToBoolean($_.pv))}}
 
             }
             else {
@@ -49,20 +49,20 @@ function Get-SymTargetAccount ()
 			#
 			# Check boundary conditions
 			#
-            if ($NoEmptySet -and $res.Count -eq 0) {
+            if ($res -eq $null) {$cnt= 0}
+            elseif ($res.GetType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $res.count}
+
+            if ($NoEmptySet -and $cnt -eq 0) {
                 $details= $DETAILS_EXCEPTION_NOT_FOUND_01
-                #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
-                throw ( New-Object SymantecPamException( $EXCEPTION_NOT_FOUND, $details ) )
+                throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
             }
 
-            if ($single -and $res.Count -ne 1) {
+            if ($single -and $cnt -ne 1) {
                 # More than one managed system found with -single option 
                 $details= $DETAILS_EXCEPTION_NOT_SINGLE_01
-                #Write-PSFMessage -Level Error "Get-BTManagedSystem: Message= '$EXCEPTION_INVALID_PARAMETER', Details= '$($details)'"
-                throw ( New-Object SymantecPamException( $EXCEPTION_NOT_SINGLE, $details ) )
+                throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_SINGLE, $details ) )
             }
 
-            #Write-PSFMessage -Level Debug "Found $($res2.Count) ManagedAccount (filtered)"
             return $res
 		}
         catch

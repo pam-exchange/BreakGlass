@@ -19,8 +19,6 @@ function New-BTRequest () {
     )
     
 	process {
-        #Write-PSFMessage -Level Debug "Start -- ID='$($ID)', Name='$($Name)', Single='$($Single)', Refresh='$($Refresh)', NoEmptySet='$($NoEmptySet)'"
-
 		try {
 
             if ($SystemName -and -not $SystemID -ge 0) {
@@ -48,12 +46,7 @@ function New-BTRequest () {
                 $reqID = PSafe-Post "Requests" $body;
             
                 <#
-                TO-DO
-
-                Update request cache to indicate that a request is available, but without details
-
-				$req= Get-BTRequest -Refresh
-
+                TO-DO: Caching?
                 #>
 
 
@@ -71,12 +64,9 @@ function New-BTRequest () {
             if ($_.Exception.GetType().FullName -eq "System.Net.WebException" -and $_.Exception.Response.StatusCode -eq 404) {
                 #404 not found
                 $details= $DETAILS_REQUEST_02 -f $SystemID, $AccountID
-                #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
             }
 
-            # something else happened
-            #Write-PSFMessage -Level Error ("Exception - Type= $($_.Exception.GetType().FullName), Message= $($_.Exception.Message), Details= $($_.ErrorDetails)")
             throw
         }
     }

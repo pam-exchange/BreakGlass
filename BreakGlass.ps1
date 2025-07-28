@@ -13,12 +13,12 @@ History
 # ----------------------------------------------------------------------------------
 param (
     [ValidateSet("PasswordSafe","SymantecPAM")]
-    [Parameter(Mandatory=$false)][String] $PAMType= "SymantecPAM",
-
+    [Parameter(Mandatory=$false)][String] $PAMType= "PasswordSafe",
     [ValidateSet("KeePassXC")]
     [Parameter(Mandatory=$false)][String] $VaultType= "KeePassXC",
-
     [Parameter(Mandatory=$false)][string] $ConfigPath= "c:\temp",
+
+    [Parameter(Mandatory=$false)][switch] $Update= $true,
 
     [Parameter(Mandatory=$false)][switch] $Quiet= $false,
     [Parameter(Mandatory=$false)][switch] $WhatIf= $false
@@ -59,7 +59,7 @@ Import-Module Breakglass -Force
 # ----------------------------------------------------------------------------------
 try {
 
-    Backup-BreakglassAccounts -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Quiet:$Quiet -WhatIf:$WhatIf
+    Backup-BreakglassAccounts -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
 
 } 
 catch {

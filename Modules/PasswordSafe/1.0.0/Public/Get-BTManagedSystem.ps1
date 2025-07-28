@@ -10,6 +10,9 @@ function Get-BTManagedSystem ()
         [Alias("SystemName")]
         [Parameter(Mandatory=$false)][string] $Name,
 		
+        [Parameter(Mandatory=$false)][int] $PlatformID= -1,
+        [Parameter(Mandatory=$false)][string] $PlatformName,
+		
         [Alias("DnsName")]
         [Parameter(Mandatory=$false)][string] $Hostname,
         [Parameter(Mandatory=$false)][string] $Description,
@@ -30,8 +33,6 @@ function Get-BTManagedSystem ()
     )
     
 	process {
-		#Write-PSFMessage -Level Debug "Start -- ID='$($ID)', Name='$($Name)', Hostname='$($Hostname)', Description='$($Description)', Workgroup='$($Workgroup)', AssetID='$($AssetID)', AssetName='$($AssetName)', Limit='$($Limit)', Offset='$($Offset)', Single='$($Single)', Refresh='$($Refresh)', NoEmptySet='$($NoEmptySet)'"
-
 		try {
 			#
 			# Fetch and build cache
@@ -60,45 +61,44 @@ function Get-BTManagedSystem ()
             }
 			else {
 				$res= $script:cacheManagedSystemBase
-				if ($Name -or $Hostname -or $Description -or $Workgroup -or $AssetName -or $AssetID) {
-					# Apply filter
 					
-					if ($AssetName -and $AssetID -lt 0) {
-						# Find asset by name
-						$asset= Get-BTAsset -Name $AssetName -Single
-						$AssetID= $asset.ID
-					}
+                if ($platformID -eq -1 -and $PlatformName) {
+                    $platform= Get-BTPlatform -Name $PlatformName -Single
+                    $platformID= $platform.ID
+                }
 
-					if ($AssetID -ge 0) {
-						$res= $res | Where-Object { $_.AssetID -eq $AssetID }
-					}
-					else {
-						# search cache by name, hostname, description and workgroup
-						if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
-						if ($Hostname) {$res= $res | Where-Object {$_.DnsName -like $Hostname}}
-						if ($Description) {$res= $res | Where-Object {$_.Description -like $Description}}
-						if ($Workgroup) {$res= $res | Where-Object {$_ -like $Workgroup}}
-					}
+				if ($AssetName -and $AssetID -lt 0) {
+					# Find asset by name
+					$asset= Get-BTAsset -Name $AssetName -Single
+					$AssetID= $asset.ID
 				}
+
+    			if ($AssetID -ge 0) {$res= $res | Where-Object {$_.AssetID -eq $AssetID}}
+				if ($PlatformID -ge 0) {$res= $res | Where-Object {$_.PlatformID -eq $PlatformID}}
+
+				if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
+				if ($Hostname) {$res= $res | Where-Object {$_.DnsName -like $Hostname}}
+				if ($Description) {$res= $res | Where-Object {$_.Description -like $Description}}
+				if ($Workgroup) {$res= $res | Where-Object {$_ -like $Workgroup}}
 			}
 
 			#
 			# Check boundary conditions
 			#
-            if ($NoEmptySet -and $res.Count -eq 0) {
+            if ($res -eq $null) {$cnt= 0}
+            elseif ($res.GetType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $res.count}
+
+            if ($NoEmptySet -and $cnt -eq 0) {
                 $details= $DETAILS_EXCEPTION_NOT_FOUND_01
-                #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
             }
 
-            if ($single -and $res.Count -ne 1) {
+            if ($single -and $cnt -ne 1) {
                 # More than one managed system found with -single option 
                 $details= $DETAILS_EXCEPTION_NOT_SINGLE_01
-                #Write-PSFMessage -Level Error "Get-BTManagedSystem: Message= '$EXCEPTION_INVALID_PARAMETER', Details= '$($details)'"
                 throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_SINGLE, $details ) )
             }
 
-            #Write-PSFMessage -Level Debug "Found $($res2.Count) ManagedSystem (filtered)"
             return $res
 		}
         catch
@@ -109,12 +109,9 @@ function Get-BTManagedSystem ()
                 # 404 - NotFound
                 if ($_.ErrorDetails -imatch "Managed System not found") {
                     $details= $DETAILS_MANAGEDSYSTEM_01
-                    #Write-PSFMessage -Level Error "Message= '$EXCEPTION_NOT_FOUND', Details= '$($details)'"
                     throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_FOUND, $details ) )
                 }
             }
-            #Write-PSFMessage -Level Error ("Exception - Type= $($_.Exception.GetType().FullName), Message= $($_.Exception.Message), Details= $($_.ErrorDetails)")
-            #Write-PSFMessage -Level Debug -Message "ScriptStackTrace:`n$($_.ScriptStackTrace)"
             throw
         }
     }
