@@ -2,7 +2,7 @@
 function Start-KeePassXC {
 	Param (
 		[Parameter(Mandatory=$true)][string]$DatabasePath,
-		[Parameter(Mandatory=$true)][string]$KeyFilePath,
+		[Parameter(Mandatory=$false)][string]$KeyFilePath,
 		[Parameter(Mandatory=$true)][string]$MasterPassword,
 		[Parameter(Mandatory=$true)][string]$Group,
 		

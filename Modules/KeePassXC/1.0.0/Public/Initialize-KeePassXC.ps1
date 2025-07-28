@@ -1,7 +1,7 @@
 function Initialize-KeePassXC {
     param (
         [Parameter(Mandatory=$true)][string]$DatabasePath,
-        [Parameter(Mandatory=$true)][string]$KeyFilePath,
+        [Parameter(Mandatory=$false)][string]$KeyFilePath,
         [Parameter(Mandatory=$true)][string]$MasterPassword,
         [Parameter(Mandatory=$false)][string]$KeyPassProgram= "c:\program files\Keepassxc\keepassxc-cli.exe",
         [Parameter(Mandatory=$false)][switch]$CreateDatabase= $false,
@@ -43,7 +43,7 @@ function Initialize-KeePassXC {
             throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
         }
 
-        if (-not (Test-Path -Path $KeyFilePath)) {
+        if ($KeyFilePath -and -not (Test-Path -Path $KeyFilePath)) {
             $msg= "Key file is not found '$KeyfilePath'"
             if (-not $Quiet) {Write-Host $msg -ForegroundColor Yellow}
             throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
@@ -51,7 +51,7 @@ function Initialize-KeePassXC {
     }
 
 
-    if ($createDatabase -and (-not (Test-Path -Path $DatabasePath) -or -not (Test-Path -Path $KeyFilePath))) {
+    if ($createDatabase -and (-not (Test-Path -Path $DatabasePath) -or ($KeyFilePath -and -not (Test-Path -Path $KeyFilePath)) )) {
         # 
         # Either database or keyfile (or both) is missing, remove the other
         # Create new database
@@ -62,7 +62,7 @@ function Initialize-KeePassXC {
                     Write-Host "WhatIf: Removing database file '$DatabasePath'" -ForegroundColor Gray
                 }
                 else {
-                    if (-not $Quiet) {Write-Host "Remove existing database file '$Database'" -ForegroundColor Gray}
+                    if (-not $Quiet) {Write-Host "Remove existing database file '$DatabasePath'" -ForegroundColor Gray}
                     Remove-Item -Path $DatabasePath -ErrorAction Stop
                 }
             }
@@ -81,32 +81,35 @@ function Initialize-KeePassXC {
             }
         }
 
-        if (Test-Path -Path $KeyFilePath) {
-            try {
-                if ($WhatIf) {
-                    Write-Host "WhatIf: Removing KeyFile '$KeyFilePath'" -ForegroundColor Gray
-                }
-                else {
-                    if (-not $Quiet) {Write-Host "Remove existing key file '$KeyFilePath'" -ForegroundColor Gray}
-                    Remove-Item -Path $KeyFilePath -ErrorAction Stop
-                }
-            }
-            catch {
-                $msg= "Insufficient permissions to remove file '$KeyFilePath'"
-                throw ( New-Object KeePassXCException( $EXCEPTION_NOT_AUTHORIZED, $msg))
-            }
-        }
-        else 
-        {
-            $checkPath= Split-Path $KeyFilePath -Parent        
-            if (-not (Test-Path -Path $checkPath)) {
-                $msg= "The path specified is not found '$KeyFilePath'"
-                if ($Verbose) {Write-Host $msg -ForegroundColor Yellow}
-                throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
-            }
-        }
-
-        $res= New-KeePassXCDatabase -DatabasePath $DatabasePath -KeyFilePath $KeyFilePath -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
+		if ($KeyFilePath) {
+			if (Test-Path -Path $KeyFilePath) {
+				try {
+					if ($WhatIf) {
+						Write-Host "WhatIf: Removing KeyFile '$KeyFilePath'" -ForegroundColor Gray
+					}
+					else {
+						if (-not $Quiet) {Write-Host "Remove existing key file '$KeyFilePath'" -ForegroundColor Gray}
+						Remove-Item -Path $KeyFilePath -ErrorAction Stop
+					}
+				}
+				catch {
+					$msg= "Insufficient permissions to remove file '$KeyFilePath'"
+					throw ( New-Object KeePassXCException( $EXCEPTION_NOT_AUTHORIZED, $msg))
+				}
+			}
+			else 
+			{
+				$checkPath= Split-Path $KeyFilePath -Parent        
+				if (-not (Test-Path -Path $checkPath)) {
+					$msg= "The path specified is not found '$KeyFilePath'"
+					if ($Verbose) {Write-Host $msg -ForegroundColor Yellow}
+					throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
+				}
+			}
+			$res= New-KeePassXCDatabase -DatabasePath $DatabasePath -KeyFilePath $KeyFilePath -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
+		} else {
+			$res= New-KeePassXCDatabase -DatabasePath $DatabasePath -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
+		}
     }
 
     $Script:kpDatabasePath= $DatabasePath

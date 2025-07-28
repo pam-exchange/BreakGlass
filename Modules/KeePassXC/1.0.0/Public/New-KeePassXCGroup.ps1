@@ -15,7 +15,11 @@ function New-KeePassXCGroup {
         throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
     }
 
-	$msg= $MasterPassword | keepassxc-cli mkdir --key-file $KeyFilePath $DatabasePath "$Group" 2>&1
+	if ($KeyFilePath) {
+		$msg= $MasterPassword | keepassxc-cli mkdir --key-file $KeyFilePath $DatabasePath "$Group" 2>&1
+	} else {
+		$msg= $MasterPassword | keepassxc-cli mkdir $DatabasePath "$Group" 2>&1
+	}
 
     return Test-Message($msg)
 }

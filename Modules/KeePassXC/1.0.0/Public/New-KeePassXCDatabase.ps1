@@ -12,6 +12,10 @@ function New-KeePassXCDatabase {
         Write-Host "Creating database '$DatabasePath'" -ForegroundColor Green
     }
 
-    $msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-key-file $KeyFilePath --set-password $DatabasePath 2>&1
+	if ($KeyFilePath) {
+		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-key-file $KeyFilePath --set-password $DatabasePath 2>&1
+	} else {
+		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-password $DatabasePath 2>&1
+	}
     return Test-Message($msg)
 }

@@ -15,7 +15,11 @@ function Remove-KeePassXCGroup {
         throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
     }
 
-    $msg= $MasterPassword | keepassxc-cli rmdir --key-file $KeyFilePath $DatabasePath $Group 2>&1
+    if ($KeyPassPath) {
+		$msg= $MasterPassword | keepassxc-cli rmdir --key-file $KeyFilePath $DatabasePath $Group 2>&1
+	} else {
+		$msg= $MasterPassword | keepassxc-cli rmdir $DatabasePath $Group 2>&1
+	}
 
 	return Test-Message($msg)
 }

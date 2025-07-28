@@ -19,7 +19,11 @@ function Test-KeePassXCGroup {
     # Using "ls" without a group name will return a list of entries at root level
     # Group names are with suffix "/"
     #
-	$msg= $MasterPassword | keepassxc-cli ls --key-file $KeyFilePath $DatabasePath 2>&1
+	if ($KeyFilePath) {
+		$msg= $MasterPassword | keepassxc-cli ls --key-file $KeyFilePath $DatabasePath 2>&1
+	} else {
+		$msg= $MasterPassword | keepassxc-cli ls $DatabasePath 2>&1
+	}
 
     #
     # First test if there is an error
