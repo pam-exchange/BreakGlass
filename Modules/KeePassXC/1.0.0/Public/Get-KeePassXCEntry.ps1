@@ -20,17 +20,24 @@ function Get-KeePassXCEntry {
         # Fetch one entry
         #
 		if ($KeyFilePath) {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --key-file $KeyFilePath $DatabasePath "$Group/$Title" 2>&1
+			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFilePath $DatabasePath "$Group/$Title" 2>&1
 		} else {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password $DatabasePath "$Group/$Title" 2>&1
+			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabasePath "$Group/$Title" 2>&1
 		}
 
-        if ($e.length -ne 4) {
+        if ($e.length -lt 4) {
             # Array with length 4 is expected
             Test-Message($e)
         }
 
-        return [PSCustomObject]@{title=$e[1]; username=$e[2]; password=$e[3]}
+        if ($e[4] -match "-----") {
+            $password= ($e[4..($e.length-1)] -join "`n").Trim()
+        } 
+        else {
+            $password= $e[3]
+        }
+
+        return [PSCustomObject]@{title=$e[1]; username=$e[2]; password=$password}
     }
 
     #
@@ -40,7 +47,7 @@ function Get-KeePassXCEntry {
 
     # 
     # If the group is empty the list returned is everything from KeePassXC
-    # this cludes groups, entries from groups, and empth
+    # this includes groups, entries from groups, and empth
     # ignore all except entries from root level
     #
 	if ($KeyFilePath) {
@@ -53,17 +60,24 @@ function Get-KeePassXCEntry {
 
     foreach ($t in $list) {
 		if ($KeyfilePath) {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --key-file $KeyFilePath $DatabasePath "$Group/$t" 2>&1
+			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFilePath $DatabasePath "$Group/$t" 2>&1
 		} else {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password $DatabasePath "$Group/$t" 2>&1
+			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabasePath "$Group/$t" 2>&1
 		}
 
-        if ($e.length -ne 4) {
+        if ($e.length -lt 4) {
             # Array with length 4 is expected
             Test-Message($e)
         }
 
-        $entries.Add([PSCustomObject]@{title=$e[1]; username=$e[2]; password=$e[3]}) | Out-Null
+        if ($e[4] -match "-----") {
+            $password= ($e[4..($e.length-1)] -join "`n").Trim()
+        } 
+        else {
+            $password= $e[3]
+        }
+
+        $entries.Add([PSCustomObject]@{title=$e[1]; username=$e[2]; password=$password}) | Out-Null
     }
 
     return $entries

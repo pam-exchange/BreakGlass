@@ -62,7 +62,7 @@ function Get-BreakglassFromPasswordSafe {
                     $reqID= $req.RequestID
                 }
 
-                $pwd= Get-BTManagedAccountPassword -RequestID $reqID
+                $pwd= Get-BTManagedAccountPassword -RequestID $reqID -useDSS:$acc.useDSS
                 break
             } 
             catch {

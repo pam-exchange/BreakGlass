@@ -2,12 +2,19 @@
 function Get-BTManagedAccountPassword () 
 {
     Param(
-        [Parameter(Mandatory=$true)][int] $RequestID
+        [Parameter(Mandatory=$true)][int] $RequestID,
+        [Parameter(Mandatory=$false)][switch]$useDSS
     )
     
 	process {
 		try {
-			$pwd= PSafe-Get "Credentials/$($RequestID)";
+
+            if ($useDSS) {
+                $pwd= PSafe-Get "Credentials/$($RequestID)?type=dsskey"
+            }
+            else {
+			    $pwd= PSafe-Get "Credentials/$($RequestID)"
+            }
             return $pwd
 		}
         catch

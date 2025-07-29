@@ -59,7 +59,7 @@ function Sync-BreakglassToKeePassXC {
         }
         else 
         {
-            $bgHash.Add($key, [PSCustomObject]@{server=$_.server; type=$_.accountType; username=$_.accountName; password=$_.accountPassword; verified=[bool]($_.verified)}) | Out-Null
+            $bgHash.Add($key, [PSCustomObject]@{server=$_.server; type=$_.accountType; username=$_.accountName; password=$_.accountPassword.Trim(); verified=[bool]($_.verified)}) | Out-Null
         }
     }
 
@@ -74,7 +74,7 @@ function Sync-BreakglassToKeePassXC {
     $entries | %{
         $title= $_.title
         if (-not $Quiet) {Write-Host $title -ForegroundColor Gray}
-        $kpHash.Add( $title, [PSCustomObject]@{username=$_.username; password=$_.password}) | Out-Null
+        $kpHash.Add( $title, [PSCustomObject]@{username=$_.username; password=$_.password.Trim()}) | Out-Null
     }
     if (-not $Quiet) {
         if ($entries.getType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $entries.count}

@@ -59,6 +59,26 @@ function Get-BTManagedAccount ()
 					$idx= $script:cacheManagedAccountBase.Add( $tmp ) 
 					$script:cacheManagedAccountByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
 				}
+
+                #
+                # Need to query each system where Breakglass account
+                # exist to get more details about the account.
+                #
+                # To-Do: Filter by platformType to limit the search
+                # on systems where SSH keys are possible, e.g. Linux, UNIX, ...
+                #
+                #$platform= Get-BTPlatform -Name Linux -NoEmptySet
+                $msIDs= ($res | Select-Object SystemID -Unique).SystemID
+                foreach ($msID in $msIDs) {
+                    $res= PSafe-Get "ManagedSystems/$msID/ManagedAccounts";
+                    $res | Where-Object {$_.DSSAutoManagementFlag} | %{
+                        #
+                        # Not normalized and AccountID is named ManagedAccountID
+                        #
+                        $idx= $script:cacheManagedAccountByID[ $_.ManagedAccountId ]
+                        $script:cacheManagedAccountBase[ $idx ].useDSS= $true
+                    }
+                }
 			}
 
 			#

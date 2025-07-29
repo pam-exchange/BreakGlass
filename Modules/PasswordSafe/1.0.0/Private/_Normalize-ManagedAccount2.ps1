@@ -12,6 +12,7 @@ function _Normalize-ManagedAccount2 () {
     $tmp | Add-Member -MemberType NoteProperty -Name 'Name' -Value $org.AccountName
     $tmp | Add-Member -MemberType NoteProperty -Name 'SystemID' -Value $org.ManagedSystemID
     $tmp | Add-Member -MemberType NoteProperty -Name 'SystemName' -Value $org.domainName
+    $tmp | Add-Member -MemberType NoteProperty -Name 'useDSS' -Value $false
 
     $tmp.psobject.Properties.Remove('ManagedAccountID')
     #$tmp.psobject.Properties.Remove('AccountName')
