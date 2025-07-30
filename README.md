@@ -21,7 +21,7 @@ This is what this Powershell script is about.
 
 ## How it works
 
-The main script Beeakglass.ps1 is a Powershell (v5.1), which is fetching account information including password/SSH private key from PAM and store them in a local vault. If there are entries in the local vault no longer in PAM, they are removed from the local vault. New and changed breakglass accounts in PAM are added/updated in the local vault.
+The main script Beeakglass.ps1 is a Powershell, which is fetching account information including password/SSH private key from PAM and store them in a local vault. If there are entries in the local vault no longer in PAM, they are removed from the local vault. New and changed breakglass accounts in PAM are added/updated in the local vault.
 
 An example is shown here
 
@@ -104,4 +104,31 @@ There are seperate documents for configuration in [Password Safe](Docs/PasswordS
 
 ## Content
 
-The two scripts `break
+The two scripts `breakglass` and `breakglass-config` uses modules found in the \/modules folder.
+The modules are:
+
+**Breakglass**  
+Methods found in this module is providing logic for fetching breakglass accounts from PAM and writing the changes to KeePassXC.
+
+**KeePassXC**  
+Functions to read and write information to KeePassXC. The module uses the keepassxc-cli command for it's operation.
+
+**PasswordSafe**  
+Basic functions to read managed systems, managed accounts and more, as well as function to request a password/DSS key update for a Managed Account. The module is not a generic interface to Password Safe and limited to the necessary functionality.
+
+**SymantecPAM**  
+Very basic set of funcitons to read Target Account information and request a password/SSH key update. The module is not a generic interface to Symantec PAM and limited to the necessary functionality.
+
+
+## Tool chain
+
+There is nothing special required for using the `Breakglass` script. Download or clone the files from Github. It will contain the necessary scripts required.
+
+The scripts have been tested using:
+
+- Windows 11 and Windows 2016
+- Powershell (version 5.1)
+- KeePassXC (version 2.7.9)
+- BeyondTrust Password Safe (version 25.1)
+- Symantec PAM (version 4.2.0)
+
