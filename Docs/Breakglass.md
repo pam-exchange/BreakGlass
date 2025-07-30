@@ -1,5 +1,5 @@
 # Breakglass and PAM
-![](/Docs/Breakglass-key.png){width=100}  Privileged Access Management (PAM) is used in many organizations to establish and control access to servers and applications as a user with elevated privileges, i.e. an administrator. Ideally the login process to the server or application is performed automatically without revealing it to the user. Other security measures like session recording and automatic credentials rotation are typically built-in capabilities.
+Privileged Access Management (PAM) is used in many organizations to establish and control access to servers and applications as a user with elevated privileges, i.e. an administrator. Ideally the login process to the server or application is performed automatically without revealing it to the user. Other security measures like session recording and automatic credentials rotation are typically built-in capabilities.
 
 A natural question to ask is “How to gain access to servers and application when PAM is not available?”
 This is called Break glass or Emergency access to systems, and it is crucial for any critical system in an organization. Privileged Access Management solutions are critical for privileged access to onboarded systems, and it is therefore extremely important to consider emergency access in different disaster scenarios.
