@@ -31,6 +31,24 @@ function Sync-BreakglassToKeePassXC {
         $res= Initialize-KeePassXC -DatabasePath $DatabasePath -KeyFilePath $KeyFilePath -MasterPassword $MasterPassword -CreateDatabase:$CreateDatabase -Verbose:$Verbose -WhatIf:$WhatIf
     }
 
+    # 
+    # If a valid entry is found in "Recycle Bin" it is seen as 
+    # already available in KeePassXC.
+    # Just remove "Recycle Bin"
+    #
+    if (Test-KeePassXCGroup -Group "Recycle Bin"){
+        if ($WhatIf) {
+            Write-Host "Removing 'Recycle Bin'" -ForegroundColor Green
+        }
+        else {
+            if (-not $Quiet) {Write-Host "Removing 'Recycle Bin'" -ForegroundColor Gray}
+            $res= Remove-KeePassXCGroup -Group "/Recycle Bin"
+        }
+    }
+
+    #
+    # Now proceed without "Recycle Bin" being around
+    #
     if ($Group) {
         $Group= $Group.Trim(" /")
 
@@ -84,7 +102,7 @@ function Sync-BreakglassToKeePassXC {
 
     $diff= Compare-Object @($bghash.Keys) @($kphash.Keys) -IncludeEqual -CaseSensitive  | Sort-Object InputObject
 
-    if (-not $Quiet) {Write-Host "Alining accounts from PAM with KeePassXC"}
+    if (-not $Quiet) {Write-Host "Aligning accounts from PAM with KeePassXC"}
     foreach ($d in $diff) {
 
         #Write-Host $d
@@ -154,7 +172,7 @@ function Sync-BreakglassToKeePassXC {
             Write-Host "WhatIf: Removing 'Recycle Bin'" -ForegroundColor Green
         }
         else {
-            if (-not $Quiet) {Write-Host "Removing 'Recycle Bin'" -ForegroundColor Green}
+            if (-not $Quiet) {Write-Host "Removing 'Recycle Bin'" -ForegroundColor Gray}
             $res= Remove-KeePassXCGroup -Group "Recycle Bin"
         }
     } catch {}
