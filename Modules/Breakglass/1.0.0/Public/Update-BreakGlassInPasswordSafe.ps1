@@ -16,7 +16,7 @@ function Update-BreakglassInPasswordSafe {
 
     if ($WhatIf) {$quiet= $false}
 
-    $requests= Get-BTRequest -Refresh
+    $requests= Get-PwsRequest -Refresh
 
     #
     # loop through all accounts and fetch password for each.
@@ -27,8 +27,24 @@ function Update-BreakglassInPasswordSafe {
         #
         # Update password and fetch the new password
         #
-        $res= Update-BTManagedAccountPassword -AccountID $acc.AccountID -Password $Password
+        try {
+            if ($WhatIf) {Write-Host "WhatIf: " -ForegroundColor Green -NoNewline}
+            if (-not $Quiet) {Write-Host "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -NoNewline -ForegroundColor Gray }
 
+            if (-not $WhatIf) {
+                $res= Update-PwsManagedAccountPassword -AccountID $acc.AccountID -Password $Password
+            }
+
+            if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
+        }
+        catch {
+            if (-not $Quiet) {Write-Host "Password not updated" -ForegroundColor Yellow}
+            continue
+        }
+        if ($WhatIf) {
+            # No need to fetch the new password
+            continue
+        }
 
         $cnt= 0
         do {
@@ -51,12 +67,12 @@ function Update-BreakglassInPasswordSafe {
                 $req= $requests | Where-Object {($_.accountID -eq $acc.AccountID) -and ($now -lt [DateTime]$($_.ExpiresDate))}
 
                 if (-not $req) {
-                    $reqID= New-BTRequest -AccountID $acc.ID -SystemID $acc.SystemId -Duration 15
+                    $reqID= New-PwsRequest -AccountID $acc.ID -SystemID $acc.SystemId -Duration 15
                 } else {
                     $reqID= $req.RequestID
                 }
 
-                $pwd= Get-BTManagedAccountPassword -RequestID $reqID
+                $pwd= Get-PwsManagedAccountPassword -RequestID $reqID
                 $acc.accountPassword= $pwd
                 break
             } 

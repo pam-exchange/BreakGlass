@@ -55,22 +55,21 @@ function PSafe-RestMethod([string]$method, [string]$api, $body)
 {
     $uri= "$($script:apiUrl)$api"
     
-    $local:attempt= 1
-    while ($true) {
+#    $local:attempt= 1
+#    while ($true) {
         try {
             $res= Invoke-RestMethod -Uri $uri -Method $method -WebSession $Script:session -Headers $script:PSheaders -Body $body
             return $res
         }
         catch {
-            if ($local:attempt -le 5) {
-                #Write-PSFMessage -Level Debug "PSSafe-RestMethod: attempt= $($local:attempt), uri= $uri, Exception= $_"
-                $local:attempt+= 1
-                Start-Sleep -Milliseconds 250
-                continue
-            }
+#            if ($local:attempt -le 5) {
+#                $local:attempt+= 1
+#                Start-Sleep -Milliseconds 250
+#                continue
+#            }
             throw
         }
-    }
+#    }
 }
 
 #--------------------------------------------------------------------------------------

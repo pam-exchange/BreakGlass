@@ -13,7 +13,7 @@ History
 # ----------------------------------------------------------------------------------
 param (
     [ValidateSet("PasswordSafe","SymantecPAM")]
-    [Parameter(Mandatory=$false)][String] $PAMType= "SymantecPAM",
+    [Parameter(Mandatory=$false)][String] $PAMType= "PasswordSafe",
     [ValidateSet("KeePassXC")]
     [Parameter(Mandatory=$false)][String] $VaultType= "KeePassXC",
     [Parameter(Mandatory=$false)][string] $ConfigPath= "c:\temp",

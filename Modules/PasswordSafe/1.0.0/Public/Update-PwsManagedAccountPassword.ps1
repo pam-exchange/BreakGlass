@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------------------
-function Update-BTManagedAccountPassword () 
+function Update-PwsManagedAccountPassword () 
 {
     Param(
         [Parameter(Mandatory=$true)][int] $AccountID,

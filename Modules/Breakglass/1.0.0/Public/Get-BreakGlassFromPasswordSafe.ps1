@@ -18,12 +18,12 @@ function Get-BreakglassFromPasswordSafe {
     # Get all breakglass accounts
     # PAM smartrule will filter accounts for breakglass
     #
-    $accounts= Get-BTManagedAccount
+    $accounts= Get-PwsManagedAccount
 
     #
     # Get all existing requests
     #
-    $requests= Get-BTRequest -Refresh
+    $requests= Get-PwsRequest -Refresh
 
     #
     # loop through all accounts and fetch password for each.
@@ -34,7 +34,7 @@ function Get-BreakglassFromPasswordSafe {
         #
         # Platform is the type of account, e.g. Windows, Linux, AD, MSSQL, ...
         #
-        $platformName= (Get-BTPlatform -PlatformID $acc.platformID).Name
+        $platformName= (Get-PwsPlatform -PlatformID $acc.platformID).Name
 
         $cnt= 0
         do {
@@ -57,12 +57,12 @@ function Get-BreakglassFromPasswordSafe {
                 $req= $requests | Where-Object {($_.accountID -eq $acc.AccountID) -and ($now -lt [DateTime]$($_.ExpiresDate))}
 
                 if (-not $req) {
-                    $reqID= New-BTRequest -AccountID $acc.AccountID -SystemID $acc.SystemID -Duration 15
+                    $reqID= New-PwsRequest -AccountID $acc.AccountID -SystemID $acc.SystemID -Duration 15
                 } else {
                     $reqID= $req.RequestID
                 }
 
-                $pwd= Get-BTManagedAccountPassword -RequestID $reqID -useDSS:$acc.useDSS
+                $pwd= Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$acc.useDSS
                 break
             } 
             catch {
