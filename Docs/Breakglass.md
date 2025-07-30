@@ -11,7 +11,7 @@ Break Glass can be divided in at least three categories related to Privileged Ac
 2.	Privileged user break glass for temporary access to their target systems when the normal access path via the PAM solution is unavailable.
 3.	Privileged user break glass for emergency access to targets where the PAM solution is operational and will be used for providing break glass access to end-points.
 
-![Breakglass Scope](BreakGlass-#2.png)
+![Breakglass Categories](/Docs/BreakGlass-Categories.png)
 
 When referring to Break glass credentials these can be username & password or SSH key-pairs. Use of either will depend on the technology used when accessing servers and applica-tions. Unless discussed explicitly they are used interchangeably.
 Recommendations for successfully implementing PAM-related break glass processes are:  
@@ -81,7 +81,7 @@ However, when using a break glass account (category 1+2), access to a server or 
 This scenario is a category 1 break glass scenario. 
 The aim is to reactivate PAM service as part of the disaster recovery or break glass process. When the PAM application and credentials are stored within PAM, then PAM is used to both open sessions to other end-points and to retrieve passwords for these.
 
-![Breakglass Categories](/BreakGlass-#2.png)
+![Breakglass Scope](/BreakGlass-Scope.png)
 
 It is important to consider and evaluate **all** components required for the PAM application to be operational. This includes, but is not limited to, the PAM application itself, OS hosting PAM application, PAM database (if external), ESX server, ESX hardware, network connectivity (switch), supporting systems and applications (e.g. Firewalls, AD, 2FA, DNS).  
 
