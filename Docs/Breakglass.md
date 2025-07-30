@@ -11,7 +11,7 @@ Break Glass can be divided in at least three categories related to Privileged Ac
 2.	Privileged user break glass for temporary access to their target systems when the normal access path via the PAM solution is unavailable.
 3.	Privileged user break glass for emergency access to targets where the PAM solution is operational and will be used for providing break glass access to end-points.
 
-![Breakglass Scope](/Docs/BreakGlass-#2.png)
+![Breakglass Scope](BreakGlass-#2.png)
 
 When referring to Break glass credentials these can be username & password or SSH key-pairs. Use of either will depend on the technology used when accessing servers and applica-tions. Unless discussed explicitly they are used interchangeably.
 Recommendations for successfully implementing PAM-related break glass processes are:  
