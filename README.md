@@ -35,7 +35,7 @@ An example is shown here
 > The naming of the breakglass accounts is 'hostname | platform/application | username'. The password for the entry in KeePassXC is the account password. If the breakglass account is using SSH key pairs, the private key is found in the entry notes.
 
 > [!CAUTION]
-> Do not have KeePassXC open in the desktop GUI when running the script.
+> Do not have KeePassXC open in the desktop GUI when running the script. Having the program open may course errors and unexpected behaviour. This includes that breakglass account password/SSH keys was changed in PAM **without** storing a copy in the local vault.
 
 
 ### Command Syntax
@@ -48,43 +48,60 @@ The main script Breakglass.ps1 has the following command line options
 
 | Parameter  | Default | Description |
 |:--- | :--- | :--- |
-| -PAMType <string> | `PasswordSafe` | Supported PAM types are `PasswordSafe` and `SymantecPAM`. | 
-| -VaultType <string> | `KeePassXC` | Only `KeePassXC`is supported. | 
-| -Update | <not used> | If the switch is used, PAM till attempt to update the breakglass account password/SSH key pair before they are aligned with the local vaule. | 
-| -WhatIf | <not used> | If the switch is used, changes are not performed in PAM (update password) nor in the local vault. It will however show which actions will be performed without the -WhatIf option. | 
-| -Quiet | <not used> | If the switch is used only exceptions (errors) are shown to the user. If used together with `-WhatIf`, then the `-Quiet`  option is ignored. | 
+| -PAMType \<string\> | PasswordSafe | Supported PAM types are `PasswordSafe` and `SymantecPAM`. | 
+| -VaultType \<string\> | KeePassXC | Only `KeePassXC`is supported. | 
+| -Update | \<not used\> | If the switch is used, PAM till attempt to update the breakglass account password/SSH key pair before they are aligned with the local vaule. | 
+| -WhatIf | \<not used\> | If the switch is used, changes are not performed in PAM (update password) nor in the local vault. It will however show which actions will be performed without the -WhatIf option. | 
+| -Quiet | \<not used\> | If the switch is used only exceptions (errors) are shown to the user. If used together with `-WhatIf`, then the `-Quiet`  option is ignored. | 
+
+
+### Configuration file
+
+The script `breakglass` is using a configuration file, which contains details about hostnames, usernames, passwords and API keys required when connecting to PAM and when updating the local vault.
+
+It is best practise **never** keeping sensitive information in files as clear text, and it is impractical asking a user to enter it everytime the breakglass script is run.
+A solution for this is to use Powershell mechanism to generate a secre string and this is then saved to disk. When saved it is protected such that it only be used on the same system where it was generated and only by the same logged in user.
+
+For this purpose the script `breakglass-config` is available. Edit the file and fill in the details for your environment. It is not necessary to fill in details for both Password Safe and Symantec PAM. When running the `breakglass-config`script it will encrypt passwords and API keys and store the whole lot as a file in `c:\temp\Breakglass-<hostname>_<username>.properties` where \<hostname\> and \<username\> is replaced with whatever is valid when running the script brakglaaa-config. 
+
+> [!NOTE]
+> The configuration file can only be used on the system where it was generated (running breakglass-config) and only by the user logged in when generating the file. It cannot be moved to a different computer and cannot be used by a different user.
+> Also note that it is very strongly recommended and absolutely best practis to delete the script `breakglass-config` after it has been used. Keep the modified breakglass-config file secure and inaccessible for alsmost everybody.
+
+>[!CAUTION]
+> Never ever checkin the updated `breakglass-config.ps1` file to a source control system.
+> 
+
+
+```
+$configKeePassXC= @{
+        type="KeePassXC"; 
+		DatabasePath= "c:\temp\BreakGlass.kdbx"; 
+		KeyFilePath= "c:\temp\BreakGlass.keyfile"; 
+		MasterPassword= "<SuperSecretPassword>"; 
+        Group= "BreakGlass";
+    }
+
+$configPasswordSafe = @{
+        type="PasswordSafe"; 
+		DNS= "<dns name for Password Safe>";
+		username= "api_Breakglass"; 
+		password= "Kuxxxxxxxxxxxxxxxxxxxxxxxxxxmq3T!"; 
+		apiKey= "4ef9xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx284a66ce3";
+        Workgroup= "Default Workgroup";
+    }
+
+$configSymantecPAM = @{
+        type="SymantecPAM"; 
+		DNS= "<dns name for Symantec PAM>";
+		username= "cli_breakglass"; 
+		password= "<AnotherSecretPassword>"; 
+    }
+```
+
+There are seperate documents for configuration in [Password Safe](Docs/PasswordSafe.md) and [Symantec PAM](Docs/SymantecPAM.md) available.
+
 
 ## Content
 
-There are two scripts available. The configuration script is required to setup keys and passwords for accessing PSM and 
-
-The Powershell scripts and modules presented here will retrieve account details including 
-passwords (or SSH private key) and save them in a KeePassXC database.
-
-The starter is the script breakglass-Config.ps1. It is used to create a configuration file with encrypted passwords
-and API tokens, hostnames, locations for KeePassXC database and connections to PAM. This script is executed from
-a system (laptop) used to store the KeePassXC database for breakglass access. The encryption is unique to the host and user 
-running the script. 
-
-After the configuration file is created, the configuration script must be removed.
-It does contain clear text passwords for accessing the KeePassXC database, passwords and API keys for 
-accessing PAM, etc. The file should not be put under source control and access to the script should be very 
-restricted.
-
-The main event is the script BreakGlass.ps1. This will connect to PAM, fetch all accounts visible in
-the defined view, fetch passwords for each account. Finally it will create a KeePassXC database (if not available) 
-and adjust the breakglass accounts found. If a new account is found in PAM, it is created in KeePassXC. If an account was
-removed in PAM, it is removed in KeePassXC. Finally, if a password was updated in PAM, it is updated in KeePassXC.
-
-It is important that the PAM system does **not** automatically update passwords for BreakGlass accounts. Time to update 
-passwords for breakglass accounts is a manual process Updating 
-passwords should be con
-An option is to let the breakglass script initiate a password update before the new password is copied to KeePassXC.
-
-The BreakGlass script can fetch account information for breakglass accounts from either BeyondTrust Password 
-Safe or Symantec PAM, and store them in a KeePassXC database. A filter is defined in PAM allowing a view 
-of just the defined breakglass accounts. 
-In Symantec PAM such a filter is established using a target group, Credentials Manager group and Credentials Manager role.
-In BeyondTrust Password Safe such a filter is established using a smart group and features.
-
-
+The two scripts `break
