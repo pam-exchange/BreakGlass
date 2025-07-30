@@ -23,6 +23,7 @@ function Get-SymTargetAccount ()
 
         [Parameter(Mandatory=$false)][DETAILS] $details= "COMPACT",
 
+        [Parameter(Mandatory=$false)][switch] $useRegex= $false,
         [Parameter(Mandatory=$false)][switch] $Single= $false,
 		[Parameter(Mandatory=$false)][switch] $Refresh= $false,
         [Parameter(Mandatory=$false)][switch] $NoEmptySet= $false
@@ -30,6 +31,10 @@ function Get-SymTargetAccount ()
     
 	process {
 		try {
+
+            #
+            # To-Do: Needs a complete rework allowing filtering by AccountName, etc...
+            #
 
             if ($details -eq "COMPACT") {
 

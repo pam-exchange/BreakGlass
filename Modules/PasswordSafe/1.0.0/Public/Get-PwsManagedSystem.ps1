@@ -18,15 +18,13 @@ function Get-PwsManagedSystem ()
         [Parameter(Mandatory=$false)][string] $Description,
         [Parameter(Mandatory=$false)][string] $Workgroup,
 
-        #[Parameter(Mandatory=$false)][int] $PlatformID,
-        #[Parameter(Mandatory=$false)][string] $PlatformName,
-		
         [Parameter(Mandatory=$false)][int] $AssetID= -1,
         [Parameter(Mandatory=$false)][string] $AssetName,
         
         #[Parameter(Mandatory=$false)][int] $Limit= 100000,
         #[Parameter(Mandatory=$false)][int] $Offset= 0,
 		
+        [Parameter(Mandatory=$false)][switch] $useRegex= $false,
         [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Refresh= $false,
         [Parameter(Mandatory=$false)][switch] $NoEmptySet= $false
@@ -63,11 +61,11 @@ function Get-PwsManagedSystem ()
 				$res= $script:cacheManagedSystemBase
 					
                 if ($platformID -eq -1 -and $PlatformName) {
-                    $platform= Get-PwsPlatform -Name $PlatformName -Single
+                    $platform= Get-PwsPlatform -Name $PlatformName -Single 
                     $platformID= $platform.ID
                 }
 
-				if ($AssetName -and $AssetID -lt 0) {
+				if ($AssetName -and $AssetID -eq -1) {
 					# Find asset by name
 					$asset= Get-PwsAsset -Name $AssetName -Single
 					$AssetID= $asset.ID
@@ -76,10 +74,18 @@ function Get-PwsManagedSystem ()
     			if ($AssetID -ge 0) {$res= $res | Where-Object {$_.AssetID -eq $AssetID}}
 				if ($PlatformID -ge 0) {$res= $res | Where-Object {$_.PlatformID -eq $PlatformID}}
 
-				if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
-				if ($Hostname) {$res= $res | Where-Object {$_.DnsName -like $Hostname}}
-				if ($Description) {$res= $res | Where-Object {$_.Description -like $Description}}
-				if ($Workgroup) {$res= $res | Where-Object {$_ -like $Workgroup}}
+				if ($useRegex) {
+					if ($Name) {$res= $res | Where-Object {$_.Name -match $Name}}
+					if ($Hostname) {$res= $res | Where-Object {$_.DnsName -match $Hostname}}
+					if ($Description) {$res= $res | Where-Object {$_.Description -match $Description}}
+					if ($Workgroup) {$res= $res | Where-Object {$_ -match $Workgroup}}
+				}
+				else {
+					if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
+					if ($Hostname) {$res= $res | Where-Object {$_.DnsName -like $Hostname}}
+					if ($Description) {$res= $res | Where-Object {$_.Description -like $Description}}
+					if ($Workgroup) {$res= $res | Where-Object {$_ -like $Workgroup}}
+				}
 			}
 
 			#

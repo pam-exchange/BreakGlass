@@ -19,6 +19,8 @@ function Get-PwsManagedAccount ()
 
         #[Parameter(Mandatory=$false)][int] $Limit= 100000,
         #[Parameter(Mandatory=$false)][int] $Offset= 0,
+        
+		[Parameter(Mandatory=$false)][switch] $useRegex= $false,
         [Parameter(Mandatory=$false)][switch] $Single= $false,
 		[Parameter(Mandatory=$false)][switch] $Refresh= $false,
         [Parameter(Mandatory=$false)][switch] $NoEmptySet= $false
@@ -88,12 +90,20 @@ function Get-PwsManagedAccount ()
             }
 			else {
 				$res= $script:cacheManagedAccountBase
-
-				if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
 				if ($SystemID -ge 0) {$res= $res | Where-Object {$_.SystemId -eq $SystemID}}
-				if ($SystemName) {$res= $res | Where-Object {$_.SystemName -like $SystemName}}
-				#if ($Description) {$res= $res | Where-Object {$_.Description -like $Description}}
-				#if ($Workgroup) {$res= $res | Where-Object {$_.Workgroup -like $Workgroup}}
+				
+				if ($useRegex) {
+					if ($Name) {$res= $res | Where-Object {$_.Name -match $Name}}
+					if ($SystemName) {$res= $res | Where-Object {$_.SystemName -match $SystemName}}
+					#if ($Description) {$res= $res | Where-Object {$_.Description -match $Description}}
+					#if ($Workgroup) {$res= $res | Where-Object {$_.Workgroup -match $Workgroup}}
+				}
+				else {
+					if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
+					if ($SystemName) {$res= $res | Where-Object {$_.SystemName -like $SystemName}}
+					#if ($Description) {$res= $res | Where-Object {$_.Description -like $Description}}
+					#if ($Workgroup) {$res= $res | Where-Object {$_.Workgroup -like $Workgroup}}
+				}
 			}
 
 			#

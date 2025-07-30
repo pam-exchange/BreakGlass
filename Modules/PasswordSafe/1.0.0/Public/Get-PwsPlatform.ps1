@@ -19,6 +19,7 @@ function Get-PwsPlatform () {
         [parameter(Mandatory=$false)][string] $Name,
 		[Parameter(Mandatory=$false)][DSS_FLAG] $DSSFlag= "Any",
 		
+        [Parameter(Mandatory=$false)][switch] $useRegex= $false,
         [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Refresh= $false,
         [Parameter(Mandatory=$false)][switch] $NoEmptySet= $false
@@ -55,8 +56,13 @@ function Get-PwsPlatform () {
             }
 			else {
 				$res= $Script:cachePlatformBase
-				if ($name) { $res= $res | Where-Object {$_.Name -like $name} }
 				if ($DSSFlag -ne "Any") { $res= $res | Where-Object {$_.DSSFlag -eq $DSSFlag} }
+				if ($useRegex) {
+					if ($name) { $res= $res | Where-Object {$_.Name -match $name} }
+				}
+				else {
+					if ($name) { $res= $res | Where-Object {$_.Name -like $name} }
+				}
 			}
 			
 			#

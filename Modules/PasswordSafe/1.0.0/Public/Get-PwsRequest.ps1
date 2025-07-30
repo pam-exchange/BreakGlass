@@ -22,6 +22,7 @@ function Get-PwsRequest () {
 
 		[Parameter(Mandatory=$false)][REQUEST_STATUS] $Status = "Active",
 		
+        [Parameter(Mandatory=$false)][switch] $useRegex= $false,
         [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Refresh= $false,
         [Parameter(Mandatory=$false)][switch] $NoEmptySet= $false
@@ -34,13 +35,22 @@ function Get-PwsRequest () {
 			#
             $res = PSafe-Get "Requests";
 
-            # filter
+			#
+			# Apply filter
+			#
             if ($ID -ge 0) {$res= $res | Where-Object {$_.RequestID -like $ID}}
 			if ($accountID -ge 0) {$res= $res | Where-Object {$_.AcocuntID -like $AccountID}}
-			if ($accountName) {$res= $res | Where-Object {$_.AccountName -like $AccountName}}
 			if ($SystemID -ge 0) {$res= $res | Where-Object {$_.SystemID -like $SystemID}}
-			if ($systemName) {$res= $res | Where-Object {$_.ManagedSystemName -like $SystemName}}             # Must use $_.ManagedSystemName here
 			if ($Status -ne "All") {$res= $res | Where-Object {$_.Status -eq $Status}}
+			
+			if ($useRegex) {
+				if ($accountName) {$res= $res | Where-Object {$_.AccountName -match $AccountName}}
+				if ($systemName) {$res= $res | Where-Object {$_.ManagedSystemName -match $SystemName}}             # Must use $_.ManagedSystemName here
+			}
+			else {
+				if ($accountName) {$res= $res | Where-Object {$_.AccountName -like $AccountName}}
+				if ($systemName) {$res= $res | Where-Object {$_.ManagedSystemName -like $SystemName}}             # Must use $_.ManagedSystemName here
+			}
 
 			$res | %{
 				$_= _Normalize-Request($_)

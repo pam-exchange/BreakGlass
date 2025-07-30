@@ -10,7 +10,8 @@ function Get-PwsFunctionalAccount ()
 		
 		[Alias("AccountName")]
         [Parameter(Mandatory=$false)][string] $Name,
-		
+
+		[Parameter(Mandatory=$false)][switch] $useRegex= $false,
         [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Refresh= $false,
         [Parameter(Mandatory=$false)][switch] $NoEmptySet= $false
@@ -45,8 +46,10 @@ function Get-PwsFunctionalAccount ()
             }
 			else {
 				$res= $script:cacheFunctionalAccountBase
-				if ($Name) {
-					# search by name
+				if ($useRegex) {
+					if ($Name) {$res= $res | Where-Object {$_.Name -match $Name}}
+				}
+				else {
 					if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
 				}
 			}
