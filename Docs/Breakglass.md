@@ -81,7 +81,7 @@ However, when using a break glass account (category 1+2), access to a server or 
 This scenario is a category 1 break glass scenario. 
 The aim is to reactivate PAM service as part of the disaster recovery or break glass process. When the PAM application and credentials are stored within PAM, then PAM is used to both open sessions to other end-points and to retrieve passwords for these.
 
-![Breakglass Scope](/BreakGlass-Scope.png)
+![Breakglass Scope](/Docs/BreakGlass-Scope.png)
 
 It is important to consider and evaluate **all** components required for the PAM application to be operational. This includes, but is not limited to, the PAM application itself, OS hosting PAM application, PAM database (if external), ESX server, ESX hardware, network connectivity (switch), supporting systems and applications (e.g. Firewalls, AD, 2FA, DNS).  
 
