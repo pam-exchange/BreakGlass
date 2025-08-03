@@ -1,9 +1,28 @@
 <#
-This function will synchronize or align information from PAM
-with a KeePassXC database
+MIT License
+
+Copyright (c) 2025 PAM-Exchange
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 #>
-
+#--------------------------------------------------------------------------------------
 function Sync-BreakglassToKeePassXC {
     param (
         [Parameter(Mandatory=$false)][string] $DatabasePath= $Script:kpDatabasePath,
@@ -21,7 +40,7 @@ function Sync-BreakglassToKeePassXC {
     if ($WhatIf) {$quiet= $false}
 
     if (-not $Quiet) {
-        Write-Host "KeePassXC files and group"
+        Write-Host "KeePassXC files and group"  -ForegroundColor White
         Write-Host "DatabasePath '$DatabasePath'" -ForegroundColor Gray
         Write-Host "KeyFilePath '$KeyFilePath'" -ForegroundColor Gray
         Write-Host "Group '$Group'" -ForegroundColor Gray
@@ -73,7 +92,7 @@ function Sync-BreakglassToKeePassXC {
         $key+= " | "+$($_.accountName)
 
         if ($bgHash.ContainsKey($key)) {
-            if (-not $Quiet) {Write-Host "Duplicate '$key' with username '$($_.accountName)'"}
+            if (-not $Quiet) {Write-Host "Duplicate '$key' with username '$($_.accountName)'" -ForegroundColor Gray}
         }
         else 
         {
@@ -85,7 +104,7 @@ function Sync-BreakglassToKeePassXC {
     # Fetch entries for group from KeePassXC
     # Build hash table 
     #
-    if (-not $Quiet) {Write-Host "Finding accounts from KeePassXC group '$Group'"}
+    if (-not $Quiet) {Write-Host "Finding accounts from KeePassXC group '$Group'" -ForegroundColor White}
     $entries= Get-KeePassXCEntry -Group $Group
 
     $kpHash= New-Object System.Collections.Hashtable
@@ -102,7 +121,7 @@ function Sync-BreakglassToKeePassXC {
 
     $diff= Compare-Object @($bghash.Keys) @($kphash.Keys) -IncludeEqual -CaseSensitive  | Sort-Object InputObject
 
-    if (-not $Quiet) {Write-Host "Aligning accounts from PAM with KeePassXC"}
+    if (-not $Quiet) {Write-Host "Aligning accounts from PAM with KeePassXC" -ForegroundColor White}
     foreach ($d in $diff) {
 
         #Write-Host $d

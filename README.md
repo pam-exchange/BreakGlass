@@ -69,7 +69,7 @@ For this purpose the script `breakglass-config` is available. Edit the file and 
 > Also note that it is very strongly recommended and absolutely best practis to delete the script `breakglass-config` after it has been used. Keep the modified breakglass-config file secure and inaccessible for alsmost everybody.
 
 >[!CAUTION]
-> Never ever checkin the updated `breakglass-config.ps1` file to a source control system.
+> Never ever checkin an updated `breakglass-config.ps1` file to a source control system.
 > 
 
 
