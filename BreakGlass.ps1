@@ -50,7 +50,6 @@ param (
 try {$startTime= (Get-Date -ErrorAction SilentlyContinue)} catch {$now= 0}
 
 $version= "1.0.0"
-$verbose = $VerbosePreference -ne 'SilentlyContinue'
 
 $scriptBasePath= $PSScriptRoot
 $scriptName= $PSCommandPath

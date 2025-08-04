@@ -47,7 +47,7 @@ function Sync-BreakglassToKeePassXC {
     }
 
     if (-not $Script:kpInitialized) {
-        $res= Initialize-KeePassXC -DatabasePath $DatabasePath -KeyFilePath $KeyFilePath -MasterPassword $MasterPassword -CreateDatabase:$CreateDatabase -Verbose:$Verbose -WhatIf:$WhatIf
+        $res= Initialize-KeePassXC -DatabasePath $DatabasePath -KeyFilePath $KeyFilePath -MasterPassword $MasterPassword -CreateDatabase:$CreateDatabase -Quiet:$Quiet -WhatIf:$WhatIf
     }
 
     # 

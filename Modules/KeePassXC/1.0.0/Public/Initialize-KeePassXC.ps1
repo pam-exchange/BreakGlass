@@ -127,7 +127,7 @@ function Initialize-KeePassXC {
 				$checkPath= Split-Path $KeyFilePath -Parent        
 				if (-not (Test-Path -Path $checkPath)) {
 					$msg= "The path specified is not found '$KeyFilePath'"
-					if ($Verbose) {Write-Host $msg -ForegroundColor Yellow}
+					if (-not $Quiet) {Write-Host $msg -ForegroundColor Yellow}
 					throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
 				}
 			}
