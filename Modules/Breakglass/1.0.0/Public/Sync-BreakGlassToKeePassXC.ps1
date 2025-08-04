@@ -114,7 +114,8 @@ function Sync-BreakglassToKeePassXC {
         $kpHash.Add( $title, [PSCustomObject]@{username=$_.username; password=$_.password.Trim()}) | Out-Null
     }
     if (-not $Quiet) {
-        if ($entries.getType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $entries.count}
+        if ($null -eq $entries) {$cnt= 0}
+        elseif ($entries.getType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $entries.count}
         Write-Host "Found '$cnt' accounts in KeePassXC" -ForegroundColor Gray
     }
 
