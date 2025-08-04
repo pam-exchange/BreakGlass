@@ -1,12 +1,13 @@
 ﻿<#----------------------------------------------------------------------------------
 
-This script will extract breakglass accounts from BeyondTrust Password Safe
-and store them in KeePassXC.
+This script will extract breakglass accounts from PAM and store them in KeePassXC.
 
 -------------
 History
 
-1.0.0 - 2025-07-27 - First release
+1.1.0 - 2025-08-04 - Added PasswordSafe
+                   - Update allowing different PAM
+1.0.0 - 2018-03-27 - First release
 --------------------------------------------------------------
 
 MIT License
@@ -49,7 +50,7 @@ param (
 
 try {$startTime= (Get-Date -ErrorAction SilentlyContinue)} catch {$now= 0}
 
-$version= "1.0.0"
+$version= "1.1.0"
 
 $scriptBasePath= $PSScriptRoot
 $scriptName= $PSCommandPath
