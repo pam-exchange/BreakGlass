@@ -94,7 +94,12 @@ function Get-BreakglassFromPasswordSafe {
             }
         } while ($true)
 
-        $list.add( [PSCustomObject]@{server=$($acc.SystemName); accountType=$platformName; accountID=$($acc.AccountID); accountName=$($acc.AccountName); accountPassword=$pwd; verified=$($acc.Verified); useDSS=$($acc.useDSS)} ) | Out-Null
+        #
+        # To-Do: How to verify password?
+        #
+        #$verified= Test-PwsManagedAccountPassword -AccountID $acc.AccountID
+
+        $list.add( [PSCustomObject]@{server=$($acc.SystemName); accountType=$platformName; accountID=$($acc.AccountID); accountName=$($acc.AccountName); accountPassword=$pwd; verified=$Verified; useDSS=$($acc.useDSS)} ) | Out-Null
     }
 
     return $list

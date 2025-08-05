@@ -22,12 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 #>
-
-
-function Update-BreakglassInSymantecPAM {
+#--------------------------------------------------------------------------------------
+function Sync-BreakglassWithVault {
     param (
-        [Parameter(Mandatory=$true)][Object[]] $Accounts,
-        [Parameter(Mandatory=$false)][string] $Password,
+
+        [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType = "KeePassXC",
+        [Parameter(Mandatory=$false)][string] $Group= "/BreakGlass",
+
+        [Parameter(Mandatory=$false)][Object[]] $pamAccounts = @(),
+        [Parameter(Mandatory=$false)][Object[]] $vaultAccounts = @(),
 
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
@@ -35,25 +38,14 @@ function Update-BreakglassInSymantecPAM {
 
     if ($WhatIf) {$quiet= $false}
 
-    foreach ($acc in $Accounts) {
-        try {
-            if ($WhatIf) {Write-Host "WhatIf: " -ForegroundColor Green -NoNewline}
-            if (-not $Quiet) {Write-Host "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -NoNewline -ForegroundColor Gray }
-
-            if (-not $WhatIf) {
-                $res= Update-SymTargetAccountPassword -AccountID $acc.accountID -Password $Password
-            }
-        } 
-        catch {
-            if (-not $Quiet) {Write-Host "Password not updated" -ForegroundColor Yellow}
-            continue
+    switch ($VaultType) {
+        "KeePassXC" 
+        {
+            return Sync-BreakglassWithKeePassXC -Group $Group -pamAccounts $pamAccounts -vaultAccounts $vaultAccounts -Quiet:$Quiet -WhatIf:$WhatIf
         }
-
-        if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
-
-        $pwd= Get-SymTargetAccountPassword -AccountID $acc.accountID
-        $acc.accountpassword= $pwd
     }
+
+
 }
 
 # --- end-of-file ---

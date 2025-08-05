@@ -103,6 +103,12 @@ function Update-BreakglassInPasswordSafe {
                 Sleep -Milliseconds 500
             }
         } while ($true)
+
+        #
+        # To-Do: How to verify password?
+        #
+        #$acc.verified= Test-PwsManagedAccountPassword -AccountID $acc.AccountID
+
     }
 }
 

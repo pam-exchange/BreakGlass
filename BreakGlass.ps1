@@ -82,7 +82,7 @@ Import-Module Breakglass -Force
 # ----------------------------------------------------------------------------------
 try {
 
-    Backup-BreakglassAccounts -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
+    Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
 
 } 
 catch {
@@ -104,7 +104,7 @@ finally {
             else              {Write-Host "Run time: $s seconds" -ForegroundColor Gray}
         } catch {}
 
-        Write-Host "Finished synchronizing breakglass accounts in PAM to KeePassXC " -ForegroundColor White
+        Write-Host "Finished aligning '$PAMType' accounts with '$VaultType' database" -ForegroundColor White
     }
 }
 

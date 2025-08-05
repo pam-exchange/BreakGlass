@@ -63,5 +63,11 @@ function Test-KeePassXCGroup {
     # No  errors found, check if the 
     # group name (case sensitive) is found
     #
-    return $msg -ccontains "$Group/"
+    $Group= $Group.Trim("/")
+    if ($msg -cmatch "^$Group/$") {
+        return $true
+    } 
+    else {
+        return $false
+    }
 }

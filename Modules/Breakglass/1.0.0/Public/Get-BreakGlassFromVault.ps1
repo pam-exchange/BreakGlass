@@ -22,14 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 #>
-#--------------------------------------------------------------------------------------
-function Sync-BreakglassToVault {
+
+# ------------------------------------------------------------------------------------
+function Get-BreakglassFromVault {
     param (
-
-        [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType = "KeePassXC",
-
-        [Parameter(Mandatory=$false)][switch] $CreateDatabase= $false,
-        [Parameter(Mandatory=$true)][Object[]] $Accounts,
+        [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType= "KeePassXC",
+        [Parameter(Mandatory=$false)][String] $Group= "/BreakGlass",
 
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
@@ -37,14 +35,13 @@ function Sync-BreakglassToVault {
 
     if ($WhatIf) {$quiet= $false}
 
-    switch ($VaultType) {
+    switch ($VaultType) 
+    {
         "KeePassXC" 
         {
-            return Sync-BreakglassToKeePassXC -Accounts $Accounts -CreateDatabase -Quiet:$Quiet -WhatIf:$WhatIf
+            return Get-KeePassXCEntry -Group $Group -Quiet:$Quiet -WhatIf:$WhatIf
         }
     }
-
-
 }
 
 # --- end-of-file ---

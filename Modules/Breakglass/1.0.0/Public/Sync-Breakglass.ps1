@@ -24,7 +24,7 @@ SOFTWARE.
 
 #>
 # ----------------------------------------------------------------------------------
-function Backup-BreakglassAccounts {
+function Sync-Breakglass {
     param (
         [Parameter(Mandatory=$false)][PAM_TYPE] $PAMType= "PasswordSafe",
         [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType= "KeePassXC",
@@ -42,38 +42,65 @@ function Backup-BreakglassAccounts {
     try {
 
         # 
-        # Start-Breakglass will read configuration and 
-        # start PasswordSafe and KeePassXC
+        # Start-Breakglass will read configuration and start PAM and Vault
         #
         Start-Breakglass -ConfigPath $ConfigPath -PAMType $PAMType -VaultType $VaultType 
 
         #
         # Fetch breakglass accounts from PAM
         #
-        if (-not $Quiet) {Write-Host "Finding breakglass accounts from PAM" -ForegroundColor White}
+        if (-not $Quiet) {Write-Host "Finding breakglass accounts in '$PAMType'" -ForegroundColor White}
         $pamAccounts= Get-BreakglassFromPAM -PAMType $PAMType -Quiet:$Quiet -WhatIf:$WhatIf
     
         if (-not $Quiet) {
             $pamAccounts | %{ Write-Host "$($_.server) | $($_.accountType) | $($_.accountName)" -ForegroundColor Gray }
-            if ($pamAccounts.getType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $pamAccounts.count}
-            Write-Host "Found '$cnt' breakglass accounts in PAM" -ForegroundColor Gray
+            if ($null -eq $pamAccounts) {$cnt= 0}
+            elseif ($pamAccounts.getType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $pamAccounts.count}
+            Write-Host "Found '$cnt' breakglass accounts in '$PAMType'" -ForegroundColor Gray
         }
+
+        if ($cnt -eq 0) {
+            #
+            # Could be an error reading from PAM, but it is unexpected and
+            # nothing further is done for now.
+            #
+            Write-Host "No accounts are found in '$PAMType'." -ForegroundColor Green
+            Write-Host "This is unexpected and processing is stopped" -ForegroundColor Green
+            Write-Host "If there really are no breakglass accounts in PAM, just delete the Vault database" -ForegroundColor gray
+            return
+        }
+
 
         #
         # Update passwords on breakglass accounts before backup
         #
         if ($update) {
-            if (-not $Quiet) {Write-Host "Updating password on breakglass accounts in PAM" -ForegroundColor White}
-            $res= Update-BreakGlassInPAM -PAMType $PAMType -Accounts $pamAccounts -Quiet:$Quiet -WhatIf:$WhatIf
+            if ($pamAccounts) {
+                if (-not $Quiet) {Write-Host "Updating password on breakglass accounts in '$PAMType'" -ForegroundColor White}
+                $res= Update-BreakGlassInPAM -PAMType $PAMType -Accounts $pamAccounts -Quiet:$Quiet -WhatIf:$WhatIf
+            }
+            else {
+                if (-not $Quiet) {Write-Host "No accounts to update" -ForegroundColor Gray}
+            }
         }
 
-
         #
-        # Sync accounts from PAM with local Vault
+        # Fetch breakglass accounts from Vault
         #
-        if (-not $Quiet) {Write-Host "Aligning PAM accounts with KeePassXC" -ForegroundColor White}
-        $res= Sync-BreakglassToVault -VaultType $VaultType -Accounts $pamAccounts -CreateDatabase -Quiet:$Quiet -WhatIf:$WhatIf
-
+        if (-not $Quiet) {Write-Host "Finding accounts in '$VaultType'" -ForegroundColor White}
+        $vaultAccounts= Get-BreakglassFromVault -VaultType $VaultType -Quiet:$Quiet -WhatIf:$WhatIf
+        if (-not $Quiet) {
+            $vaultAccounts | %{ Write-Host "$($_.title)" -ForegroundColor Gray }
+            if ($null -eq $vaultAccounts) {$cnt=0}
+            elseif ($vaultAccounts.getType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $vaultAccounts.count}
+            Write-Host "Found '$cnt' breakglass accounts in '$VaultType'" -ForegroundColor Gray
+        }
+        
+        #
+        # Align accounts from PAM with local Vault
+        #
+        if (-not $Quiet) {Write-Host "Align '$PAMType' accounts with '$VaultType' database" -ForegroundColor White}
+        $res= Sync-BreakglassWithVault -VaultType $VaultType -pamAccounts $pamAccounts -vaultAccounts $vaultAccounts -Quiet:$Quiet -WhatIf:$WhatIf
     } 
     catch {
         #Write-Host "$($_.Exception.Message) - $($_.Exception.Details)" -ForegroundColor Yellow

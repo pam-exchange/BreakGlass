@@ -28,7 +28,7 @@ function Get-KeePassXCEntry {
         [Parameter(Mandatory=$false)][string]$DatabasePath= $Script:kpDatabasePath,
         [Parameter(Mandatory=$false)][string]$KeyFilePath= $Script:kpKeyFilePath,
         [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
-        [Parameter(Mandatory=$false)][string]$Group,
+        [Parameter(Mandatory=$false)][string]$Group= $Script:kpGroup,
         [Parameter(Mandatory=$false)][string]$Title,
 		
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
