@@ -131,9 +131,9 @@ Create a local user group for API user access
 
 **Enabled features**
 
-•	Asset Management (Read only)
-•	Password Safe Account Management (Full control)
-•	Password Safe System Management (Read only)
+- Asset Management (Read only)
+- Password Safe Account Management (Full control)
+- Password Safe System Management (Read only)
 
 ![Usergroup - Features](/Docs/PasswordSafe-APIUserGroup-2.png)
 
