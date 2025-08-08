@@ -93,7 +93,7 @@ Last policy setup is a setting controlling the type and length of generated SSH 
 
 ### TargetAccount for Linux (Password)
 
-![TargetAccount - Linux (password](/Docs/SymantecPAM-TargetAccountLinux(Password).png)
+![TargetAccount - Linux (password](/Docs/SymantecPAM-TargetAccount-Linux(Password).png)
 
 
 
@@ -101,11 +101,14 @@ Last policy setup is a setting controlling the type and length of generated SSH 
 
 ### TargetApplication for Linux (SSH Key-Pair)
 
-![TargetApplication - Linux (SSH Key-Pair)](/Docs/SymantecPAM-TargetApplication-Linux(SSH).png)
+![TargetApplication - Linux (SSH Key-Pair)](/Docs/SymantecPAM-TargetApplication-Linux(SSH)-1.png)
+
+![TargetApplication - Linux (SSH Key-Pair)](/Docs/SymantecPAM-TargetApplication-Linux(SSH)-2.png)
+
 
 ### TargetAccount for Linux (SSH Key-Pair)
 
-![TargetAccount - Linux (SSH Key-Pair](/Docs/SymantecPAM-TargetAccountLinux(SSH).png)
+![TargetAccount - Linux (SSH Key-Pair](/Docs/SymantecPAM-TargetAccount-Linux(SSH).png)
 
 
 
