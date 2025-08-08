@@ -15,15 +15,13 @@ The accounts can be set manually or PAM can set the passwords to random values.
 
 Also see a general description about Breakglass [here](Docs/Breakglass.md).
 
-Assume PAM is the master of breakglass accounts (Breakglass category 2), it should be possible to store breakglass accounts and their password/SSH private key in a secure location, and where it is possible to retrieve passwords without PAM being available.
-
-This is what this Powershell script is about.
+Assume PAM is the master of breakglass accounts (Breakglass category 2), it should be possible to store breakglass accounts and their password/SSH private key in a secure location, and where it is possible to retrieve passwords without PAM being available. See also [Password Safe](Docs/PasswordSafe.md) and [Symantec PAM](Docs/SymantecPAM.md) for details about setup and configuration in PAM.
 
 ## How it works
 
 The main script Beeakglass.ps1 is a Powershell, which is fetching account information including password/SSH private key from PAM and store them in a local vault. If there are entries in the local vault no longer in PAM, they are removed from the local vault. New and changed breakglass accounts in PAM are added/updated in the local vault.
 
-An example is shown here
+An example is shown here. It will send a password/SSH Key-pair request to PAM. When completed it will extract the new password and save it in the local KeePassXC vault.
 
 ```
 > .\Breakglass.ps1 -PAMType SymantecPAM -Update
@@ -77,7 +75,7 @@ For this purpose the script `breakglass-config` is available. Edit the file and 
 $configKeePassXC= @{
         type="KeePassXC"; 
 		DatabasePath= "c:\temp\BreakGlass.kdbx"; 
-		KeyFilePath= "c:\temp\BreakGlass.keyfile"; 
+		KeyFilePath= "c:\temp\BreakGlass.keyfile";    # Optional
 		MasterPassword= "<SuperSecretPassword>"; 
         Group= "BreakGlass";
     }
