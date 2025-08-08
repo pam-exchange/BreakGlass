@@ -1,6 +1,12 @@
 # Breakglass with BeyondTrust Password Safe
 
-This document is describing how to setup Password Safe for a category 2 break glass scenario. 
+This document is about setup of Password Safe in a category 2 scenario. 
+First part the document is defining the nuts and bolts required for the purpose of having breakglass accounts administered by PAM. The second part is describing examples for account setup using Active Directory, Linux password and Linux SSH key pair.
+The goal is to define a setup in PAM such that an API user will only see breakglass accounts. The aim is to allow a program or script to copy passwords from PAM to a local vault, which can be used in scenario where PAM is completely unavailable, but where administrative access to (selected) end-points is absolutely required before PAM is available again.
+
+# Basic setup in Password Safe
+
+The mechanism in Password Safe is using a filter showing only the accounts defined as relevant for breakglass purpose. This is done using a smart rule, policies, features and a user groups.
 
 ## Smart Rule
 
@@ -33,83 +39,6 @@ Be sure to uncheck the “Encryption Enabled” for this policy. It will allow S
 
 ![SSH Key Policy](/Docs/PasswordSafe-SSHKeyPolicy.png)
 
-## Managed Systems
-
-When defining the managed systems they are using a functional account. Later when deining the managed accounts, it is optional if the functional account or self is used for password/SSH key change.
-
-### Active Directory
-The setup used here is Password Safe as a SaaS solution. It requires use of a connection broker, TLS is required and used when changing passwords in AD, but this is handled through the setup of the connection broker.
-Create the managed system for Active Directory with these important settings:
-Field	Value
-Automatic Password Change	Enabled
-Password Policy 	pws_Breakglass
-Functional Account	pws_Reconcile (AD)
-
-![Managed System - Active Directory](/Docs/PasswordSafe-ManagedSystems(AD).png)
-
-### Linux
-The system used here is configured such that accounts using password and/or SSH keys is used for authentication. 
-Create the managed system for Linux server with these important settings:
-Field	Value
-Automatic Password Change	Enabled
-Password Policy 	pws_Breakglass
-Functional Account	pws_Reconcile (Tomcat)
-Login Account	pws_Reconcile (Tomcat)
-SSH Key Policy	Breakglass (SSH Key Policy)
-
-![Managed System - Linux](/Docs/PasswordSafe-ManagedSystems(Linux).png)
- 
-## Managed Accounts
-There are three (3) managed accounts defined here. One for AD, one for Linux using password and one for Linux using SSH key pair.
-
-### Active Directory
-Create the managed account for the AD managed system. 
-Important settings are:
-| Field | Value |
-| ----- | ----- |
-| Name	| psw_Breakglass |
-| Automatic Password Change	| Enabled |
-| Password Policy |	pws_Breakglass |
-| Change Password Starting From	| A date way in the future |
-| Change Password After Release	| Disabled |
-| API Enabled	| Enabled |
-| Use Own Credentials	| Disabled – Use functional account on Managed System</br>Enabled – Use own account |
-
-![Managed Account - Active Directory](/Docs/PasswordSafe-ManagedAccounts(AD).png)
-
-### Linux (password)
-Create the managed account for the Linux managed system. This account uses a password.
-Important settings are:
-| Field | Value |
-| ----- | ----- |
-| Name |	psw_Breakglass |
-| Authentication Type	| Password | 
-| Automatic Password Change	| Enabled |
-| Password Policy |	pws_Breakglass |
-| Change Password Starting From	| A date way in the future |
-| Change Password After Release	| Disabled |
-| API Enabled	| Enabled |
-| Use Own Credentials	| Disabled – Use functional account on Managed System</br>Enabled – Use own account |
-
-![Managed Account - Linux (Password)](/Docs/PasswordSafe-ManagedAccounts(Linux-Password).png)
-
-### Linux (SSH key pair)
-Create the managed account for the Linux managed system. This account uses SSH key pair. Note that the same account name cannot be used for both password authentication and for SSH key pair authentication. You can define both password and SSH key pair on the same account, but use of the password is then a fall-back option. Here the account is using a different name, which is still passing through the smart rule filter. 
-Important settings are:
-| Field | Value |
-| ----- | ----- |
-| Name |	psw_Breakglass-SSH |
-| Authentication Type	SSH Key |
-| Login Account for SSH Sessions	| Enabled |
-| Automatic Password Change	| Enabled |
-| Change Password Starting From	| A date way in the future |
-| Change Password After Release	| Disabled |
-| Auto-Managed SSH Key	| Enabled |
-| API Enabled	| Enabled |
-| Use Own Credentials	| Disabled – Use functional account on Managed System</br>Enabled – Use own account |
-
-![Managed Account - Linux (SSH)](/Docs/PasswordSafe-ManagedAccounts(Linux-SSH).png)
- 
 ## Accessing Password Safe from API
 Allowing a script access to the API will require some definitions of API key, usergroup and API user. 
 
@@ -155,3 +84,96 @@ Add the api_Breakglass user to this group.
 Add the API Registration defined earlier to this user group.
 
 ![Usergroup - API Registration](/Docs/PasswordSafe-APIUserGroup-5.png)
+
+
+# Breakglass accounts
+
+Accounts in Password Safe exists on Managed Systems. The managed systems are definitions of the end-point environment. The examples described here are Active Directory, Linux using password authentication and Linux using SSH key pair authentication. Other types of managed systems can be defined in Password Safe.
+
+The accounts are defined as managed accounts on a managed system. Each type of account may have different options depending on the type of managed system where the managed account is defined.
+
+Keep in mind that the description here is focusing on setup in PAM. Account setup with appropriate permissions on the end-points is not in scope of this document.
+
+## Active Directory
+
+### Managed System for Active Directory
+The setup used here is Password Safe as a SaaS solution. It requires use of a connection broker, TLS is required and used when changing passwords in AD, but this is handled through the setup of the connection broker.
+Create the managed system for Active Directory with these important settings:
+Field	Value
+Automatic Password Change	Enabled
+Password Policy 	pws_Breakglass
+Functional Account	pws_Reconcile (AD)
+
+![Managed System - Active Directory](/Docs/PasswordSafe-ManagedSystems(AD).png)
+
+### Managed Account for Active Directory
+
+Create the managed account for the AD managed system. 
+Important settings are:
+| Field | Value |
+| ----- | ----- |
+| Name	| psw_Breakglass |
+| Automatic Password Change	| Enabled |
+| Password Policy |	pws_Breakglass |
+| Change Password Starting From	| A date way in the future |
+| Change Password After Release	| Disabled |
+| API Enabled	| Enabled |
+| Use Own Credentials	| Disabled – Use functional account on Managed System</br>Enabled – Use own account |
+
+![Managed Account - Active Directory](/Docs/PasswordSafe-ManagedAccounts(AD).png)
+
+
+## Linux (password)
+
+### Managed System for Linux (password)
+The system used here is configured such that accounts using password and/or SSH keys is used for authentication. 
+Create the managed system for Linux server with these important settings:
+Field	Value
+Automatic Password Change	Enabled
+Password Policy 	pws_Breakglass
+Functional Account	pws_Reconcile (Tomcat)
+Login Account	pws_Reconcile (Tomcat)
+SSH Key Policy	Breakglass (SSH Key Policy)
+
+![Managed System - Linux](/Docs/PasswordSafe-ManagedSystems(Linux).png)
+
+### Managed Account for Linux (password)
+Create the managed account for the Linux managed system. This account uses a password.
+Important settings are:
+| Field | Value |
+| ----- | ----- |
+| Name |	psw_Breakglass |
+| Authentication Type	| Password | 
+| Automatic Password Change	| Enabled |
+| Password Policy |	pws_Breakglass |
+| Change Password Starting From	| A date way in the future |
+| Change Password After Release	| Disabled |
+| API Enabled	| Enabled |
+| Use Own Credentials	| Disabled – Use functional account on Managed System</br>Enabled – Use own account |
+
+![Managed Account - Linux (Password)](/Docs/PasswordSafe-ManagedAccounts(Linux-Password).png)
+
+## Linux (SSH key pair)
+
+### Managed System for Linux (SSH Key-pair)
+
+Setup of Linux using SSH key-pair is the same as for Linux using password. See definition above.
+
+### Managed Account for Linux (SSH Key-pair)
+
+Create the managed account for the Linux managed system. This account uses SSH key pair. Note that the same account name cannot be used for both password authentication and for SSH key pair authentication. You can define both password and SSH key pair on the same account, but use of the password is then a fall-back option. Here the account is using a different name, which is still passing through the smart rule filter. 
+Important settings are:
+| Field | Value |
+| ----- | ----- |
+| Name |	psw_Breakglass-SSH |
+| Authentication Type	SSH Key |
+| Login Account for SSH Sessions	| Enabled |
+| Automatic Password Change	| Enabled |
+| Change Password Starting From	| A date way in the future |
+| Change Password After Release	| Disabled |
+| Auto-Managed SSH Key	| Enabled |
+| API Enabled	| Enabled |
+| Use Own Credentials	| Disabled – Use functional account on Managed System</br>Enabled – Use own account |
+
+![Managed Account - Linux (SSH)](/Docs/PasswordSafe-ManagedAccounts(Linux-SSH).png)
+ 
