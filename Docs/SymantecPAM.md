@@ -21,32 +21,32 @@ What is important is that the accounts visible using this target group only is s
 ## Credential Manager Role
 The CM Role is controlling which permissions will be granted to the API user. The important permissions is list/view servers, applications and accounts, update password and view password. 
 
-![Credential Manager Role](/Docs/SymtecPAM-CMRole.png)
+![Credential Manager Role](/Docs/SymantecPAM-CMRole.png)
 
 
 ## Credential Manager User Group
 The user group is assigned to an API user. When the group is assigned the API user will be able to see/interact with accounts defined in the TargetGroup filter and use the permissions granted in the CM role.
 
-![Credential Manager User Group](/Docs/SymtecPAM-CMGroup.png)
+![Credential Manager User Group](/Docs/SymantecPAM-CMGroup.png)
 
 
 ## API user role
 The API user is not a Standard User and a dedicated role for breakglass is defined. Create a new PAM Role for this purpose. This role is not the Credential Manager role and will grant the user permission to use the Credential Management functionality as defined in the Credential Manager User Group.
 
-![User Role](/Docs/SymtecPAM-Role.png)
+![User Role](/Docs/SymantecPAM-Role.png)
 
 
 ## API user
 It is possible to define an API user as a domain user or as a local user. Here a local user is used.
 
-![User #1](/Docs/SymtecPAM-User-1.png)
+![User #1](/Docs/SymantecPAM-User-1.png)
 
 
 Assign the Breakglass role to the user.
-![User #2](/Docs/SymtecPAM-User-2.png)
+![User #2](/Docs/SymantecPAM-User-2.png)
 
 Assign the Breakglass Credential Manager group to the user.
-![User #3](/Docs/SymtecPAM-User-3.png)
+![User #3](/Docs/SymantecPAM-User-3.png)
 
 ## Policies for breakglass usage
 Policies for password complexity, password viewing and SSH key pair is recommended for setup of breakglass accounts. 
@@ -57,19 +57,19 @@ The password length should be large. If different end-point types must use a dif
 
 Important in the PCP is that there must be no automatic password update, i.e. Password Age enforcement is unchecked. Updates are controlled manually and started using a breakglass script.
 
-![Password Composition Policy](/Docs/SymtecPAM-PCP.png)
+![Password Composition Policy](/Docs/SymantecPAM-PCP.png)
 
 ### Password View Policy
 
 The PVP is used to control actions required prior to releasing a password and actions to be done after password release. 
 The policy defined here will ask the API user to reauthenticate (interactive) if the Target Account is used interactively through PAM. Password update is done manually from the script retrieving passwords. 
 
-![Password View Policy](/Docs/SymtecPAM-PVP.png)
+![Password View Policy](/Docs/SymantecPAM-PVP.png)
 
 ### SSH Key Policy
 Last policy setup is a setting controlling the type and length of generated SSH Key pairs. Similar to the PCP but specific for SSH target accounts.
 
-![SSH Key-Pair Policy](/Docs/SymtecPAM-SSHKey-PairPolicy.png)
+![SSH Key-Pair Policy](/Docs/SymantecPAM-SSHKey-PairPolicy.png)
 
 
 # Breakglass accounts
@@ -78,22 +78,22 @@ Last policy setup is a setting controlling the type and length of generated SSH 
 
 ### TargetApplication for Active Directory
 
-![TargetApplication - Active Directory](/Docs/SymtecPAM-TargetApplication(AD).png)
+![TargetApplication - Active Directory](/Docs/SymantecPAM-TargetApplication(AD).png)
 
 ### TargetAccount for Active Directory
 
-![TargetAccount - Active Directory](/Docs/SymtecPAM-TargetAccount(AD).png)
+![TargetAccount - Active Directory](/Docs/SymantecPAM-TargetAccount(AD).png)
 
 
 ## Linux (Password)
 
 ### TargetApplication for Linux (Password)
 
-![TargetApplication - Linux (password)](/Docs/SymtecPAM-TargetApplication-Linux(Password).png)
+![TargetApplication - Linux (password)](/Docs/SymantecPAM-TargetApplication-Linux(Password).png)
 
 ### TargetAccount for Linux (Password)
 
-![TargetAccount - Linux (password](/Docs/SymtecPAM-TargetAccountLinux(Password).png)
+![TargetAccount - Linux (password](/Docs/SymantecPAM-TargetAccountLinux(Password).png)
 
 
 
@@ -101,11 +101,11 @@ Last policy setup is a setting controlling the type and length of generated SSH 
 
 ### TargetApplication for Linux (SSH Key-Pair)
 
-![TargetApplication - Linux (SSH Key-Pair)](/Docs/SymtecPAM-TargetApplication-Linux(SSH).png)
+![TargetApplication - Linux (SSH Key-Pair)](/Docs/SymantecPAM-TargetApplication-Linux(SSH).png)
 
 ### TargetAccount for Linux (SSH Key-Pair)
 
-![TargetAccount - Linux (SSH Key-Pair](/Docs/SymtecPAM-TargetAccountLinux(SSH).png)
+![TargetAccount - Linux (SSH Key-Pair](/Docs/SymantecPAM-TargetAccountLinux(SSH).png)
 
 
 
