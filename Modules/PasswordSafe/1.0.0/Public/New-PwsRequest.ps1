@@ -31,6 +31,12 @@ SOFTWARE.
 # $script:cacheRequestsByID= New-Object System.Collections.HashTable	# Index into cache array
 #
 
+enum CONFLICT {
+    Error
+    Reuse
+    Renew
+}
+
 function New-PwsRequest () {
 
     Param(
@@ -40,6 +46,7 @@ function New-PwsRequest () {
         [parameter(Mandatory=$false)][string] $SystemName,
 
         [parameter(Mandatory=$false)][int] $Duration= 1,
+        [parameter(Mandatory=$false)][CONFLICT] $Conflict= "Error",
         [parameter(Mandatory=$false)][string] $Reason= "API CheckOut",
         [parameter(Mandatory=$false)][switch] $RotateOnCheckin= $false
     )
@@ -65,6 +72,9 @@ function New-PwsRequest () {
                 "Reason"                 = $Reason
                 "AccessPolicyScheduleID" = $null
                 "RotateOnCheckin"        = $RotateOnCheckin
+            }
+            if ($Conflict -ne "Error") {
+                $body.Add("ConflictOption", $Conflict)
             }
 
             try {
