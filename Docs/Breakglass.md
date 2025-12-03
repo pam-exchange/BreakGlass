@@ -1,145 +1,163 @@
 # Breakglass and PAM
-Privileged Access Management (PAM) is used in many organizations to establish and control access to servers and applications as a user with elevated privileges, i.e. an administrator. Ideally the login process to the server or application is performed automatically without revealing it to the user. Other security measures like session recording and automatic credentials rotation are typically built-in capabilities.
 
-A natural question to ask is “How to gain access to servers and application when PAM is not available?”
-This is called Break glass or Emergency access to systems, and it is crucial for any critical system in an organization. Privileged Access Management solutions are critical for privileged access to onboarded systems, and it is therefore extremely important to consider emergency access in different disaster scenarios.
+Privileged Access Management (PAM) is widely used in organizations to establish and control access to servers and applications for users with elevated privileges (e.g., administrators). Ideally, the login process to the server or application is automated without revealing credentials to the user. Additional security measures such as session recording and automatic credential rotation are typically built-in capabilities.
 
-Looking at Break Glass at a wider perspective, there are other scenarios than PAM being unavailable, which can also be considered as break glass scenarios.
+A natural question arises: **“How do you gain access to servers and applications when PAM is not available?”**
 
-Break Glass can be divided in at least three categories related to Privileged Access Management (PAM):
-1.	PAM admin break glass for PAM application and necessary supporting infrastructure.
-2.	Privileged user break glass for temporary access to their target systems when the normal access path via the PAM solution is unavailable.
-3.	Privileged user break glass for emergency access to targets where the PAM solution is operational and will be used for providing break glass access to end-points.
+This scenario is called **Break Glass** or **Emergency Access**, and it is crucial for any critical system in an organization. PAM solutions are essential for privileged access to onboarded systems, making it extremely important to consider emergency access in various disaster scenarios.
+
+Looking at Break Glass from a broader perspective, there are other situations beyond PAM outages that can also be considered break glass scenarios.
+
+### Break Glass Categories
+Break Glass can be divided into at least three categories related to PAM:
+
+1. **PAM Admin Break Glass** – Emergency access for PAM application and supporting infrastructure.
+2. **Privileged User Break Glass (PAM Unavailable)** – Temporary access to target systems when the normal access path via PAM is unavailable.
+3. **Privileged User Break Glass (PAM Operational)** – Emergency access to targets where PAM is operational and used to provide break glass access to endpoints.
 
 ![Breakglass Categories](/Docs/BreakGlass-Categories.png)
 
-When referring to Break glass credentials these can be username & password or SSH key-pairs. Use of either will depend on the technology used when accessing servers and applications. Unless discussed explicitly they are used interchangeably.
-Recommendations for successfully implementing PAM-related break glass processes are:  
-1.	When designing and implementing a PAM solution, make sure to address the topic of break glass with key stakeholders, covering all three categories of break glass.
-2.	Consider each category and type of break glass in this guidance and aim to design and implement break glass processes for all categories. It is ok to exclude chosen scenarios if the given circumstances merit it. For example, if the PAM solution is strategically chosen to not provide break glass access for privileged users (category 3) – but omitting break glass scenarios must be an active and documented decision. 
-3.	No solution should be considered fully implemented until processes are thoroughly documented, verified, and validated end-to-end. 
-4.	Ensure necessary training and availability of break glass playbooks for relevant staff: Make sure you are not only relying on one individual to perform break glass. Ensure that all relevant team members of the respective teams are trained and confident on what to do in an emergency.
-5.	To avoid confusion and misunderstandings always clarify what category of break glass you are addressing. Be aware of biases that may cause a given stakeholder having a tunnel vision on one category of break glass:
-     1. PAM architects and engineers tend to focus on PAM Admin break glass to recover the PAM solution (**category 1**).
-     2. Operationally-oriented stakeholders tend to focus on ensuring business continuity and will prioritize that efficient break glass processes are in place in case of PAM outages to allow privileged user to retain access to target systems (**category 2**).
-     3. Security- and compliance-oriented stakeholders tend to focus on getting any existing break glass processes covered by the PAM solution (**category 3**).
-6.	Define a process for rotating or changing credentials, and for validating break glass credentials. Update break glass account passwords regularly.
-7.	All break glass processes should end with closing the break glass access, i.e. revoke access rights and/or rotate exposed credentials. It is also recommended to review or audit all break glass incident: Are there any identified improvements for the processes? Was a break glass access justified? Were break glass access rights abused?
-8.	Keep break glass processes as simple as possible – users need to be able to perform break glass unassisted and autonomously. Can it be a self-service break glass access?
-9.	Make sure break glass processes and credentials are secure and protected from abuse.
-10.	Raise alerts when break glass processes are invoked (but avoid to outright block them). 
-11.	Monitor and raise alerts when break glass credentials are used without a break glass process was started. Follow-up with break glass owner that the usage was justified.
+When referring to break glass credentials, these can be **username & password** or **SSH key pairs**. The choice depends on the technology used for accessing servers and applications. Unless explicitly stated, these terms are used interchangeably.
 
-Regardless of the break glass category applicable for the organization, there are some general topics to consider.
+### Recommendations for Implementing PAM-Related Break Glass Processes
 
-## Store break glass credentials
+1. **Address Break Glass Early** – When designing and implementing a PAM solution, ensure break glass is discussed with key stakeholders, covering all three categories.
+2. **Design for All Categories** – Consider each category and type of break glass in this guidance. It is acceptable to exclude certain scenarios if justified, but omissions must be documented.
+3. **Document and Validate** – No solution is complete until processes are thoroughly documented, verified, and validated end-to-end.
+4. **Training and Playbooks** – Ensure relevant staff are trained and have access to break glass playbooks.
+5. **Clarify Categories** – Always specify which break glass category you are addressing.
+6. **Credential Rotation** – Define processes for rotating or changing credentials and validating break glass accounts.
+7. **Close Access After Use** – All break glass processes should end with revoking access rights and/or rotating exposed credentials.
+8. **Keep It Simple** – Break glass processes should be simple enough for users to perform autonomously.
+9. **Secure Credentials** – Ensure break glass credentials and processes are protected from abuse.
+10. **Raise Alerts** – Trigger alerts when break glass processes are invoked.
+11. **Monitor Usage** – Alert when break glass credentials are used without initiating a break glass process.
+
+## Store Break Glass Credentials
 
 How are break glass credentials stored and accessed?
 
-Are passwords are printed on paper, which is saved in a physical vault?
+Passwords printed on paper and stored in a physical vault may work for manual entry, but SSH key pairs cannot be practically printed and retyped. Instead, consider storing credentials electronically on an encrypted external disk or USB drive. Test access to these devices regularly.
 
-When a password needs to be typed for login, it can be entered manually, but it is infeasible to print SSH key pairs on paper and retype the private key when needed. 
+Use a local password vault (e.g., KeePass, 1Password) to store credentials securely. Consider storing a dedicated laptop in a physical safe with the vault software pre-installed and operational. Ensure the laptop OS and vault application are kept up to date. Rotate access credentials for both the vault and the laptop according to organizational policies.
 
-Instead, it should be considered storing them electronically on an external disk or USB drive. Keep in mind that accessing the external drive or USB drive is also part of break glass process, and use of the drive must be tested to be functional. If credentials (passwords and SSH keys) are stored electronically, are they stored encrypted? 
+## Accessing Break Glass Credentials
 
-Consider using a local password vault (e.g. KeePass, 1Password) and store the credentials there. The program for reading the vault is critical when retrieving break glass credentials. Consider storing a laptop in a physical safe with password vault software pre-installed and operational. Access and login to the laptop is also part of the break glass process. Also consider how the dedicated laptop OS and password vault application are kept up to date? 
+When accessing break glass credentials, will the user gain access to a single credential or multiple/all credentials? If all credentials are accessible (e.g., in KeePass), rotate all credentials after the event.
 
-Keep in mind that access or login credentials to local password vault application must be changed as per organization policies.
+## Set and Rotate Break Glass Credentials
 
-If a dedicated laptop is used, access or login credentials to the laptop must be changed as per organization policies.
+Credential changes should occur without a single user knowing the complete credentials. For manual password changes, consider split-key scenarios (e.g., 3 of 5 parts required). For SSH keys, define where keys are generated, how they are stored securely, and how public keys are distributed.
 
+Always test and validate new credentials on endpoints. PAM can manage break glass accounts and validate credentials automatically, but this creates dependency. Ideally, PAM should provide an offline vault or export mechanism to a local vault. If unavailable, use PAM and vault APIs or CLI to create a secure script for syncing credentials.
 
-## Accessing break glass credentials
-When a user is accessing break glass credentials, is it single credential they will gain access to, or will the user have access to multiple or all credentials?
+Define in the break glass process:
+- When credentials are changed.
+- How changes are performed.
+- How new credentials are tested and validated.
+- How credentials are securely stored.
 
-Consider if the break glass process defines that credentials must be changed after a user has obtained access break glass credentials. If the user performing break glass potentially has access to all break glass credentials (e.g. all credentials stored in KeePass), then all break glass credentials should be changed at end of a break glass event. 
+## Monitor Break Glass Credentials Usage
 
-## Set and rotate break glass credentials
-How to set and rotate break glass credentials? Ideally, change of credentials should be handled without a single user has knowledge of complete credentials.
+PAM solutions often record sessions for privileged access, but break glass accounts (categories 1 and 2) bypass PAM, eliminating session recording. Ensure servers and applications send login events or syslog messages to a SIEM solution. The SIEM should actively monitor and raise alerts when break glass credentials are used.
 
-Is the password change done by typing a new password in a GUI or command shell?
-If this is how passwords are changed, consider having two or more users each providing their part of a password. Split key scenarios, e.g. 3 of 5 parts required, is an option if the end-points (and PAM system) supports this. Are credentials stored combined or are they stored as individual parts? 
+---
 
-Also consider how SSH key-pair credentials are being updated. Where are the key-pair generated, how are they store securely, and how is the public key distributed to the end-point needing break glass access.
+# PAM Admin Recovery of PAM (Category 1)
 
-Regardless of using username/password or SSH keys, it is very important to test and validate that new break glass credentials are actually working on the end-point where the break glass credentials are defined.
+This scenario focuses on reactivating PAM services during disaster recovery. When PAM manages credentials and sessions, restoring PAM is critical. Evaluate **all** components required for PAM to function, including:
+- PAM application and OS
+- PAM database (if external)
+- ESX server and hardware
+- Network connectivity (switches)
+- Supporting systems (Firewalls, AD, 2FA, DNS)
 
-Instead of typing passwords and generating SSH key-pairs manually, an approach is to let PAM manage the break glass accounts. I.e. let PAM generate and update passwords and SSH key-pairs for break glass accounts. Built-in functionality with PAM is testing and validating new credentials are working for login at end-points. 
-
-This is somehow a catch-22. One purpose for break glass is having an access mechanism to end-points when PAM is not operational (category 1 + 2), but it is PAM itself that is managing the break glass credentials. Ideally the PAM system has a built-in mechanism with an offline vault, or a built-in mechanism to export credentials to a local password vault (e.g. KeePass, 1Password). If this is not available, but an API or CLI to both PAM and a local password vault is available, consider creating a program or script for fetching credentials from PAM and push them into the local password vault. Keep in mind that such a program or script will have access to credentials from PAM, thus is it critical that access to configuration for and executing it must be restricted as part of the break glass process. 
-
-The break glass process must define when break glass credentials are changed, how the change process is performed, test and validation of new credentials, and how they are stored. 
-
-
-## Monitor break glass credentials usage
-When using a PAM solution one of the purposes can be to record activities performed while a user has elevated permissions on a server or application. This is the session recording capability of the PAM solution. 
-
-However, when using a break glass account (category 1+2), access to a server or application is done without using PAM, thus there is no session recording capability available. Alas, it is important that the servers and applications are sending login events or syslog messages to a SIEM solution, and that the SIEM solution is actively monitoring use of break glass credentials. If login using break glass credentials is detected, the SIEM solution should raise an alert. 
-
-
-# PAM admin recovery of PAM (category 1)
-This scenario is a category 1 break glass scenario. 
-The aim is to reactivate PAM service as part of the disaster recovery or break glass process. When the PAM application and credentials are stored within PAM, then PAM is used to both open sessions to other end-points and to retrieve passwords for these.
+Ensure break glass credentials exist for the PAM application itself. The technical implementation depends on the PAM solution.
 
 ![Breakglass Scope](/Docs/BreakGlass-Scope.png)
 
-It is important to consider and evaluate **all** components required for the PAM application to be operational. This includes, but is not limited to, the PAM application itself, OS hosting PAM application, PAM database (if external), ESX server, ESX hardware, network connectivity (switch), supporting systems and applications (e.g. Firewalls, AD, 2FA, DNS).  
+---
 
-For the PAM application itself there should be a break glass credential available. Exactly how this is technically done will depend on the specific PAM solution.
+# Break Glass for All Targets (Category 2)
 
-# Break Glass for all targets (category 2)
-This scenario is a category 2 break glass scenario. 
-Users can obtain the break glass credentials for the server or application and use the credentials for a session from their desktop to the end-point.
-For standalone, but also for domain joined, servers and applications it should be considered to create a dedicated break glass user. The break glass user is what is handled through the break glass process. Depending on the nature of an outage triggering the break glass process, it may not be possible to validate user credentials with an Active Directory, thus local break glass users should be considered.
-Regardless of the break glass credential is a local user or a domain user, it is important to test and validate that firewall rules will allow connection from users’ desktop to the end-point. Such firewall rules may not exist permanently, but in a break glass scenario they must be created or enabled permitting connections from the users’ desktop to servers and applications.
-It is strongly recommended to change break glass credentials after they have been given to a user. It is not the act of using the break glass credentials that is important, but that a user has had access to the credentials. Alas, if all break glass credentials are stored in a local vault and a user potentially had access to them all, then they should all be changed.
-The process of changing break glass credentials can be a manual process with several audit points and separation of duties. It should be considered using PAM as a mechanism to change break glass credentials and export these to safe storage.
-There may be some systems and applications where PAM cannot or should not be responsible for the break glass credentials, and it is necessary to handle these manually. 
-Regardless of how break glass credentials are updated, it is critical to conduct a test and validation of new credentials as part of the sign-off process of changing credentials.
+This scenario represents a **Category 2 break glass situation**. Users obtain break glass credentials for a server or application and use them to establish a session from their desktop to the endpoint.
 
-## Domain joined credentials
-Specifically for systems and applications which are using Active Directory (or LDAP) for authentication. Assume that PAM is maintaining passwords for privileged users, and that it is only PAM service, which is unavailable, and that the remaining infrastructure is operational.
+For both standalone and domain-joined servers and applications, consider creating a **dedicated break glass user**. This user account is managed through the break glass process. Depending on the nature of the outage triggering the break glass process, Active Directory validation may not be possible, so local break glass users should be considered.
 
-In such a scenario, it should be considered allowing an Active Directory user administrator to change password for privileged users in AD for the users needing administrator access to a server or application. 
+Regardless of whether the break glass credential is for a local or domain user, it is essential to **test and validate firewall rules** to ensure connections from users’ desktops to endpoints are allowed. These rules may not exist permanently, but in a break glass scenario, they must be created or enabled to permit access.
 
-User’s accounts are managed by PAM, but PAM is not operational. Until PAM is operational again, the user can use the privileged account directly and he/she now temporarily knows the password. When PAM is operational again, it can be used to test passwords for all managed credentials, and when a mismatch is found, update the credentials known only by PAM. Although this is a break glass scenario, the process of changing credentials must align with the automation available with PAM.
+It is strongly recommended to **change break glass credentials after they have been disclosed to a user**. The critical factor is not whether the credentials were used, but that a user had access to them. If all break glass credentials are stored in a local vault and a user potentially accessed them all, then all credentials should be rotated.
+
+The process of changing break glass credentials can be manual, involving multiple audit points and separation of duties. Consider using PAM as a mechanism to rotate break glass credentials and export them to secure storage. For systems and applications where PAM cannot or should not manage break glass credentials, handle updates manually.
+
+Regardless of the update method, it is crucial to **test and validate new credentials** as part of the sign-off process.
 
 
-# Using PAM as Break Glass mechanism (category 3)
-This scenario is a category 3 break glass scenario. 
+## Domain-Joined Credentials
 
-Assume that PAM is highly redundant and that a complete outage of PAM is considered negligible. Also assume that the administrators have their own personal administrative credentials, which they use on a day-to-day basis.
+For systems and applications using Active Directory (or LDAP) for authentication, assume PAM maintains passwords for privileged accounts and that only the PAM service is unavailable while the rest of the infrastructure remains operational.
 
-If for whatever reason, their personal privileged credential is not working as expected, PAM a mechanism to gain access to a server or application with a break glass credential. It is in essence PAM, which is providing break glass access to end-points.
+In such cases, consider allowing an **Active Directory administrator** to change passwords for privileged accounts in AD for users requiring administrator access to servers or applications.
 
-Such a setup should require an extensive high availability and is typically combined with a break glass process for recovering PAM itself (category 1).
+Although these accounts are managed by PAM, PAM is temporarily unavailable. Until PAM is restored, the user can use the privileged account directly and temporarily knows the password. When PAM becomes operational again, it should verify all managed credentials. If mismatches are detected, PAM should update credentials to align with its automation processes.
 
-When performing normal day-to-day administrative business, connections to servers and applications is established without using PAM. Audit logging and event monitoring should be in place as there is no session recording provided through PAM (for day-to-day administration). When performing a break glass session through PAM, then session recording should be enabled as the break glass user account probably is a generic nonpersonal user.
+Even in a break glass scenario, the process of changing credentials must remain consistent with PAM’s automated workflows to ensure security and compliance.
 
 
-# Break Glass for some PAM solutions
-This section describes a category 1 break glass scenario for specific PAM solutions, i.e. how to restore PAM operation. 
-There are many different PAM solutions available commercially and the description of the selected PAM solutions here is not an endorsement or recommendation for any PAM solution.
+---
+
+# Using PAM as Break Glass Mechanism (Category 3)
+
+This scenario represents a **Category 3 break glass situation**.
+
+Assume PAM is highly redundant, making a complete outage negligible. Also assume administrators have their own personal administrative credentials for day-to-day operations.
+
+If, for any reason, their personal privileged credentials fail, PAM can provide access to servers or applications using a break glass credential. In essence, PAM itself becomes the mechanism for break glass access to endpoints.
+
+Such a setup requires a robust high-availability architecture and is typically combined with a break glass process for recovering PAM itself (Category 1).
+
+During normal day-to-day administration, connections to servers and applications occur without PAM. Therefore, **audit logging and event monitoring** should be in place, as PAM session recording is not available for these activities. However, when performing a break glass session through PAM, **session recording should be enabled**, since the break glass account is likely a generic, non-personal user.
+
+---
+
+# Break Glass for Some PAM Solutions
+
+This section describes a **Category 1 break glass scenario** for specific PAM solutions—how to restore PAM operation. There are many PAM solutions available commercially; the descriptions here are not endorsements or recommendations.
 
 ## BeyondTrust Password Safe
-BeyondTrust Password Safe (PWS) has built-in administrators named “btadmin” and “biadmin” (names can be configured differently). The user “btadmin” is the appliance administrator (OS and appliance application). The username “btadmin” is by default also used for login to the operating system. At the OS level it is possible to create additional local administrators. The user “biadmin” is application administrator. There is a companion user “buadmin” required for updating the appliance. This user not considered necessary for break glass but must also be available for PAM administrators.
 
-All users “btadmin” (appliance level), “btadmin” (OS level) and “biadmin” (application level) are local users in Password Safe and are the default administrators. At the appliance level it is not possible to create new users and there is only one administrator user. At the OS level and application level new users can be created and there can be multiple administrators available. Anyway, these local users are potentially all break glass credentials. 
+BeyondTrust Password Safe (PWS) includes built-in administrator accounts named **`btadmin`** and **`biadmin`** (names can be customized). Key details:
 
-Break glass credentials for underlying and supporting components must also be available. This may include, but is not limited to, ESX (vSphere/vCenter), ESX hardware (iLO), network switches, and DNS.
+- **`btadmin`**: Appliance administrator for OS and appliance application. By default, this username is also used for OS login. Additional local administrators can be created at the OS level.
+- **`biadmin`**: Application administrator.
+- **`buadmin`**: Companion account required for appliance updates. While not essential for break glass, it must be available for PAM administrators.
 
-When changing the password for the PAM administrative accounts, be sure to validate that Password Safe is fully functional and that all components using the administrative account (if any) are still operational, and if not, update the configurations using the new password.
+All these accounts—**`btadmin`** (appliance and OS level) and **`biadmin`** (application level)—are local users and default administrators. At the appliance level, only one administrator exists, and new users cannot be created. At OS and application levels, multiple administrators can be added. These local accounts are considered break glass credentials.
+
+Break glass credentials for underlying and supporting components must also be available. This includes, but is not limited to:
+- ESX (vSphere/vCenter)
+- ESX hardware (iLO)
+- Network switches
+- DNS
+
+When changing passwords for PAM administrative accounts, validate that Password Safe remains fully functional. Update configurations for any components using these accounts if necessary.
 
 ## Symantec PAM
-Symantec PAM is deployed as an appliance where access to the operating system itself is only possible for Symantec Support and only with cooperation with an administrator of Symantec PAM.
 
-In PAM there are two levels of access. One access is for the configuration only and one access is for everything. For configuration only access, connect to “https://<hostname>/config/” and login with the user “config” and the correct password. Default password for the user “config” is “config”. It is strongly recommended to change the password at first login. It is not possible to create new users for the “config” level access. At the “config” level it is possible to rename the user “super” to something else.
+Symantec PAM is deployed as an appliance. Access to the operating system is restricted to Symantec Support and requires cooperation with a PAM administrator.
 
-For full access login to “https://<hostname/” as user “super” using the correct password. Default password is “super” and must be changed at first login. It is possible to define local or domain users with full access permissions in PAM. 
+Symantec PAM provides two access levels:
 
-If PAM is setup as a cluster of PAM appliances the “config” user is unique to the specific appliance and a password change is not synchronized across cluster members. The password for the user “super” is synchronized across cluster members.
+- **Configuration-only access**: Connect to `https://<hostname>/config/` and log in as **`config`**. The default password is `config` and should be changed immediately. New users cannot be created for this level. The **`super`** user can be renamed.
 
-Both accounts “config” and “super” are break glass accounts.
+- **Full access**: Connect to `https://<hostname>/` and log in as **`super`**. The default password is `super` and must be changed at first login. Local or domain users with full access permissions can be defined.
 
-It is possible to setup two independent PAM environments (not clustered) and let the first PAM system manage the password for the user “super” on the second PAM system and let the second PAM system manage the user “super” on the first PAM system. The PAM systems are target systems for each other. 
+Cluster considerations:
+- The **`config`** user is unique to each appliance; password changes are not synchronized across cluster members.
+- The **`super`** user password is synchronized across cluster members.
+
+Both **`config`** and **`super`** accounts are break glass credentials.
+
+Advanced setup option:
+- Deploy two independent PAM environments (not clustered) and configure each to manage the **`super`** account of the other. This creates mutual management, where each PAM system acts as a target for the other.
 
