@@ -156,7 +156,7 @@ Cluster considerations:
 - The **`config`** user is unique to each appliance; password changes are not synchronized across cluster members.
 - The **`super`** user password is synchronized across cluster members.
 
-Both **`config`** and **`super`** accounts are break glass credentials.
+Both **`config`** and **`super`** accounts can be considered as break glass credentials.
 
 Advanced setup option:
 - Deploy two independent PAM environments (not clustered) and configure each to manage the **`super`** account of the other. This creates mutual management, where each PAM system acts as a target for the other.
