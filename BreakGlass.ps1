@@ -37,7 +37,7 @@ SOFTWARE.
 # ----------------------------------------------------------------------------------
 param (
     [ValidateSet("PasswordSafe","SymantecPAM")]
-    [Parameter(Mandatory=$false)][String] $PAMType= "PasswordSafe",
+    [Parameter(Mandatory=$false)][String] $PAMType= "SymantecPAM",
     [ValidateSet("KeePassXC")]
     [Parameter(Mandatory=$false)][String] $VaultType= "KeePassXC",
     [Parameter(Mandatory=$false)][string] $ConfigPath= "c:\temp",

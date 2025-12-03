@@ -1,89 +1,89 @@
 # Breakglass with Symantec PAM
 
-This document is about setup of Symantec PAM in a category 2 scenario. 
+This document describes how to set up **Symantec PAM** for a **Category 2 break glass scenario**.
 
-First part the document is defining the nuts and bolts required for the purpose of having breakglass accounts administered by PAM. The second part is describing examples for account setup using Active Directory, Linux password and Linux SSH key pair.
+The first part explains the components required to manage break glass accounts in PAM. The second part provides examples for account setup using **Active Directory**, **Linux password**, and **Linux SSH key pair**.
 
-The goal is to define a setup in PAM such that an API user will only see breakglass accounts. The aim is to allow a program or script to copy passwords from PAM to a local vault, which can be used in scenario where PAM is completely unavailable, but where administrative access to (selected) end-points is absolutely required before PAM is available again.
+The goal is to configure PAM so that an API user can access only break glass accounts. This allows a script or program to copy passwords from PAM to a local vault for use when PAM is unavailable, ensuring administrative access to critical endpoints.
 
-# Basic setup in Symantec PAM
-The mechanism in Symantec PAM is using a filter showing only the accounts defined as relevant for breakglass purpose. This is done using a Target Group, a Credential Manager Role and a Credential Manager UserGroup. Assignment for an API user will have the desired effect, that this user can only view passwords (and SSH keys) for breakglass accounts. 
+## Basic Setup in Symantec PAM
 
-## Target Group
-A core component for a sieve revealing only break glass accounts is a TargetGroup. A TargetGroup is a filter only making break glass accounts available for a user. 
+Symantec PAM uses filters to show only accounts designated for break glass purposes. This is achieved through:
+- **Target Group**
+- **Credential Manager Role**
+- **Credential Manager User Group**
 
-The Target Group can be either dynamic or static. If there are only few break glass accounts in scope, a static group can be a good choice. The filter documented here only uses the account name and equality to the text “breakglass”. Different rules can be defined.
+Assigning these to an API user ensures they can view passwords and SSH keys only for break glass accounts.
 
-What is important is that the accounts visible using this target group only is showing the account s in scope for break glass purpose.
+### Target Group
+A **Target Group** filters accounts so only break glass accounts are visible. Groups can be static or dynamic. For a small number of accounts, a static group works well. Example filter: account name equals `breakglass`.
 
 ![Target Group](/Docs/SymantecPAM-TargetGroup.png)
 
-## Credential Manager Role
-The CM Role is controlling which permissions will be granted to the API user. The important permissions is list/view servers, applications and accounts, update password and view password. 
+### Credential Manager Role
+Defines permissions for the API user, including:
+- List/view servers, applications, and accounts
+- Update password
+- View password
 
 ![Credential Manager Role](/Docs/SymantecPAM-CMRole.png)
 
-
-## Credential Manager User Group
-The user group is assigned to an API user. When the group is assigned the API user will be able to see/interact with accounts defined in the TargetGroup filter and use the permissions granted in the CM role.
+### Credential Manager User Group
+Assign this group to the API user. It links the Target Group and Credential Manager Role permissions.
 
 ![Credential Manager User Group](/Docs/SymantecPAM-CMGroup.png)
 
-
-## API user role
-The API user is not a Standard User and a dedicated role for breakglass is defined. Create a new PAM Role for this purpose. This role is not the Credential Manager role and will grant the user permission to use the Credential Management functionality as defined in the Credential Manager User Group.
+### API User Role
+Create a dedicated PAM Role for break glass. This role grants access to Credential Management features defined in the User Group.
 
 ![User Role](/Docs/SymantecPAM-Role.png)
 
-
-## API user
-It is possible to define an API user as a domain user or as a local user. Here a local user is used.
+### API User
+Define the API user as either a domain or local user (example uses local).
 
 ![User #1](/Docs/SymantecPAM-User-1.png)
 
-
-Assign the Breakglass role to the user.
+Assign the Breakglass role:
 ![User #2](/Docs/SymantecPAM-User-2.png)
 
-Assign the Breakglass Credential Manager group to the user.
+Assign the Breakglass Credential Manager group:
 ![User #3](/Docs/SymantecPAM-User-3.png)
 
-## Policies for breakglass usage
-Policies for password complexity, password viewing and SSH key pair is recommended for setup of breakglass accounts. 
+## Policies for Break Glass Usage
 
-### Password Composition Policy
-The PCP is defining the length and complexity of passwords generated by PAM. 
-The password length should be large. If different end-point types must use a different policy additional policy can be created and used.
+Policies should cover password complexity, viewing, and SSH key generation.
 
-Important in the PCP is that there must be no automatic password update, i.e. Password Age enforcement is unchecked. Updates are controlled manually and started using a breakglass script.
+### Password Composition Policy (PCP)
+Defines password length and complexity. Key points:
+- Use strong, long passwords.
+- Disable automatic password updates (uncheck Password Age enforcement). Updates are manual via break glass script.
 
 ![Password Composition Policy](/Docs/SymantecPAM-PCP.png)
 
-### Password View Policy
-
-The PVP is used to control actions required prior to releasing a password and actions to be done after password release. 
-The policy defined here will ask the API user to reauthenticate (interactive) if the Target Account is used interactively through PAM. Password update is done manually from the script retrieving passwords. 
+### Password View Policy (PVP)
+Controls actions before and after password release:
+- Require reauthentication for interactive use.
+- Updates handled manually by script.
+- Consider email notifications and dual authorization.
 
 ![Password View Policy](/Docs/SymantecPAM-PVP.png)
 
 ### SSH Key Policy
-Last policy setup is a setting controlling the type and length of generated SSH Key pairs. Similar to the PCP but specific for SSH target accounts.
+Defines type and length of SSH key pairs.
 
 ![SSH Key-Pair Policy](/Docs/SymantecPAM-SSHKey-PairPolicy.png)
 
+---
 
-# Breakglass accounts
+# Breakglass Accounts
 
 ## Active Directory
 
-### TargetApplication for Active Directory
-
+### Target Application
 ![TargetApplication - Active Directory](/Docs/SymantecPAM-TargetApplication(AD).png)
 
-### TargetAccount for Active Directory
-
+### Target Account
 ![TargetAccount - Active Directory](/Docs/SymantecPAM-TargetAccount(AD).png)
-
 
 ## Linux (Password)
 
@@ -95,21 +95,14 @@ Last policy setup is a setting controlling the type and length of generated SSH 
 
 ![TargetAccount - Linux (password](/Docs/SymantecPAM-TargetAccount-Linux(Password).png)
 
-
-
 ## Linux (SSH Key-Pair)
 
 ### TargetApplication for Linux (SSH Key-Pair)
 
 ![TargetApplication - Linux (SSH Key-Pair)](/Docs/SymantecPAM-TargetApplication-Linux(SSH)-1.png)
-
 ![TargetApplication - Linux (SSH Key-Pair)](/Docs/SymantecPAM-TargetApplication-Linux(SSH)-2.png)
-
 
 ### TargetAccount for Linux (SSH Key-Pair)
 
 ![TargetAccount - Linux (SSH Key-Pair](/Docs/SymantecPAM-TargetAccount-Linux(SSH).png)
-
-
-
 

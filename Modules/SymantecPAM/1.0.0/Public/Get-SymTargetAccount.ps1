@@ -71,6 +71,19 @@ function Get-SymTargetAccount ()
 
             }
             else {
+
+                $res= Invoke-SymantecCLI -cmd "searchTargetAccounts"
+
+                foreach ($s in $res."cr.result".TargetAccount) {
+
+                    $ta= Convert-XmlToPS -XML $s -filter "^(ID|deviceID|name|extensionType|policyID|targetServerID|Attribute\.(?!extensionType).*)$"
+
+                    $idx= $script:cacheTargetAccountBase.Add( $ta )
+                    $script:cacheTargetAccountByID.Add( [int]($ta.ID), [int]($idx) )
+                }
+
+
+
                 #
                 # TO-DO: Detailed TargetAccount
                 # Fetch TargetApplication and TargetServer
