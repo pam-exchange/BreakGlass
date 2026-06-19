@@ -25,8 +25,8 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 # No caching for this call
 #
-#$script:cacheRequestsBase= New-Object System.Collections.ArrayList
-#$script:cacheRequestsByID= New-Object System.Collections.HashTable	# Index into cache array
+#$Script:cacheRequestsBase= New-Object System.Collections.ArrayList
+#$Script:cacheRequestsByID= New-Object System.Collections.HashTable	# Index into cache array
 
 enum REQUEST_STATUS {
 	All

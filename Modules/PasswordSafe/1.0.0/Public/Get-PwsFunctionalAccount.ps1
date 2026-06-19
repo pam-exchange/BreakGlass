@@ -24,8 +24,8 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 
-$script:cacheFunctionalAccountBase= New-Object System.Collections.ArrayList
-$script:cacheFunctionalAccountByID= New-Object System.Collections.HashTable		# Index into cache array
+$Script:cacheFunctionalAccountBase= New-Object System.Collections.ArrayList
+$Script:cacheFunctionalAccountByID= New-Object System.Collections.HashTable		# Index into cache array
 
 function Get-PwsFunctionalAccount () 
 {
@@ -49,16 +49,16 @@ function Get-PwsFunctionalAccount ()
 			# Fetch and build cache
 			#
 			if ($Refresh -or -not $Script:cacheFunctionalAccountBase) {
-				$script:cacheFunctionalAccountBase.Clear()
-				$script:cacheFunctionalAccountByID.Clear()
+				$Script:cacheFunctionalAccountBase.Clear()
+				$Script:cacheFunctionalAccountByID.Clear()
 
 				$res = PSafe-Get "FunctionalAccounts";
 				$res | %{
 					$tmp= _Normalize-FunctionalAccount($_)
 
 					$key= $tmp.ID
-					$idx= $script:cacheFunctionalAccountBase.Add( $tmp ) 
-					$script:cacheFunctionalAccountByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
+					$idx= $Script:cacheFunctionalAccountBase.Add( $tmp ) 
+					$Script:cacheFunctionalAccountByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
 				}
 			}
 
@@ -71,7 +71,7 @@ function Get-PwsFunctionalAccount ()
 				$res= $Script:cacheFunctionalAccountBase[ [int]$idx ]
             }
 			else {
-				$res= $script:cacheFunctionalAccountBase
+				$res= $Script:cacheFunctionalAccountBase
 				if ($useRegex) {
 					if ($Name) {$res= $res | Where-Object {$_.Name -match $Name}}
 				}

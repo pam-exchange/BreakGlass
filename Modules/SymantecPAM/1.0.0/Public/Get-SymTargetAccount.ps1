@@ -24,8 +24,8 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 
-$script:cacheTargetAccountBase= New-Object System.Collections.ArrayList
-$script:cacheTargetAccountByID= New-Object System.Collections.HashTable		# Index into cache array
+$Script:cacheTargetAccountBase= New-Object System.Collections.ArrayList
+$Script:cacheTargetAccountByID= New-Object System.Collections.HashTable		# Index into cache array
 
 enum DETAILS {
     COMPACT
@@ -78,8 +78,8 @@ function Get-SymTargetAccount ()
 
                     $ta= Convert-XmlToPS -XML $s -filter "^(ID|deviceID|name|extensionType|policyID|targetServerID|Attribute\.(?!extensionType).*)$"
 
-                    $idx= $script:cacheTargetAccountBase.Add( $ta )
-                    $script:cacheTargetAccountByID.Add( [int]($ta.ID), [int]($idx) )
+                    $idx= $Script:cacheTargetAccountBase.Add( $ta )
+                    $Script:cacheTargetAccountByID.Add( [int]($ta.ID), [int]($idx) )
                 }
 
 
