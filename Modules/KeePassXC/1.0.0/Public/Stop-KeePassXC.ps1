@@ -27,7 +27,9 @@ SOFTWARE.
 function Stop-KeePassXC ()
 {
     $Script:kpDatabasePath= ""
-    $Script:kpKeyFilePath= ""
+    $Script:kpDatabaseName= ""
+    $Script:kpDatabaseFilename= ""
+    $Script:kpKeyFileFilename= ""
 	$Script:kpKeePassProgram= ""
 	$Script:kpMasterPassword= "*****************************************************"
     $Script:kpInitialized= $false

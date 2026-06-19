@@ -23,28 +23,20 @@ SOFTWARE.
 
 #>
 #--------------------------------------------------------------------------------------
-function Remove-KeePassXCGroup {
+function Get-KeePassXCDatabaseFilename {
     param (
-        [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
-        [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
-        [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
-        [Parameter(Mandatory=$false)][string]$Group,
+        [Parameter(Mandatory=$false)][string]$DatabasePath= $Script:kpDatabasePath,
+        [Parameter(Mandatory=$false)][string]$DatabaseName= $Script:kpDatabaseName,
+        [Parameter(Mandatory=$false)][string]$Title,
 		
+        [Parameter(Mandatory=$false)][switch]$Multiple= $false,
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
         [Parameter(Mandatory=$false)][switch]$WhatIf= $false
     )
 
-    if (-not $Script:kpInitialized) {
-        $msg= "KeePassXC module is not initialized"
-        if (-not $Quiet -or $WhatIf) {Write-Host $msg -ForegroundColor Yellow}
-        throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
+    if ($Multiple) {
+        return $DatabasePath+$DatabaseName+"Account - $($Title).kdbx"
     }
 
-    if ($KeyFileFilename) {
-		$msg= $MasterPassword | keepassxc-cli rmdir --key-file $KeyFileFilename $DatabaseFilename $Group 2>&1
-	} else {
-		$msg= $MasterPassword | keepassxc-cli rmdir $DatabaseFilename $Group 2>&1
-	}
-
-	return Test-Message($msg)
+    return $DatabasePath+$DatabaseName+".kdbx"
 }

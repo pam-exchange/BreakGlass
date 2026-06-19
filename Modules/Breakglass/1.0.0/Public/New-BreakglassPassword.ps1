@@ -23,28 +23,17 @@ SOFTWARE.
 
 #>
 #--------------------------------------------------------------------------------------
-function Remove-KeePassXCGroup {
+function New-BreakglassPassword {
     param (
-        [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
-        [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
-        [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
-        [Parameter(Mandatory=$false)][string]$Group,
-		
-        [Parameter(Mandatory=$false)][switch]$Quiet= $false,
-        [Parameter(Mandatory=$false)][switch]$WhatIf= $false
+        [Parameter(Mandatory=$false)][int] $Length= 32,
+        [Parameter(Mandatory=$false)][int] $BlockLength
     )
 
-    if (-not $Script:kpInitialized) {
-        $msg= "KeePassXC module is not initialized"
-        if (-not $Quiet -or $WhatIf) {Write-Host $msg -ForegroundColor Yellow}
-        throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
+    $passwd= -join ((65..90) + (97..122) + (48..57) | Get-Random -Count $Length | % {[char]$_}) 
+
+    if ($BlockLength) {
+        return $passwd -replace "(?<=\G.{$($BlockLength)})(?!$)", '-'
     }
-
-    if ($KeyFileFilename) {
-		$msg= $MasterPassword | keepassxc-cli rmdir --key-file $KeyFileFilename $DatabaseFilename $Group 2>&1
-	} else {
-		$msg= $MasterPassword | keepassxc-cli rmdir $DatabaseFilename $Group 2>&1
-	}
-
-	return Test-Message($msg)
+    return $passwd
+   
 }

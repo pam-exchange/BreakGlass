@@ -25,8 +25,8 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function New-KeePassXCEntry {
     param (
-        [Parameter(Mandatory=$false)][string] $DatabasePath= $Script:kpDatabasePath,
-        [Parameter(Mandatory=$false)][string] $KeyFilePath= $Script:kpKeyFilePath,
+        [Parameter(Mandatory=$false)][string] $DatabaseFilename= $Script:kpDatabaseFilename,
+        [Parameter(Mandatory=$false)][string] $KeyFileFilename= $Script:kpKeyFileFilename,
         [Parameter(Mandatory=$false)][string] $MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$false)][string] $Group,
 
@@ -35,6 +35,7 @@ function New-KeePassXCEntry {
         [Parameter(Mandatory=$true)][string] $Password,
         [Parameter(Mandatory=$false)][switch] $Verified= $false,
 		
+        [Parameter(Mandatory=$false)][switch] $Multiple= $false,
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
     )
@@ -55,10 +56,10 @@ function New-KeePassXCEntry {
         else {$notes= "Password is not verified"}
     }
 
-    if ($KeyFilePath) {
-		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli add --password-prompt --username $Username --notes $notes --key-file $KeyFilePath $DatabasePath "$Group/$title" 2>&1
+    if ($KeyFileFilename) {
+		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli add --password-prompt --username $Username --notes $notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$title" 2>&1
 	} else {
-		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli add --password-prompt --username $Username --notes $notes $DatabasePath "$Group/$title" 2>&1
+		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli add --password-prompt --username $Username --notes $notes $DatabaseFilename "$Group/$title" 2>&1
 	}
     return Test-Message($msg)
 }

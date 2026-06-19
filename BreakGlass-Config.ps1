@@ -26,8 +26,9 @@ $version= "1.0.0"
 
 $configKeePassXC= @{
         type="KeePassXC"; 
-		DatabasePath= "c:\temp\BreakGlass.kdbx"; 
-  		# KeyFilePath= "c:\temp\BreakGlass.keyfile";           # optional
+		DatabasePath= "c:\temp\"; 
+		DatabaseName= "Breakglass"
+  		# KeyFileFilename= "c:\temp\BreakGlass.keyfile";           # optional
 		MasterPassword= "<SuperSecretPassword>"; 
         Group= "BreakGlass";
     }

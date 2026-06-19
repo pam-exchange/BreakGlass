@@ -26,10 +26,13 @@ SOFTWARE.
 function Sync-BreakglassWithKeePassXC {
     param (
         [Parameter(Mandatory=$false)][string] $Group= $Script:kpGroup,
+        [Parameter(Mandatory=$false)][string] $FilePasswordGroup= $Script:kpFilePasswordGroup,
 
         [Parameter(Mandatory=$false)][Object[]] $pamAccounts = @(),
         [Parameter(Mandatory=$false)][Object[]] $vaultAccounts = @(),
 
+        [Parameter(Mandatory=$false)][switch] $Multiple= $false,
+        [Parameter(Mandatory=$false)][switch] $Update= $false,
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
     )
@@ -44,7 +47,8 @@ function Sync-BreakglassWithKeePassXC {
     #
     $vaultHash= New-Object System.Collections.Hashtable
     $vaultAccounts | %{
-        $vaultHash.Add( $_.title, [PSCustomObject]@{username=$_.username; password=$_.password.Trim()}) | Out-Null
+        #$vaultHash.Add( $_.title, [PSCustomObject]@{username=$_.username; password=$_.password.Trim();options= $_.options}) | Out-Null
+        $vaultHash.Add( $_.title, [PSCustomObject]@{username=$_.username; password=$_.password;options= $_.options}) | Out-Null
     }
 
     #
@@ -53,7 +57,7 @@ function Sync-BreakglassWithKeePassXC {
     $pamHash= New-Object System.Collections.Hashtable
     $pamAccounts | %{
 		
-        $key= $($_.Server)+" | "+$($_.accountType)+" | "+$($_.accountName)
+        $key= $($_.Server)+" # "+$($_.accountType)+" # "+$($_.accountName)
 
         if ($pamHash.ContainsKey($key)) {
             if (-not $Quiet) {Write-Host "Duplicate '$key'" -ForegroundColor Yellow}
@@ -64,8 +68,7 @@ function Sync-BreakglassWithKeePassXC {
         }
     }
 
-
-    $diff= Compare-Object @($pamHash.Keys) @($vaultHash.Keys) -IncludeEqual -CaseSensitive  | Sort-Object InputObject
+    $diff= Compare-Object @($pamHash.Keys) @($vaultHash.Keys) -IncludeEqual -CaseSensitive | Sort-Object InputObject
     foreach ($d in $diff) {
 
         $title= $d.InputObject
@@ -86,7 +89,25 @@ function Sync-BreakglassWithKeePassXC {
 				}
 				else {
 					if (-not $Quiet) {Write-Host "Updating '$title'" -ForegroundColor Green}
-					$res= Update-KeePassXCEntry -Group $Group -Title $title -Username $userName -Password $password -Verified:$verified
+                    if ($Multiple) {
+                        $fileMasterPassword= $vaultHash[$d.InputObject].options.password
+                        $fileDatabaseFilename= Get-KeePassXCDatabaseFilename -Title $Title -Multiple
+                        if ($Update) {
+                            Remove-Item -Path $fileDatabaseFilename -ErrorAction SilentlyContinue
+                            $fileMasterPassword= New-BreakglassPassword -BlockLength 4
+                        }
+                        if (Test-Path $fileDatabaseFilename) {
+                            $res= Update-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Group -Title $title -Username $userName -Password $password -Verified:$verified
+                        } 
+                        else {
+                            $res= New-KeePassXCDatabase -DatabaseFilename $fileDatabaseFilename -KeyFileFilename $null -MasterPassword $fileMasterPassword
+                            $res= New-KeePassXCGroup -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Group 
+                            $res= New-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Group -Title $Title -Username $userName -Password $password -Verified:$verified
+                        }
+                    }
+                    else {
+					    $res= Update-KeePassXCEntry -Group $Group -Title $title -Username $userName -Password $password -Verified:$verified
+                    }
 				}
             }
             else {
@@ -103,7 +124,32 @@ function Sync-BreakglassWithKeePassXC {
             }
             else {
                 if (-not $Quiet) {Write-Host "Adding '$title'" -ForegroundColor Green}
-                $res= New-KeePassXCEntry -Group $Group -Title $Title -Username $userName -Password $password -Verified:$Verified
+                if ($Multiple) {
+                    
+                    $fileMasterPassword= $(New-Breakglasspassword -BlockLength 4)
+                    try {
+                        $res= Update-KeePassXCEntry -Group $FilePasswordGroup -Title $Title -Username $userName -Password $fileMasterPassword
+                    }
+                    catch {
+                        if ($_.Exception.Message -eq "Not Found") {
+                            $res= New-KeePassXCEntry -Group $FilePasswordGroup -Title $Title -Username $userName -Password $fileMasterPassword
+                        }
+                        else {
+                            throw
+                        }
+                    }
+
+                    $fileDatabaseFilename= Get-KeePassXCDatabaseFilename -Title $Title -Multiple
+                    if (Test-Path $fileDatabaseFilename) {
+                        Remove-Item $fileDatabaseFilename
+                    }
+                    $res= New-KeePassXCDatabase -DatabaseFilename $fileDatabaseFilename -KeyFileFilename $null -MasterPassword $fileMasterPassword
+                    $res= New-KeePassXCGroup -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Group 
+                    $res= New-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Group -Title $Title -Username $userName -Password $password -Verified:$verified
+                }
+                else {
+                    $res= New-KeePassXCEntry -Group $Group -Title $Title -Username $userName -Password $password -Verified:$Verified
+                }
             }
         }
 
@@ -116,7 +162,17 @@ function Sync-BreakglassWithKeePassXC {
             }
             else {
                 if (-not $Quiet) {Write-Host "Removing '$title'" -ForegroundColor Green}
-                $res= Remove-KeePassXCEntry -Group $Group -Title $title
+                if ($Multiple) {
+                    $res= Remove-KeePassXCEntry -Group $FilePasswordGroup -Title $title
+
+                    $fileDatabaseFilename= Get-KeePassXCDatabaseFilename -Title $Title -Multiple
+                    if (Test-Path $fileDatabaseFilename) {
+                        Remove-Item $fileDatabaseFilename
+                    }
+                }
+                else {
+                    $res= Remove-KeePassXCEntry -Group $Group -Title $title
+                }
             }
         }
     }

@@ -29,7 +29,7 @@ function Stop-Breakglass ()
 	#Write-PSFMessage -Level Debug ("Signout from BryondTrust")
 	try
 	{
-        switch ($script:PAMType) {
+        switch ($Script:PAMType) {
             "PasswordSafe" 
             {
     		    $res= Stop-PasswordSafe
@@ -53,7 +53,7 @@ function Stop-Breakglass ()
 	}
     finally {
         $Script:kpDatabasePath= ""
-	    $script:kpKeyFilePath= ""
+	    $Script:kpKeyFileFilename= ""
 	    $Script:kpGroup= ""
 	    $Script:kpMasterPassword= "*****************************************************"
         $Script:kpInitialized= $false
