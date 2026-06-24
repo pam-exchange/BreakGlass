@@ -22,30 +22,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 #>
-#--------------------------------------------------------------------------------------
-function Sync-BreakglassWithVault {
+
+# ------------------------------------------------------------------------------------
+function Get-KeePassXCEntries {
     param (
-        [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType= "KeePassXC",
-
-        [Parameter(Mandatory=$false)][Object[]] $pamAccounts = @(),
-        [Parameter(Mandatory=$false)][Object[]] $vaultAccounts = @(),
-
         [Parameter(Mandatory=$false)][switch] $Multiple= $false,
-        [Parameter(Mandatory=$false)][switch] $Update= $false,
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
     )
 
     if ($WhatIf) {$quiet= $false}
 
-    switch ($VaultType) {
-        "KeePassXC" 
-        {
-            return Sync-KeePassXC -pamAccounts $pamAccounts -vaultAccounts $vaultAccounts -Multiple:$Multiple -Quiet:$Quiet -WhatIf:$WhatIf -Update:$Update
-        }
-    }
+	if ($Multiple) {
+		#
+		# Get KeePass passwords for individual KeePass database
+		#
+		$FilePasswords= Get-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Quiet:$Quiet -WhatIf:$WhatIf
+		$vaultEntries= New-Object System.Collections.ArrayList
+		foreach ($file in $FilePasswords) {
+			$filename= Get-KeePassXCDatabaseFilename -Title $file.title -Multiple
+			if (Test-Path $filename) {
+				$entry= Get-KeePassXCEntry -DatabaseFilename $filename -MasterPassword $file.password -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
 
-
+				if ($entry) {
+					$options= [PSCustomObject]@{filename= $filename; password= $file.password}
+					$vaultEntries.Add( [PSCustomObject]@{title=$file.title; username=$entry.username; password=$entry.password.Trim();options= $options} ) | Out-Null
+				}
+			}
+			else {
+				$options= [PSCustomObject]@{filename= $filename; password= $file.password}
+				$vaultEntries.Add( [PSCustomObject]@{title=$file.title; username=$file.username; password=$null;options= $options} ) | Out-Null
+			}
+		}
+		return $vaultEntries
+	}
+	else {
+		return Get-KeePassXCEntry -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
+	}
 }
 
 # --- end-of-file ---

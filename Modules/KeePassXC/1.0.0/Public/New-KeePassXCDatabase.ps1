@@ -33,9 +33,9 @@ function New-KeePassXCDatabase {
         [Parameter(Mandatory=$false)][switch]$WhatIf= $false
     )
 
-    if (-not $Quiet -or -$WhatIf) {
-        Write-Host "Creating database '$DatabaseFilename'" -ForegroundColor Green
-    }
+#    if (-not $Quiet -or -$WhatIf) {
+#        Write-Host "Creating database '$DatabaseFilename'" -ForegroundColor Gray
+#    }
 
 	if ($KeyFileFilename) {
 		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-key-file $KeyFileFilename --set-password $DatabaseFilename 2>&1

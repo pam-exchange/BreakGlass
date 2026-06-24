@@ -95,8 +95,8 @@ function Start-KeePassXC {
                         Write-Host "WhatIf: Removing database file '$DatabasePath'" -ForegroundColor Gray
                     }
                     else {
-                        if (-not $Quiet) {Write-Host "Remove existing database file '$DatabaseFilename'" -ForegroundColor Gray}
                         Remove-Item -Path $DatabaseFilename -ErrorAction Stop
+                        if (-not $Quiet) {Write-Host "Removed existing database file '$DatabaseFilename'" -ForegroundColor Gray}
                     }
                 }
                 catch {
@@ -121,8 +121,8 @@ function Start-KeePassXC {
 						    Write-Host "WhatIf: Removing KeyFile '$KeyFileFilename'" -ForegroundColor Gray
 					    }
 					    else {
-						    if (-not $Quiet) {Write-Host "Remove existing key file '$KeyFileFilename'" -ForegroundColor Gray}
 						    Remove-Item -Path $KeyFileFilename -ErrorAction Stop
+						    if (-not $Quiet) {Write-Host "Removed existing key file '$KeyFileFilename'" -ForegroundColor Gray}
 					    }
 				    }
 				    catch {
@@ -140,8 +140,10 @@ function Start-KeePassXC {
 				    }
 			    }
 			    $res= New-KeePassXCDatabase -DatabaseFilename $DatabaseFilename -KeyFileFilename $KeyFileFilename -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
+				if (-not $Quiet) {Write-Host "Created database database '$DatabaseFilename'" -ForegroundColor Gray}
 		    } else {
 			    $res= New-KeePassXCDatabase -DatabaseFilename $DatabaseFilename -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
+				if (-not $Quiet) {Write-Host "Created database database '$DatabaseFilename'" -ForegroundColor Gray}
 		    }
         }
 
@@ -176,8 +178,8 @@ function Start-KeePassXC {
                 Write-Host "Removing 'Recycle Bin'" -ForegroundColor Green
             }
             else {
-                if (-not $Quiet) {Write-Host "Removing 'Recycle Bin'" -ForegroundColor Gray}
                 $res= Remove-KeePassXCGroup -Group "/Recycle Bin"
+                if (-not $Quiet) {Write-Host "Removed 'Recycle Bin'" -ForegroundColor Gray}
             }
         }
 
@@ -190,8 +192,8 @@ function Start-KeePassXC {
                     Write-Host "Adding group '$Group'" -ForegroundColor Green
                 }
                 else {
-                    if (-not $Quiet) {Write-Host "Adding group '$Group'" -ForegroundColor Gray}
                     $res= New-KeePassXCGroup -Group $Group
+					if (-not $Quiet) {Write-Host "Added group '$Group'" -ForegroundColor Gray}
                 }
             }
         }
@@ -202,12 +204,11 @@ function Start-KeePassXC {
                     Write-Host "Adding group '$FilePasswordGroup'" -ForegroundColor Green
                 }
                 else {
-                    if (-not $Quiet) {Write-Host "Adding group '$FilePasswordGroup'" -ForegroundColor Gray}
                     $res= New-KeePassXCGroup -Group $FilePasswordGroup
+                    if (-not $Quiet) {Write-Host "Added group '$FilePasswordGroup'" -ForegroundColor Gray}
                 }
             }
         }
-
     }
 }
 
