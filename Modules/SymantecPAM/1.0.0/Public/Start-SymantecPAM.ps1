@@ -33,10 +33,10 @@ function Start-SymantecPAM (
 {
 	#Write-PSFMessage -Level Debug ("Start-BeyondTrust: start")
 
-    $Script:cliURL= "https://$($cliDNS)/cspm/servlet/adminCLI"
-    $Script:cliUsername= $cliUsername
-    $Script:cliPassword= $cliPassword
-    $Script:cliPageSize= $cliPageSize
+    $script:cliURL= "https://$($cliDNS)/cspm/servlet/adminCLI"
+    $script:cliUsername= $cliUsername
+    $script:cliPassword= $cliPassword
+    $script:cliPageSize= $cliPageSize
 }
 
 # --- end-of-file ---

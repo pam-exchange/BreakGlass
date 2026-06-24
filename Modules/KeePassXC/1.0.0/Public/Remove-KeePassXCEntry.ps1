@@ -25,8 +25,8 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function Remove-KeePassXCEntry {
     param (
-        [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
-        [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
+        [Parameter(Mandatory=$false)][string]$DatabasePath= $Script:kpDatabasePath,
+        [Parameter(Mandatory=$false)][string]$KeyFilePath= $Script:kpKeyFilePath,
         [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$false)][string]$Group,
         [Parameter(Mandatory=$true)][string]$Title,
@@ -41,10 +41,10 @@ function Remove-KeePassXCEntry {
         throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
     }
 
-	if ($KeyFileFilename) {
-		$msg= $MasterPassword | keepassxc-cli rm --key-file $KeyFileFilename $DatabaseFilename "$Group/$Title" 2>&1
+	if ($KeyfilePath) {
+		$msg= $MasterPassword | keepassxc-cli rm --key-file $KeyFilePath $DatabasePath "$Group/$Title" 2>&1
 	} else {
-		$msg= $MasterPassword | keepassxc-cli rm $DatabaseFilename "$Group/$Title" 2>&1
+		$msg= $MasterPassword | keepassxc-cli rm $DatabasePath "$Group/$Title" 2>&1
 	}
 	
 	return Test-Message($msg)

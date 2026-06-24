@@ -25,8 +25,8 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function Test-KeePassXCGroup {
     param (
-        [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
-        [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
+        [Parameter(Mandatory=$false)][string]$DatabasePath= $Script:kpDatabasePath,
+        [Parameter(Mandatory=$false)][string]$KeyFilePath= $Script:kpKeyFilePath,
         [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$true)][string]$Group,
 		
@@ -44,10 +44,10 @@ function Test-KeePassXCGroup {
     # Using "ls" without a group name will return a list of entries at root level
     # Group names are with suffix "/"
     #
-	if ($KeyFileFilename) {
-		$msg= $MasterPassword | keepassxc-cli ls --key-file $KeyFileFilename $DatabaseFilename 2>&1
+	if ($KeyFilePath) {
+		$msg= $MasterPassword | keepassxc-cli ls --key-file $KeyFilePath $DatabasePath 2>&1
 	} else {
-		$msg= $MasterPassword | keepassxc-cli ls $DatabaseFilename 2>&1
+		$msg= $MasterPassword | keepassxc-cli ls $DatabasePath 2>&1
 	}
 
     #

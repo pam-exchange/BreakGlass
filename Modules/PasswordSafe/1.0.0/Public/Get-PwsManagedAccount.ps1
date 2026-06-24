@@ -24,8 +24,8 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 
-$Script:cacheManagedAccountBase= New-Object System.Collections.ArrayList
-$Script:cacheManagedAccountByID= New-Object System.Collections.HashTable		# Index into cache array
+$script:cacheManagedAccountBase= New-Object System.Collections.ArrayList
+$script:cacheManagedAccountByID= New-Object System.Collections.HashTable		# Index into cache array
 
 #--------------------------------------------------------------------------------------
 function Get-PwsManagedAccount () 
@@ -58,34 +58,51 @@ function Get-PwsManagedAccount ()
 			# Fetch and build cache
 			#
 			if ($Refresh -or -not $Script:cacheManagedAccountBase) {
-				$Script:cacheManagedAccountBase.Clear()
-				$Script:cacheManagedAccountByID.Clear()
-
+				$script:cacheManagedAccountBase.Clear()
+				$script:cacheManagedAccountByID.Clear()
+				
                 #
-                # Get smartrule for api_Breakglass user. Should only be one rule
+                # Directory accounts are found using "ManagedSystem/{ID}/ManagedAccounts"
                 #
-                $rules= PSafe-Get "Smartrules"
-
-				#
-				# Find accounts visible through smartrule filter
-				#
-                foreach ($rule in $rules) {
-                    $res= PSafe-Get "smartrules/$($rule.SmartRuleID)/managedaccounts"
+                $directory= Get-PwsManagedSystem -PlatformName "Active Directory"
+                foreach ($d in $directory) {
+                    $res= PSafe-Get "ManagedSystems/$($d.ID)/ManagedAccounts"
 				    $res | %{
 					    $tmp= _Normalize-ManagedAccount2($_)
 
-                        $system= Get-PwsManagedSystem -ID $tmp.SystemID
-
-                        if (-not $tmp.SystemName) {
-                            $tmp.SystemName= $system.name
-                        }
-                        $tmp.PlatformName= (Get-PwsPlatform -ID $system.PlatformID -Single -NoEmptySet).Name
-
 					    $key= $tmp.ID
-					    $idx= $Script:cacheManagedAccountBase.Add( $tmp ) 
-					    $Script:cacheManagedAccountByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
-
+					    $idx= $script:cacheManagedAccountBase.Add( $tmp ) 
+					    $script:cacheManagedAccountByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
 				    }
+                }
+
+                #
+                # Other accounts are found using "ManagedAccounts"
+                #
+				$res = PSafe-Get "ManagedAccounts";
+				$res | %{
+					$tmp= _Normalize-ManagedAccount($_)
+
+					$key= $tmp.ID
+					$idx= $script:cacheManagedAccountBase.Add( $tmp ) 
+					$script:cacheManagedAccountByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
+				}
+
+                #
+                # Need to query all system where Breakglass account
+                # exist and where the platform supports DSS keys
+                #
+                $dssPlatformID= (Get-PwsPlatform -DSSFlag True).ID
+                $msIDs= ($res | Where-Object {$_.PlatformID -in $dssPlatformID} | Select-Object SystemID -Unique).SystemID
+                foreach ($msID in $msIDs) {
+                    $res= PSafe-Get "ManagedSystems/$msID/ManagedAccounts";
+                    $res | Where-Object {$_.DSSAutoManagementFlag} | %{
+                        #
+                        # Not normalized and AccountID is named ManagedAccountID
+                        #
+                        $idx= $script:cacheManagedAccountByID[ $_.ManagedAccountId ]
+                        $script:cacheManagedAccountBase[ $idx ].useDSS= $true
+                    }
                 }
 			}
 
@@ -98,7 +115,7 @@ function Get-PwsManagedAccount ()
 				$res= $Script:cacheManagedAccountBase[ [int]$idx ]
             }
 			else {
-				$res= $Script:cacheManagedAccountBase
+				$res= $script:cacheManagedAccountBase
 				if ($SystemID -ge 0) {$res= $res | Where-Object {$_.SystemId -eq $SystemID}}
 				
 				if ($useRegex) {

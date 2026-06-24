@@ -25,8 +25,8 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function New-KeePassXCDatabase {
     param (
-        [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
-        [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
+        [Parameter(Mandatory=$false)][string]$DatabasePath= $Script:kpDatabasePath,
+        [Parameter(Mandatory=$false)][string]$KeyFilePath= $Script:kpKeyFilePath,
         [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
 
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
@@ -34,13 +34,13 @@ function New-KeePassXCDatabase {
     )
 
     if (-not $Quiet -or -$WhatIf) {
-        Write-Host "Creating database '$DatabaseFilename'" -ForegroundColor Green
+        Write-Host "Creating database '$DatabasePath'" -ForegroundColor Green
     }
 
-	if ($KeyFileFilename) {
-		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-key-file $KeyFileFilename --set-password $DatabaseFilename 2>&1
+	if ($KeyFilePath) {
+		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-key-file $KeyFilePath --set-password $DatabasePath 2>&1
 	} else {
-		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-password $DatabaseFilename 2>&1
+		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-password $DatabasePath 2>&1
 	}
     return Test-Message($msg)
 }

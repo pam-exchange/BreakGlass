@@ -24,8 +24,8 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 
-$Script:cacheTargetAccountBase= New-Object System.Collections.ArrayList
-$Script:cacheTargetAccountByID= New-Object System.Collections.HashTable		# Index into cache array
+$script:cacheTargetAccountBase= New-Object System.Collections.ArrayList
+$script:cacheTargetAccountByID= New-Object System.Collections.HashTable		# Index into cache array
 
 enum DETAILS {
     COMPACT
@@ -71,19 +71,6 @@ function Get-SymTargetAccount ()
 
             }
             else {
-
-                $res= Invoke-SymantecCLI -cmd "searchTargetAccounts"
-
-                foreach ($s in $res."cr.result".TargetAccount) {
-
-                    $ta= Convert-XmlToPS -XML $s -filter "^(ID|deviceID|name|extensionType|policyID|targetServerID|Attribute\.(?!extensionType).*)$"
-
-                    $idx= $Script:cacheTargetAccountBase.Add( $ta )
-                    $Script:cacheTargetAccountByID.Add( [int]($ta.ID), [int]($idx) )
-                }
-
-
-
                 #
                 # TO-DO: Detailed TargetAccount
                 # Fetch TargetApplication and TargetServer

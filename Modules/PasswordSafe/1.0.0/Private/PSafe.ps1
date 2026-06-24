@@ -58,7 +58,7 @@ function PSafe-SignAppinChallenge($challengeResponse)
 	#Write-PSFMessage -Level Debug ("start")
 
     $method = "POST";
-    $uri= "$($Script:apiUrl)Auth/SignAppin"
+    $uri= "$($script:apiUrl)Auth/SignAppin"
     $headers = @{ Authorization="PS-Auth key=${Script:ApiToken}; runas=${Script:Username};"; }
 
     # add challenge to the Auth header
@@ -77,12 +77,12 @@ function PSafe-SignAppinChallenge($challengeResponse)
 # Calls the given API
 function PSafe-RestMethod([string]$method, [string]$api, $body)
 {
-    $uri= "$($Script:apiUrl)$api"
+    $uri= "$($script:apiUrl)$api"
     
 #    $local:attempt= 1
 #    while ($true) {
         try {
-            $res= Invoke-RestMethod -Uri $uri -Method $method -WebSession $Script:session -Headers $Script:PSheaders -Body $body
+            $res= Invoke-RestMethod -Uri $uri -Method $method -WebSession $Script:session -Headers $script:PSheaders -Body $body
             return $res
         }
         catch {
@@ -100,12 +100,12 @@ function PSafe-RestMethod([string]$method, [string]$api, $body)
 # Calls the given API with a custom Content Type
 function PSafe-RestMethod-v2([string]$method, [string]$api, $body, $contentType)
 {
-    $uri= "$($Script:apiUrl)$api"
+    $uri= "$($script:apiUrl)$api"
 
     $local:attempt= 1
     while ($true) {
         try {
-            $res= Invoke-RestMethod -Uri $uri -Method $method -WebSession $Script:session -ContentType $contentType -Headers $Script:PSheaders -Body $body
+            $res= Invoke-RestMethod -Uri $uri -Method $method -WebSession $Script:session -ContentType $contentType -Headers $script:PSheaders -Body $body
             return $res
         }
         catch {

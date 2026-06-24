@@ -25,10 +25,10 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function Stop-SymantecPAM()
 {
-    $Script:cliURL= ""
-    $Script:cliUsername= ""
-    $Script:cliPassword= ""
-    $Script:cliPageSize= ""
+    $script:cliURL= ""
+    $script:cliUsername= ""
+    $script:cliPassword= ""
+    $script:cliPageSize= ""
 }
 
 # --- end-of-file ---

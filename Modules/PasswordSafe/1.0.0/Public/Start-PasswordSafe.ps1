@@ -33,16 +33,16 @@ function Start-PasswordSafe (
 )
 {
 	process {
-		$Script:apiWorkgroup= $apiWorkgroup
-		$Script:apiURL= "https://$apiDNS/BeyondTrust/api/public/v3/"
-		$Script:apiKey= $apiKey
-		$Script:apiUsername= $apiUsername
-		$Script:apiPassword= $apiPassword
+		$script:apiWorkgroup= $apiWorkgroup
+		$script:apiURL= "https://$apiDNS/BeyondTrust/api/public/v3/"
+		$script:apiKey= $apiKey
+		$script:apiUsername= $apiUsername
+		$script:apiPassword= $apiPassword
 
 		$method = "POST";
 		$uri= $Script:apiURL+"Auth/SignAppin"
 		$headers = PSafe-BuildHeaders;
-		$Script:PSHeaders= $headers
+		$script:PSHeaders= $headers
 
 		#Write-PSFMessage -Level Debug "uri= $uri"
 		#Write-PSFMessage -Level Debug "headers.Authorization= $($headers.Authorization)"

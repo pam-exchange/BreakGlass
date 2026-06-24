@@ -29,7 +29,6 @@ function Get-BreakglassFromVault {
         [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType= "KeePassXC",
         [Parameter(Mandatory=$false)][String] $Group= "/BreakGlass",
 
-        [Parameter(Mandatory=$false)][switch] $Multiple= $false,
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
     )
@@ -40,33 +39,7 @@ function Get-BreakglassFromVault {
     {
         "KeePassXC" 
         {
-            if ($Multiple) {
-                #
-                # Get KeePass passwords for individual KeePass database
-                #
-                $FilePasswords= Get-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Quiet:$Quiet -WhatIf:$WhatIf
-                $vaultEntries= New-Object System.Collections.ArrayList
-                foreach ($file in $FilePasswords) {
-                    $filename= Get-KeePassXCDatabaseFilename -Title $file.title -Multiple
-                    if (Test-Path $filename) {
-                        $entry= Get-KeePassXCEntry -DatabaseFilename $filename -MasterPassword $file.password -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
-
-                        if ($entry) {
-                            $options= [PSCustomObject]@{filename= $filename; password= $file.password}
-                            $vaultEntries.Add( [PSCustomObject]@{title=$file.title; username=$entry.username; password=$entry.password.Trim();options= $options} ) | Out-Null
-                        }
-                    }
-                    else {
-                        $options= [PSCustomObject]@{filename= $filename; password= $file.password}
-                        $vaultEntries.Add( [PSCustomObject]@{title=$file.title; username=$file.username; password=$null;options= $options} ) | Out-Null
-                    }
-                }
-                return $vaultEntries
-
-            } 
-            else {
-                return Get-KeePassXCEntry -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
-            }
+            return Get-KeePassXCEntry -Group $Group -Quiet:$Quiet -WhatIf:$WhatIf
         }
     }
 }

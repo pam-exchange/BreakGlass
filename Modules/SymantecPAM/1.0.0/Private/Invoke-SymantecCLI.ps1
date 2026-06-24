@@ -45,9 +45,9 @@ function Invoke-SymantecCLI () {
         [Parameter(Mandatory=$false)][Hashtable] $Params= @{}
     )
 
-    $url= "$($Script:cliUrl)`?cmdName=$cmd"
-    $url+= "&adminUserID=$($Script:cliUsername)"
-    $url+= "&adminPassword=$($Script:clipassword)"
+    $url= "$($script:cliUrl)`?cmdName=$cmd"
+    $url+= "&adminUserID=$($script:cliUsername)"
+    $url+= "&adminPassword=$($script:clipassword)"
     $url+= "&Page.Size=$($Script:cliPageSize)"
     
     $paramsStr= ($params.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join "&"
@@ -62,7 +62,7 @@ function Invoke-SymantecCLI () {
         }
 
         if ($statusCode -eq 401 -or $statusCode -eq 22) {
-            $details= $DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -f $($Script:cliUsername)
+            $details= $DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -f $($script:cliUsername)
             throw (New-Object SymantecPamException($EXCEPTION_NOT_AUTHORIZED, $details))
         }
         elseif ($statusCode -eq 5753 -or $statusCode -eq 15212) {

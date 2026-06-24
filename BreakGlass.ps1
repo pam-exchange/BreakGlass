@@ -42,7 +42,6 @@ param (
     [Parameter(Mandatory=$false)][String] $VaultType= "KeePassXC",
     [Parameter(Mandatory=$false)][string] $ConfigPath= "c:\temp",
 
-    [Parameter(Mandatory=$false)][switch] $Multiple= $false,
     [Parameter(Mandatory=$false)][switch] $Update= $false,
 
     [Parameter(Mandatory=$false)][switch] $Quiet= $false,
@@ -64,7 +63,7 @@ if (-not $modulePath) {
     $modulePath= $scriptBasePath
 }
 
-$Script:currentPSModulePath= $env:PSModulePath
+$Global:currentPSModulePath= $env:PSModulePath
 if ($env:PSModulePath -notmatch ";"+$($modulePath.replace("\","\\"))+"\\modules") {
     $env:PSModulePath+=";$modulePath\modules"
 }
@@ -77,13 +76,13 @@ if ($(Get-Module).name -contains "SymantecPAM") { Remove-Module SymantecPAM }
 
 if ($PAMType -eq "PasswordSafe") { Import-Module PasswordSafe -Force }
 if ($PAMType -eq "SymantecPAM") { Import-Module SymantecPAM -Force }
-if ($VaultType -eq "KeePassXC") { Import-Module KeePassXC -Force }
+Import-Module KeePassXC -Force
 Import-Module Breakglass -Force
 
 # ----------------------------------------------------------------------------------
 try {
 
-    Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Multiple:$Multiple -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
+    Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
 
 } 
 catch {

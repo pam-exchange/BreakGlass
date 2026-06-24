@@ -25,13 +25,10 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function Start-KeePassXC {
 	Param (
-		[Parameter(Mandatory=$true)][string]$DatabaseFilename,
-		[Parameter(Mandatory=$false)][string]$DatabasePath,
-		[Parameter(Mandatory=$false)][string]$DatabaseName,
-		[Parameter(Mandatory=$false)][string]$KeyFileFilename,
+		[Parameter(Mandatory=$true)][string]$DatabasePath,
+		[Parameter(Mandatory=$false)][string]$KeyFilePath,
 		[Parameter(Mandatory=$true)][string]$MasterPassword,
 		[Parameter(Mandatory=$false)][string]$Group= "/Breakglass",
-		[Parameter(Mandatory=$false)][string]$FilePasswordGroup= "/FilePassword",
         [Parameter(Mandatory=$false)][string]$KeyPassProgram= "c:\program files\Keepassxc\keepassxc-cli.exe",
 		[Parameter(Mandatory=$false)][switch]$CreateDatabase= $false,
 
@@ -70,100 +67,91 @@ function Start-KeePassXC {
             #
             # database and key file must exist
             #
-            if (-not (Test-Path -Path $DatabaseFilename)) {
-                $msg= "Database file is not found '$DatabaseFilename'"
+            if (-not (Test-Path -Path $DatabasePath)) {
+                $msg= "Database file is not found '$DatabasePath'"
                 if (-not $Quiet) {Write-Host $msg -ForegroundColor Yellow}
                 throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
             }
 
-            if ($KeyFileFilename -and -not (Test-Path -Path $KeyFileFilename)) {
-                $msg= "Key file is not found '$KeyFileFilename'"
+            if ($KeyFilePath -and -not (Test-Path -Path $KeyFilePath)) {
+                $msg= "Key file is not found '$KeyfilePath'"
                 if (-not $Quiet) {Write-Host $msg -ForegroundColor Yellow}
                 throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
             }
         }
 
 
-        if ($createDatabase -and (-not (Test-Path -Path $DatabaseFilename) -or ($KeyFileFilename -and -not (Test-Path -Path $KeyFileFilename)) )) {
+        if ($createDatabase -and (-not (Test-Path -Path $DatabasePath) -or ($KeyFilePath -and -not (Test-Path -Path $KeyFilePath)) )) {
             # 
             # Either database or keyfile (or both) is missing, remove the other
             # Create new database
             #
-            if (Test-Path -Path $DatabaseFilename) {
+            if (Test-Path -Path $DatabasePath) {
                 try {
                     if ($WhatIf) {
                         Write-Host "WhatIf: Removing database file '$DatabasePath'" -ForegroundColor Gray
                     }
                     else {
-                        if (-not $Quiet) {Write-Host "Remove existing database file '$DatabaseFilename'" -ForegroundColor Gray}
-                        Remove-Item -Path $DatabaseFilename -ErrorAction Stop
+                        if (-not $Quiet) {Write-Host "Remove existing database file '$DatabasePath'" -ForegroundColor Gray}
+                        Remove-Item -Path $DatabasePath -ErrorAction Stop
                     }
                 }
                 catch {
-                    $msg= "Insufficient permissions to remove file '$DatabaseFilename'"
+                    $msg= "Insufficient permissions to remove file '$DatabasePath'"
                     throw ( New-Object KeePassXCException( $EXCEPTION_NOT_AUTHORIZED, $msg))
                 }
             }
             else 
             {
-                $checkPath= Split-Path $DatabaseFilename -Parent
+                $checkPath= Split-Path $DatabasePath -Parent
                 if (-not (Test-Path -Path $checkPath)) {
-                    $msg= "The path specified is not found '$DatabaseFilename'"
+                    $msg= "The path specified is not found '$DatabasePath'"
                     if (-not $Quiet) {Write-Host $msg -ForegroundColor Yellow}
                     throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
                 }
             }
 
-		    if ($KeyFileFilename) {
-			    if (Test-Path -Path $KeyFileFilename) {
+		    if ($KeyFilePath) {
+			    if (Test-Path -Path $KeyFilePath) {
 				    try {
 					    if ($WhatIf) {
-						    Write-Host "WhatIf: Removing KeyFile '$KeyFileFilename'" -ForegroundColor Gray
+						    Write-Host "WhatIf: Removing KeyFile '$KeyFilePath'" -ForegroundColor Gray
 					    }
 					    else {
-						    if (-not $Quiet) {Write-Host "Remove existing key file '$KeyFileFilename'" -ForegroundColor Gray}
-						    Remove-Item -Path $KeyFileFilename -ErrorAction Stop
+						    if (-not $Quiet) {Write-Host "Remove existing key file '$KeyFilePath'" -ForegroundColor Gray}
+						    Remove-Item -Path $KeyFilePath -ErrorAction Stop
 					    }
 				    }
 				    catch {
-					    $msg= "Insufficient permissions to remove file '$KeyFileFilename'"
+					    $msg= "Insufficient permissions to remove file '$KeyFilePath'"
 					    throw ( New-Object KeePassXCException( $EXCEPTION_NOT_AUTHORIZED, $msg))
 				    }
 			    }
 			    else 
 			    {
-				    $checkPath= Split-Path $KeyFileFilename -Parent        
+				    $checkPath= Split-Path $KeyFilePath -Parent        
 				    if (-not (Test-Path -Path $checkPath)) {
-					    $msg= "The path specified is not found '$KeyFileFilename'"
+					    $msg= "The path specified is not found '$KeyFilePath'"
 					    if (-not $Quiet) {Write-Host $msg -ForegroundColor Yellow}
 					    throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
 				    }
 			    }
-			    $res= New-KeePassXCDatabase -DatabaseFilename $DatabaseFilename -KeyFileFilename $KeyFileFilename -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
+			    $res= New-KeePassXCDatabase -DatabasePath $DatabasePath -KeyFilePath $KeyFilePath -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
 		    } else {
-			    $res= New-KeePassXCDatabase -DatabaseFilename $DatabaseFilename -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
+			    $res= New-KeePassXCDatabase -DatabasePath $DatabasePath -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
 		    }
         }
 
         if ($Group) {
             $Group= "/"+$Group.Trim(" /")
+            #$Group= $Group.Trim(" /")
         }
 
-        if ($FilePasswordGroup) {
-            $FilePasswordGroup= "/"+$FilePasswordGroup.Trim(" /")
-        }
-
-        if (-not $DatabasePath.EndsWith('\')) {
-            $DatabasePath+= '\'
-        }
         $Script:kpDatabasePath= $DatabasePath
-        $Script:kpDatabaseName= $DatabaseName
-        $Script:kpDatabaseFilename= $DatabaseFilename
-        $Script:kpKeyFileFilename= $KeyFileFilename
+        $Script:kpKeyFilePath= $KeyFilePath
         $Script:kpMasterPassword= $MasterPassword
         $Script:kpKeePassProgram= $KeypassProgram
         $Script:kpGroup= $Group
-        $Script:kpFilePasswordGroup= $FilePasswordGroup
         $Script:kpInitialized= $true
 
         # 
@@ -195,19 +183,6 @@ function Start-KeePassXC {
                 }
             }
         }
-
-        if ($FilePasswordGroup) {
-            if (-not $(Test-KeePassXCGroup -Group $FilePasswordGroup)){
-                if ($WhatIf) {
-                    Write-Host "Adding group '$FilePasswordGroup'" -ForegroundColor Green
-                }
-                else {
-                    if (-not $Quiet) {Write-Host "Adding group '$FilePasswordGroup'" -ForegroundColor Gray}
-                    $res= New-KeePassXCGroup -Group $FilePasswordGroup
-                }
-            }
-        }
-
     }
 }
 

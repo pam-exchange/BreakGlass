@@ -24,8 +24,8 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 
-$Script:cacheManagedSystemBase= New-Object System.Collections.ArrayList
-$Script:cacheManagedSystemByID= New-Object System.Collections.HashTable		# Index into cache array
+$script:cacheManagedSystemBase= New-Object System.Collections.ArrayList
+$script:cacheManagedSystemByID= New-Object System.Collections.HashTable		# Index into cache array
 
 function Get-PwsManagedSystem () 
 {
@@ -62,8 +62,8 @@ function Get-PwsManagedSystem ()
 			# Fetch and build cache
 			#
 			if ($Refresh -or -not $Script:cacheManagedSystemBase) {
-				$Script:cacheManagedSystemBase.Clear()
-				$Script:cacheManagedSystemByID.Clear()
+				$script:cacheManagedSystemBase.Clear()
+				$script:cacheManagedSystemByID.Clear()
 
 				#$res = PSafe-Get "ManagedSystems?limit=$(urlencode($Limit))&offset=$(urlencode($Offset))";
                 $res = PSafe-Get "ManagedSystems";
@@ -71,8 +71,8 @@ function Get-PwsManagedSystem ()
 					$tmp= _Normalize-ManagedSystem($_)
 
 					$key= $tmp.ID
-					$idx= $Script:cacheManagedSystemBase.Add( $tmp ) 
-					$Script:cacheManagedSystemByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
+					$idx= $script:cacheManagedSystemBase.Add( $tmp ) 
+					$script:cacheManagedSystemByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
 				}
 			}
 
@@ -84,7 +84,7 @@ function Get-PwsManagedSystem ()
 				$res= $Script:cacheManagedSystemBase[ [int]$idx ]
             }
 			else {
-				$res= $Script:cacheManagedSystemBase
+				$res= $script:cacheManagedSystemBase
 					
                 if ($platformID -eq -1 -and $PlatformName) {
                     $platform= Get-PwsPlatform -Name $PlatformName -Single 

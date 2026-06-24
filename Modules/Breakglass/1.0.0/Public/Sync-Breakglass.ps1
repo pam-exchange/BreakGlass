@@ -31,7 +31,6 @@ function Sync-Breakglass {
 
         [Parameter(Mandatory=$false)][string] $ConfigPath= "c:\temp",
 
-        [Parameter(Mandatory=$false)][switch] $Multiple= $false,
         [Parameter(Mandatory=$false)][switch] $Update= $false,
 
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
@@ -89,7 +88,7 @@ function Sync-Breakglass {
         # Fetch breakglass accounts from Vault
         #
         if (-not $Quiet) {Write-Host "Finding accounts in '$VaultType'" -ForegroundColor White}
-        $vaultAccounts= Get-BreakglassFromVault -VaultType $VaultType -Multiple:$Multiple -Quiet:$Quiet -WhatIf:$WhatIf
+        $vaultAccounts= Get-BreakglassFromVault -VaultType $VaultType -Quiet:$Quiet -WhatIf:$WhatIf
         if (-not $Quiet) {
             $vaultAccounts | %{ Write-Host "$($_.title)" -ForegroundColor Gray }
             if ($null -eq $vaultAccounts) {$cnt=0}
@@ -101,7 +100,7 @@ function Sync-Breakglass {
         # Align accounts from PAM with local Vault
         #
         if (-not $Quiet) {Write-Host "Align '$PAMType' accounts with '$VaultType' database" -ForegroundColor White}
-        $res= Sync-BreakglassWithVault -VaultType $VaultType -pamAccounts $pamAccounts -vaultAccounts $vaultAccounts -Multiple:$Multiple -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
+        $res= Sync-BreakglassWithVault -VaultType $VaultType -pamAccounts $pamAccounts -vaultAccounts $vaultAccounts -Quiet:$Quiet -WhatIf:$WhatIf
     } 
     catch {
         #Write-Host "$($_.Exception.Message) - $($_.Exception.Details)" -ForegroundColor Yellow

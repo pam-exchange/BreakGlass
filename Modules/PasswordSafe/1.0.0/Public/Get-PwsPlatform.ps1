@@ -24,8 +24,8 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 
-$Script:cachePlatformBase= New-Object System.Collections.ArrayList
-$Script:cachePlatformByID= New-Object System.Collections.HashTable	# Index into cache array
+$script:cachePlatformBase= New-Object System.Collections.ArrayList
+$script:cachePlatformByID= New-Object System.Collections.HashTable	# Index into cache array
 
 enum DSS_FLAG {
 	Any
@@ -58,8 +58,8 @@ function Get-PwsPlatform () {
 			# Fetch and build cache
 			#
 			if ($refresh -or -not $Script:cachePlatformBase) {
-				$Script:cachePlatformBase.Clear()
-				$Script:cachePlatformByID.Clear()
+				$script:cachePlatformBase.Clear()
+				$script:cachePlatformByID.Clear()
 
 				# Write-PSFMessage -Level Debug "fetch multiple"
 				$res = PSafe-Get "Platforms";
@@ -67,8 +67,8 @@ function Get-PwsPlatform () {
 					$tmp= _Normalize-Platform($_)
 
 					$key= $tmp.ID
-					$idx= $Script:cachePlatformBase.Add( $tmp ) 
-					$Script:cachePlatformByID.Add( $key, $idx ) | Out-Null	# External ID into array idx
+					$idx= $script:cachePlatformBase.Add( $tmp ) 
+					$script:cachePlatformByID.Add( $key, $idx ) | Out-Null	# External ID into array idx
 				}
 			}
 			

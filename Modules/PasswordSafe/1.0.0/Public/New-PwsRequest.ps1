@@ -27,8 +27,8 @@ SOFTWARE.
 #
 # Cache is defined in Get-PwsRequest
 #
-# $Script:cacheRequestsBase= New-Object System.Collections.ArrayList
-# $Script:cacheRequestsByID= New-Object System.Collections.HashTable	# Index into cache array
+# $script:cacheRequestsBase= New-Object System.Collections.ArrayList
+# $script:cacheRequestsByID= New-Object System.Collections.HashTable	# Index into cache array
 #
 
 enum CONFLICT {

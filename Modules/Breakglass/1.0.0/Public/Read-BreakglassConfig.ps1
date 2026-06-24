@@ -68,7 +68,7 @@ function Read-BreakglassConfig {
                 }
                 #>
 
-                $finalConfig.Add("KeePassXC", [PSCustomObject]@{ DatabasePath= $_.DatabasePath; DatabaseName= $_.DatabaseName; KeyFileFilename= $_.KeyFileFilename; Group= $_.Group; MasterPassword=$MasterPassword } )
+                $finalConfig.Add("KeePassXC", [PSCustomObject]@{ DatabasePath= $_.DatabasePath; KeyFilePath= $_.KeyFilePath; Group= $_.Group; MasterPassword=$MasterPassword } )
             }
 
             if ($_.type -eq "PasswordSafe") {
