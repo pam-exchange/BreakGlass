@@ -64,23 +64,24 @@ function Start-Breakglass (
         }
     }
 
-
-
     $Script:VaultType= $VaultType
     switch ($VaultType) 
     {
         "KeePassXC"
         {
-            $Script:kpDatabasePath= $config[ "KeePassXC" ].databasePath
-	        $script:kpKeyFilePath= $config[ "KeePassXC" ].KeyFilePath
-	        $Script:kpGroup= $config[ "KeePassXC" ].Group
-	        $Script:kpMasterPassword= $config[ "KeePassXC" ].MasterPassword
-            $Script:kpInitialized= $false
+            $kpDatabasePath= $config[ "KeePassXC" ].DatabasePath
+            if (!$kpDatabasePath.EndsWith('\')) {
+                $kpDatabasePath+= '\'
+            }
+            $kpDatabaseName= $config[ "KeePassXC" ].DatabaseName
 
             $Login= @{
-                databasePath= $config[ "KeePassXC" ].databasePath;
-                KeyFilePath= $config[ "KeePassXC" ].KeyFilePath;
-                Group= $config[ "KeePassXC" ].Group;
+                databasePath= $kpDatabasePath;
+                databaseName= $kpDatabaseName;
+                databaseFilename= $kpDatabasePath+$kpDatabaseName+".kdbx";
+                KeyFileFilename= $config[ "KeePassXC" ].KeyFileFilename;
+                Group= $(if ($config[ "KeePassXC" ].Group) {$config[ "KeePassXC" ].Group} else {"/BreakGlass"});
+                FilePasswordGroup= $(if ($config[ "KeePassXC" ].FilePasswordGroup) {$config[ "KeePassXC" ].FilePasswordGroup} else {"/FilePassword"});
                 MasterPassword= $config[ "KeePassXC" ].MasterPassword;
             }
             $res= Start-KeePassXC @Login

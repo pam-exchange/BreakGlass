@@ -40,21 +40,27 @@ function Get-BreakglassFromPasswordSafe {
     $accounts= Get-PwsManagedAccount
 
     #
-    # loop through all accounts and fetch password for each.
+    # loop through all accounts (API enabled) and fetch password for each.
     # it is required to have a request for fetching a password
     #
     foreach ($acc in $accounts) {
-
-        #
-        # Platform is the type of account, e.g. Windows, Linux, AD, MSSQL, ...
-        #
-        $platformName= (Get-PwsPlatform -PlatformID $acc.platformID).Name
+        if ($acc.ApiEnabled -eq $false) {
+			Write-Host "$($acc.SystemName) | $($acc.PlatformName) | $($acc.AccountName) -- ignored (not API enabled)" -ForegroundColor Yellow
+            continue
+        }
 
         $reqID= New-PwsRequest -AccountID $acc.AccountID -SystemID $acc.SystemID -Duration 5 -Conflict Reuse
-
         $pwd= Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$acc.useDSS
 
-        $list.add( [PSCustomObject]@{server=$($acc.SystemName); accountType=$platformName; accountID=$($acc.AccountID); accountName=$($acc.AccountName); accountPassword=$pwd; verified=$Verified; useDSS=$($acc.useDSS)} ) | Out-Null
+        $list.add( [PSCustomObject]@{
+						server=$($acc.SystemName); 
+						accountType=$($acc.PlatformName); 
+						accountID=$($acc.AccountID); 
+						accountName=$($acc.AccountName); 
+						accountPassword=$pwd; 
+						verified=$Verified; 
+						useDSS=$($acc.useDSS)} 
+				) | Out-Null
     }
 
     return $list

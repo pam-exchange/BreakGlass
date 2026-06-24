@@ -25,8 +25,8 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function Update-KeePassXCEntry {
     param (
-        [Parameter(Mandatory=$false)][string] $DatabasePath= $Script:kpDatabasePath,
-        [Parameter(Mandatory=$false)][string] $KeyFilePath= $Script:kpKeyFilePath,
+        [Parameter(Mandatory=$false)][string] $DatabaseFilename= $Script:kpDatabaseFilename,
+        [Parameter(Mandatory=$false)][string] $KeyFileFilename= $Script:kpKeyFileFilename,
         [Parameter(Mandatory=$false)][string] $MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$false)][string] $Group,
 
@@ -55,11 +55,11 @@ function Update-KeePassXCEntry {
         else {$notes= "Password is not verified"}
     }
 
-	if ($KeyFilePath) {
-		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli edit --password-prompt --username $username --notes $notes --key-file $KeyFilePath $DatabasePath "$Group/$title" 2>&1
+	if ($KeyFileFilename) {
+		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli edit --password-prompt --username $username --notes $notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$title" 2>&1
 	}
 	else {
-		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli edit --password-prompt --username $username --notes $notes $DatabasePath "$Group/$title" 2>&1
+		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli edit --password-prompt --username $username --notes $notes $DatabaseFilename "$Group/$title" 2>&1
 	}
     return Test-Message($msg)
 }

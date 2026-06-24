@@ -25,8 +25,8 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function Remove-KeePassXCGroup {
     param (
-        [Parameter(Mandatory=$false)][string]$DatabasePath= $Script:kpDatabasePath,
-        [Parameter(Mandatory=$false)][string]$KeyFilePath= $Script:kpKeyFilePath,
+        [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
+        [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
         [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$false)][string]$Group,
 		
@@ -40,10 +40,10 @@ function Remove-KeePassXCGroup {
         throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
     }
 
-    if ($KeyPassPath) {
-		$msg= $MasterPassword | keepassxc-cli rmdir --key-file $KeyFilePath $DatabasePath $Group 2>&1
+    if ($KeyFileFilename) {
+		$msg= $MasterPassword | keepassxc-cli rmdir --key-file $KeyFileFilename $DatabaseFilename $Group 2>&1
 	} else {
-		$msg= $MasterPassword | keepassxc-cli rmdir $DatabasePath $Group 2>&1
+		$msg= $MasterPassword | keepassxc-cli rmdir $DatabaseFilename $Group 2>&1
 	}
 
 	return Test-Message($msg)
