@@ -47,7 +47,7 @@ function New-KeePassXCGroup {
 
     if (-not $Script:kpInitialized) {
         $msg = "KeePassXC module is not initialized"
-        if (-not $Quiet -or $WhatIf) { Write-Host $msg -ForegroundColor Yellow }
+        Write-Log -Message $msg -Level Warning -Quiet:$Quiet
         throw (New-Object KeePassXCException($EXCEPTION_INITIALIZE, $msg))
     }
 

@@ -72,7 +72,7 @@ function Start-KeePassXC {
                 $KeyPassPath = Split-Path $KeyPassProgram -Parent
 
                 if ($env:Path -notcontains $KeyPassPath) {
-                    if (-not $Quiet) { Write-Host "Adding '$KeyPassPath' to PATH" -ForegroundColor Gray }
+                    Write-Log -Message "Adding '$KeyPassPath' to PATH" -Level Info -Quiet:$Quiet
                     $env:Path = $env:Path + ";" + $KeyPassPath
                 }
             }
@@ -80,7 +80,7 @@ function Start-KeePassXC {
         else {
             # KeePassXC-cli program not found
             $msg = "keepassxc-cli.exe is not found"
-            if (-not $Quiet) { Write-Host $msg -ForegroundColor Yellow }
+            Write-Log -Message $msg -Level Warning -Quiet:$Quiet
             throw (New-Object KeePassXCException($EXCEPTION_NOT_FOUND, $msg))
         }
 
@@ -90,13 +90,13 @@ function Start-KeePassXC {
             #
             if (-not (Test-Path -Path $DatabaseFilename)) {
                 $msg = "Database file is not found '$DatabaseFilename'"
-                if (-not $Quiet) { Write-Host $msg -ForegroundColor Yellow }
+                Write-Log -Message $msg -Level Warning -Quiet:$Quiet
                 throw (New-Object KeePassXCException($EXCEPTION_NOT_FOUND, $msg))
             }
 
             if ($KeyFileFilename -and -not (Test-Path -Path $KeyFileFilename)) {
                 $msg = "Key file is not found '$KeyFileFilename'"
-                if (-not $Quiet) { Write-Host $msg -ForegroundColor Yellow }
+                Write-Log -Message $msg -Level Warning -Quiet:$Quiet
                 throw (New-Object KeePassXCException($EXCEPTION_NOT_FOUND, $msg))
             }
         }
@@ -110,11 +110,11 @@ function Start-KeePassXC {
             if (Test-Path -Path $DatabaseFilename) {
                 try {
                     if ($WhatIf) {
-                        Write-Host "WhatIf: Removing database file '$DatabaseFilename'" -ForegroundColor Gray
+                        Write-Log -Message "WhatIf: Removing database file '$DatabaseFilename'" -Level Success -Quiet:$Quiet
                     }
                     else {
                         Remove-Item -Path $DatabaseFilename -ErrorAction Stop
-                        if (-not $Quiet) { Write-Host "Removed existing database file '$DatabaseFilename'" -ForegroundColor Gray }
+                        Write-Log -Message "Removed existing database file '$DatabaseFilename'" -Level Info -Quiet:$Quiet
                     }
                 }
                 catch {
@@ -126,7 +126,7 @@ function Start-KeePassXC {
                 $checkPath = Split-Path $DatabaseFilename -Parent
                 if (-not (Test-Path -Path $checkPath)) {
                     $msg = "The path specified is not found '$DatabaseFilename'"
-                    if (-not $Quiet) { Write-Host $msg -ForegroundColor Yellow }
+                    Write-Log -Message $msg -Level Warning -Quiet:$Quiet
                     throw (New-Object KeePassXCException($EXCEPTION_NOT_FOUND, $msg))
                 }
             }
@@ -135,11 +135,11 @@ function Start-KeePassXC {
                 if (Test-Path -Path $KeyFileFilename) {
                     try {
                         if ($WhatIf) {
-                            Write-Host "WhatIf: Removing KeyFile '$KeyFileFilename'" -ForegroundColor Gray
+                            Write-Log -Message "WhatIf: Removing KeyFile '$KeyFileFilename'" -Level Success -Quiet:$Quiet
                         }
                         else {
                             Remove-Item -Path $KeyFileFilename -ErrorAction Stop
-                            if (-not $Quiet) { Write-Host "Removed existing key file '$KeyFileFilename'" -ForegroundColor Gray }
+                            Write-Log -Message "Removed existing key file '$KeyFileFilename'" -Level Info -Quiet:$Quiet
                         }
                     }
                     catch {
@@ -151,16 +151,16 @@ function Start-KeePassXC {
                     $checkPath = Split-Path $KeyFileFilename -Parent
                     if (-not (Test-Path -Path $checkPath)) {
                         $msg = "The path specified is not found '$KeyFileFilename'"
-                        if (-not $Quiet) { Write-Host $msg -ForegroundColor Yellow }
+                        Write-Log -Message $msg -Level Warning -Quiet:$Quiet
                         throw (New-Object KeePassXCException($EXCEPTION_NOT_FOUND, $msg))
                     }
                 }
                 $res = New-KeePassXCDatabase -DatabaseFilename $DatabaseFilename -KeyFileFilename $KeyFileFilename -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
-                if (-not $Quiet) { Write-Host "Created database '$DatabaseFilename'" -ForegroundColor Gray }
+                Write-Log -Message "Created database '$DatabaseFilename'" -Level Info -Quiet:$Quiet
             }
             else {
                 $res = New-KeePassXCDatabase -DatabaseFilename $DatabaseFilename -MasterPassword $MasterPassword -Quiet:$Quiet -WhatIf:$WhatIf
-                if (-not $Quiet) { Write-Host "Created database '$DatabaseFilename'" -ForegroundColor Gray }
+                Write-Log -Message "Created database '$DatabaseFilename'" -Level Info -Quiet:$Quiet
             }
         }
 
@@ -192,11 +192,11 @@ function Start-KeePassXC {
         #
         if (Test-KeePassXCGroup -Group "/Recycle Bin") {
             if ($WhatIf) {
-                Write-Host "Removing 'Recycle Bin'" -ForegroundColor Green
+                Write-Log -Message "Removing 'Recycle Bin'" -Level Success -Quiet:$Quiet
             }
             else {
-                $res = Remove-KeePassXCGroup -Group "/Recycle Bin"
-                if (-not $Quiet) { Write-Host "Removed 'Recycle Bin'" -ForegroundColor Gray }
+                $res = Remove-KeePassXCGroup -Group "/Recycle Bin" -Quiet:$Quiet
+                Write-Log -Message "Removed 'Recycle Bin'" -Level Info -Quiet:$Quiet
             }
         }
 
@@ -206,11 +206,11 @@ function Start-KeePassXC {
         if ($Group) {
             if (-not $(Test-KeePassXCGroup -Group $Group)) {
                 if ($WhatIf) {
-                    Write-Host "Adding group '$Group'" -ForegroundColor Green
+                    Write-Log -Message "Adding group '$Group'" -Level Success -Quiet:$Quiet
                 }
                 else {
-                    $res = New-KeePassXCGroup -Group $Group
-                    if (-not $Quiet) { Write-Host "Added group '$Group'" -ForegroundColor Gray }
+                    $res = New-KeePassXCGroup -Group $Group -Quiet:$Quiet
+                    Write-Log -Message "Added group '$Group'" -Level Info -Quiet:$Quiet
                 }
             }
         }
@@ -218,11 +218,11 @@ function Start-KeePassXC {
         if ($FilePasswordGroup) {
             if (-not $(Test-KeePassXCGroup -Group $FilePasswordGroup)) {
                 if ($WhatIf) {
-                    Write-Host "Adding group '$FilePasswordGroup'" -ForegroundColor Green
+                    Write-Log -Message "Adding group '$FilePasswordGroup'" -Level Success -Quiet:$Quiet
                 }
                 else {
-                    $res = New-KeePassXCGroup -Group $FilePasswordGroup
-                    if (-not $Quiet) { Write-Host "Added group '$FilePasswordGroup'" -ForegroundColor Gray }
+                    $res = New-KeePassXCGroup -Group $FilePasswordGroup -Quiet:$Quiet
+                    Write-Log -Message "Added group '$FilePasswordGroup'" -Level Info -Quiet:$Quiet
                 }
             }
         }

@@ -24,86 +24,110 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 function Get-KeePassXCEntry {
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
-        [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
-        [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
-        [Parameter(Mandatory=$false)][string]$Group= $Script:kpGroup,
-        [Parameter(Mandatory=$false)][string]$Title,
+        [Parameter(Mandatory = $false)]
+        [string] $DatabaseFilename = $Script:kpDatabaseFilename,
+
+        [Parameter(Mandatory = $false)]
+        [string] $KeyFileFilename = $Script:kpKeyFileFilename,
+
+        [Parameter(Mandatory = $false)]
+        [SecureString] $MasterPassword = $Script:kpMasterPassword,
+
+        [Parameter(Mandatory = $false)]
+        [string] $Group = $Script:kpGroup,
+
+        [Parameter(Mandatory = $false)]
+        [string] $Title,
 		
-        [Parameter(Mandatory=$false)][switch]$Quiet= $false,
-        [Parameter(Mandatory=$false)][switch]$WhatIf= $false
+        [Parameter(Mandatory = $false)]
+        [switch] $Quiet = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $WhatIf = $false
     )
+
     if (-not $Script:kpInitialized) {
-        $msg= "KeePassXC module is not initialized"
-        if (-not $Quiet -or $WhatIf) {Write-Host $msg -ForegroundColor Yellow}
-        throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
+        $msg = "KeePassXC module is not initialized"
+        Write-Log -Message $msg -Level Warning -Quiet:$Quiet
+        throw (New-Object KeePassXCException($EXCEPTION_INITIALIZE, $msg))
     }
+
+    $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($MasterPassword)
+    $plainMasterPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
 
     if ($Title) {
         #
         # Fetch one entry
         #
-		if ($KeyFileFilename) {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$Title" 2>&1
-		} else {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabaseFilename "$Group/$Title" 2>&1
-		}
+        if ($KeyFileFilename) {
+            $e = $plainMasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$Title" 2>&1
+        }
+        else {
+            $e = $plainMasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabaseFilename "$Group/$Title" 2>&1
+        }
 
-        if ($e.length -lt 4) {
+        if ($e.Length -lt 4) {
             # Array with length 4 is expected
-            Test-Message($e)
+            return Test-Message($e)
         }
 
         if ($e[4] -match "-----") {
-            $password= ($e[4..($e.length-1)] -join "`n").Trim()
+            $password = ($e[4..($e.Length - 1)] -join "`n").Trim()
         } 
         else {
-            $password= $e[3]
+            $password = $e[3]
         }
 
-        return [PSCustomObject]@{title=$e[1]; username=$e[2]; password=$password}
+        return [PSCustomObject]@{ title = $e[1]; username = $e[2]; password = $password }
     }
 
     #
     # Fetch all entries in Group
     #
-    $entries= New-Object System.Collections.ArrayList
+    $entries = New-Object System.Collections.ArrayList
 
     # 
     # If the group is empty the list returned is everything from KeePassXC
     # this includes groups, entries from groups, and empth
     # ignore all except entries from root level
     #
-	if ($KeyFileFilename) {
-		$list= $MasterPassword | keepassxc-cli ls --key-file $KeyFileFilename $DatabaseFilename $Group 2> $null | Where-Object {$_ -notmatch "\[empty\]|.*/$|^ "}
-	} else {
-		$list= $MasterPassword | keepassxc-cli ls $DatabaseFilename $Group 2> $null | Where-Object {$_ -notmatch "\[empty\]|.*/$|^ "}
-	}
+    if ($KeyFileFilename) {
+        $list = $plainMasterPassword | keepassxc-cli ls --key-file $KeyFileFilename $DatabaseFilename $Group 2> $null | Where-Object { $_ -notmatch "\[empty\]|.*/$|^ " }
+    }
+    else {
+        $list = $plainMasterPassword | keepassxc-cli ls $DatabaseFilename $Group 2> $null | Where-Object { $_ -notmatch "\[empty\]|.*/$|^ " }
+    }
 
-	# TO-DO: Error handling, invalid parameters
+    # TO-DO: Error handling, invalid parameters
 
     foreach ($t in $list) {
-		if ($KeyFileFilename) {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$t" 2>&1
-		} else {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabaseFilename "$Group/$t" 2>&1
-		}
+        if ($KeyFileFilename) {
+            $e = $plainMasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$t" 2>&1
+        }
+        else {
+            $e = $plainMasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabaseFilename "$Group/$t" 2>&1
+        }
 
-        if ($e.length -lt 4) {
+        if ($e.Length -lt 4) {
             # Array with length 4 is expected
             Test-Message($e)
+            continue
         }
 
         if ($e[4] -match "-----") {
-            $password= ($e[4..($e.length-1)] -join "`n").Trim()
+            $password = ($e[4..($e.Length - 1)] -join "`n").Trim()
         } 
         else {
-            $password= $e[3]
+            $password = $e[3]
         }
 
-        $entries.Add([PSCustomObject]@{title=$e[1]; username=$e[2]; password=$password}) | Out-Null
+        $entries.Add([PSCustomObject]@{ title = $e[1]; username = $e[2]; password = $password }) | Out-Null
     }
 
     return $entries
 }
+
+# --- end-of-file ---

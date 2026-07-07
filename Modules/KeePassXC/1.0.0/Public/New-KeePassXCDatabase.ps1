@@ -44,7 +44,7 @@ function New-KeePassXCDatabase {
 
     if ($WhatIf) { $Quiet = $false }
 
-    if (-not $Quiet) { Write-Host "Creating KeePassXC database '$DatabaseFilename'" -ForegroundColor Gray }
+    Write-Log -Message "Creating KeePassXC database '$DatabaseFilename'" -Level Info -Quiet:$Quiet
 
     $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($MasterPassword)
     $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)

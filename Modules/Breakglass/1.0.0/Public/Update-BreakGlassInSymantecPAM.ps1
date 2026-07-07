@@ -25,34 +25,41 @@ SOFTWARE.
 
 
 function Update-BreakglassInSymantecPAM {
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true)][Object[]] $Accounts,
-        [Parameter(Mandatory=$false)][string] $Password,
+        [Parameter(Mandatory = $true)]
+        [Object[]] $Accounts,
 
-        [Parameter(Mandatory=$false)][switch] $Quiet= $false,
-        [Parameter(Mandatory=$false)][switch] $WhatIf= $false
+        [Parameter(Mandatory = $false)]
+        [string] $Password,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $Quiet = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $WhatIf = $false
     )
 
-    if ($WhatIf) {$quiet= $false}
+    if ($WhatIf) { $Quiet = $false }
 
     foreach ($acc in $Accounts) {
         try {
-            if ($WhatIf) {Write-Host "WhatIf: " -ForegroundColor Green -NoNewline}
-            if (-not $Quiet) {Write-Host "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -NoNewline -ForegroundColor Gray }
+            if ($WhatIf) { Write-Log -Message "WhatIf: " -Level Success -Quiet:$Quiet -NoNewline }
+            Write-Log -Message "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -Level Info -Quiet:$Quiet -NoNewline
 
             if (-not $WhatIf) {
-                $res= Update-SymTargetAccountPassword -AccountID $acc.accountID -Password $Password
+                $res = Update-SymTargetAccountPassword -AccountID $acc.accountID -Password $Password
             }
         } 
         catch {
-            if (-not $Quiet) {Write-Host "Password not updated" -ForegroundColor Yellow}
+            Write-Log -Message "Password not updated" -Level Warning -Quiet:$Quiet
             continue
         }
 
-        if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
+        Write-Log -Message "Password updated" -Level Success -Quiet:$Quiet
 
-        $pwd= Get-SymTargetAccountPassword -AccountID $acc.accountID
-        $acc.accountpassword= $pwd
+        $pwd = Get-SymTargetAccountPassword -AccountID $acc.accountID
+        $acc.accountpassword = $pwd
     }
 }
 

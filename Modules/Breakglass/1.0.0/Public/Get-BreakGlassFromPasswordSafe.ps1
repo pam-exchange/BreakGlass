@@ -24,20 +24,24 @@ SOFTWARE.
 #>
 # ------------------------------------------------------------------------------------
 function Get-BreakglassFromPasswordSafe {
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)][switch] $Quiet= $false,
-        [Parameter(Mandatory=$false)][switch] $WhatIf= $false
+        [Parameter(Mandatory = $false)]
+        [switch] $Quiet = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $WhatIf = $false
     )
 
-    if ($WhatIf) {$quiet= $false}
+    if ($WhatIf) { $Quiet = $false }
 
-    $list= New-Object System.Collections.ArrayList
+    $list = New-Object System.Collections.ArrayList
 
     #
     # Get all breakglass accounts
     # PAM smartrule will filter accounts for breakglass
     #
-    $accounts= Get-PwsManagedAccount
+    $accounts = Get-PwsManagedAccount
 
     #
     # loop through all accounts (API enabled) and fetch password for each.
@@ -45,22 +49,22 @@ function Get-BreakglassFromPasswordSafe {
     #
     foreach ($acc in $accounts) {
         if ($acc.ApiEnabled -eq $false) {
-			Write-Host "$($acc.SystemName) | $($acc.PlatformName) | $($acc.AccountName) -- ignored (not API enabled)" -ForegroundColor Yellow
+            Write-Log -Message "$($acc.SystemName) | $($acc.PlatformName) | $($acc.AccountName) -- ignored (not API enabled)" -Level Warning -Quiet:$Quiet
             continue
         }
 
-        $reqID= New-PwsRequest -AccountID $acc.AccountID -SystemID $acc.SystemID -Duration 5 -Conflict Reuse
-        $pwd= Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$acc.useDSS
+        $reqID = New-PwsRequest -AccountID $acc.AccountID -SystemID $acc.SystemID -Duration 5 -Conflict Reuse
+        $pwd = Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$acc.useDSS
 
-        $list.add( [PSCustomObject]@{
-						server=$($acc.SystemName); 
-						accountType=$($acc.PlatformName); 
-						accountID=$($acc.AccountID); 
-						accountName=$($acc.AccountName); 
-						accountPassword=$pwd; 
-						verified=$Verified; 
-						useDSS=$($acc.useDSS)} 
-				) | Out-Null
+        $list.Add([PSCustomObject]@{
+                server          = $($acc.SystemName)
+                accountType     = $($acc.PlatformName)
+                accountID       = $($acc.AccountID)
+                accountName     = $($acc.AccountName)
+                accountPassword = $pwd
+                verified        = $null # Verified was not defined
+                useDSS          = $($acc.useDSS)
+            }) | Out-Null
     }
 
     return $list

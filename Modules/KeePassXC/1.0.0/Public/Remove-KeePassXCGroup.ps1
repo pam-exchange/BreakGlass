@@ -27,8 +27,8 @@ function Remove-KeePassXCGroup {
     param (
         [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
         [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
-        [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
-        [Parameter(Mandatory=$false)][string]$Group,
+        [Parameter(Mandatory=$false)][SecureString]$MasterPassword= $Script:kpMasterPassword,
+        [Parameter(Mandatory=$true)][string]$Group,
 		
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
         [Parameter(Mandatory=$false)][switch]$WhatIf= $false
@@ -36,14 +36,18 @@ function Remove-KeePassXCGroup {
 
     if (-not $Script:kpInitialized) {
         $msg= "KeePassXC module is not initialized"
-        if (-not $Quiet -or $WhatIf) {Write-Host $msg -ForegroundColor Yellow}
+        Write-Log -Message $msg -Level Warning -Quiet:$Quiet
         throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
     }
 
-    if ($KeyFileFilename) {
-		$msg= $MasterPassword | keepassxc-cli rmdir --key-file $KeyFileFilename $DatabaseFilename $Group 2>&1
+    $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($MasterPassword)
+    $plainMasterPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+
+	if ($KeyFileFilename) {
+		$msg= $plainMasterPassword | keepassxc-cli group-rm --key-file $KeyFileFilename $DatabaseFilename "$Group" 2>&1
 	} else {
-		$msg= $MasterPassword | keepassxc-cli rmdir $DatabaseFilename $Group 2>&1
+		$msg= $plainMasterPassword | keepassxc-cli group-rm $DatabaseFilename "$Group" 2>&1
 	}
 
 	return Test-Message($msg)

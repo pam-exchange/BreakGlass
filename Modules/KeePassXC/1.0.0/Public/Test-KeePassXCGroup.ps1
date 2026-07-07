@@ -27,7 +27,7 @@ function Test-KeePassXCGroup {
     param (
         [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
         [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
-        [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
+        [Parameter(Mandatory=$false)][SecureString]$MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$true)][string]$Group,
 		
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
@@ -36,38 +36,20 @@ function Test-KeePassXCGroup {
 
     if (-not $Script:kpInitialized) {
         $msg= "KeePassXC module is not initialized"
-        if (-not $Quiet -or $WhatIf) {Write-Host $msg -ForegroundColor Yellow}
+        Write-Log -Message $msg -Level Warning -Quiet:$Quiet
         throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
     }
 
-    #
-    # Using "ls" without a group name will return a list of entries at root level
-    # Group names are with suffix "/"
-    #
+    $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($MasterPassword)
+    $plainMasterPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+
 	if ($KeyFileFilename) {
-		$msg= $MasterPassword | keepassxc-cli ls --key-file $KeyFileFilename $DatabaseFilename 2>&1
+		$msg= $plainMasterPassword | keepassxc-cli ls --key-file $KeyFileFilename $DatabaseFilename "$Group" 2>&1
 	} else {
-		$msg= $MasterPassword | keepassxc-cli ls $DatabaseFilename 2>&1
+		$msg= $plainMasterPassword | keepassxc-cli ls $DatabaseFilename "$Group" 2>&1
 	}
 
-    #
-    # First test if there is an error
-    # in parameters calling keepassxc-cli
-    # These are invalid password, invalid keyfile or invalid database
-    #        
-    if ($msg -imatch "Invalid credentials|Failed to") {
-        return Test-Message($msg)
-    }
-
-    #
-    # No  errors found, check if the 
-    # group name (case sensitive) is found
-    #
-    $Group= $Group.Trim("/")
-    if ($msg -cmatch "^$Group/$") {
-        return $true
-    } 
-    else {
-        return $false
-    }
+	if ($msg -match "not found") { return $false }
+	return $true
 }

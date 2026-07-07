@@ -24,17 +24,24 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 function Update-BreakglassInPasswordSafe {
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true)][Object[]] $Accounts,
-        [Parameter(Mandatory=$false)][string] $Password,
+        [Parameter(Mandatory = $true)]
+        [Object[]] $Accounts,
 
-        [Parameter(Mandatory=$false)][switch] $Quiet= $false,
-        [Parameter(Mandatory=$false)][switch] $WhatIf= $false
+        [Parameter(Mandatory = $false)]
+        [string] $Password,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $Quiet = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $WhatIf = $false
     )
 
-    if ($WhatIf) {$quiet= $false}
+    if ($WhatIf) { $Quiet = $false }
 
-    $requests= Get-PwsRequest -Refresh
+    $requests = Get-PwsRequest -Refresh
 
     #
     # loop through all accounts and fetch password for each.
@@ -46,17 +53,17 @@ function Update-BreakglassInPasswordSafe {
         # Update password and fetch the new password
         #
         try {
-            if ($WhatIf) {Write-Host "WhatIf: " -ForegroundColor Green -NoNewline}
-            if (-not $Quiet) {Write-Host "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -NoNewline -ForegroundColor Gray }
+            if ($WhatIf) { Write-Log -Message "WhatIf: " -Level Success -Quiet:$Quiet -NoNewline }
+            Write-Log -Message "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -Level Info -Quiet:$Quiet -NoNewline
 
             if (-not $WhatIf) {
-                $res= Update-PwsManagedAccountPassword -AccountID $acc.AccountID -Password $Password
+                $res = Update-PwsManagedAccountPassword -AccountID $acc.AccountID -Password $Password
             }
 
-            if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
+            Write-Log -Message "Password updated" -Level Success -Quiet:$Quiet
         }
         catch {
-            if (-not $Quiet) {Write-Host "Password not updated" -ForegroundColor Yellow}
+            Write-Log -Message "Password not updated" -Level Warning -Quiet:$Quiet
             continue
         }
         if ($WhatIf) {
@@ -64,7 +71,7 @@ function Update-BreakglassInPasswordSafe {
             continue
         }
 
-        $cnt= 0
+        $cnt = 0
         do {
             #
             # Loop is required for the scenario that a request expired since it was requested
@@ -81,26 +88,27 @@ function Update-BreakglassInPasswordSafe {
 
             try {
                 # Find request by IDs and filter request already expired
-                $now= Get-Date
-                $req= $requests | Where-Object {($_.accountID -eq $acc.AccountID) -and ($now -lt [DateTime]$($_.ExpiresDate))}
+                $now = Get-Date
+                $req = $requests | Where-Object { ($_.accountID -eq $acc.AccountID) -and ($now -lt [DateTime]$($_.ExpiresDate)) }
 
                 if (-not $req) {
-                    $reqID= New-PwsRequest -AccountID $acc.ID -SystemID $acc.SystemId -Duration 15
-                } else {
-                    $reqID= $req.RequestID
+                    $reqID = New-PwsRequest -AccountID $acc.AccountID -SystemID $acc.SystemID -Duration 15
+                }
+                else {
+                    $reqID = $req.RequestID
                 }
 
-                $pwd= Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$($acc.useDSS)
-                $acc.accountPassword= $pwd
+                $pwd = Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$($acc.useDSS)
+                $acc.accountPassword = $pwd
                 break
             } 
             catch {
                 $cnt++
-                if (-not $Quiet) {Write-Host "$($_.Exception.Message) - $($_.Exception.Details)" -ForegroundColor DarkGray}
+                Write-Log -Message "$($_.Exception.Message) - $($_.Exception.Details)" -Level Debug -Quiet:$Quiet
                 if ($cnt -gt 5) {
                     throw
                 }
-                Sleep -Milliseconds 500
+                Start-Sleep -Milliseconds 500
             }
         } while ($true)
 

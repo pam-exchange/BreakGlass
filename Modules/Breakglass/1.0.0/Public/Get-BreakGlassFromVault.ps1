@@ -25,20 +25,25 @@ SOFTWARE.
 
 # ------------------------------------------------------------------------------------
 function Get-BreakglassFromVault {
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType= "KeePassXC",
+        [Parameter(Mandatory = $false)]
+        [VAULT_TYPE] $VaultType = "KeePassXC",
 
-        [Parameter(Mandatory=$false)][switch] $Multiple= $false,
-        [Parameter(Mandatory=$false)][switch] $Quiet= $false,
-        [Parameter(Mandatory=$false)][switch] $WhatIf= $false
+        [Parameter(Mandatory = $false)]
+        [switch] $Multiple = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $Quiet = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $WhatIf = $false
     )
 
-    if ($WhatIf) {$quiet= $false}
+    if ($WhatIf) { $Quiet = $false }
 
-    switch ($VaultType) 
-    {
-        "KeePassXC" 
-        {
+    switch ($VaultType) {
+        "KeePassXC" {
             return Get-KeePassXCEntries -Multiple:$Multiple -Quiet:$Quiet -WhatIf:$WhatIf
         }
     }
