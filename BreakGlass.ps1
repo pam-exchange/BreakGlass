@@ -1,4 +1,4 @@
-﻿<#----------------------------------------------------------------------------------
+<#----------------------------------------------------------------------------------
 
 This script will extract breakglass accounts from PAM and store them in KeePassXC.
 
@@ -36,45 +36,52 @@ SOFTWARE.
 
 # ----------------------------------------------------------------------------------
 param (
-    [ValidateSet("PasswordSafe","SymantecPAM")]
-    [Parameter(Mandatory=$false)][String] $PAMType= "PasswordSafe",
+    [ValidateSet("PasswordSafe", "SymantecPAM")]
+    [Parameter(Mandatory = $false)]
+    [String] $PAMType = "PasswordSafe",
+
     [ValidateSet("KeePassXC")]
-    [Parameter(Mandatory=$false)][String] $VaultType= "KeePassXC",
-    [Parameter(Mandatory=$false)][string] $ConfigPath= "c:\temp",
+    [Parameter(Mandatory = $false)]
+    [String] $VaultType = "KeePassXC",
 
-    [Parameter(Mandatory=$false)][switch] $Multiple= $false,
-    [Parameter(Mandatory=$false)][switch] $Update= $false,
+    [Parameter(Mandatory = $false)]
+    [string] $ConfigPath = "c:\temp",
 
-    [Parameter(Mandatory=$false)][switch] $Quiet= $false,
-    [Parameter(Mandatory=$false)][switch] $WhatIf= $false
+    [Parameter(Mandatory = $false)]
+    [switch] $Multiple = $false,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $Update = $false,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $Quiet = $false,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $WhatIf = $false
 )
 
-try {$startTime= (Get-Date -ErrorAction SilentlyContinue)} catch {$now= 0}
+try { $startTime = (Get-Date -ErrorAction SilentlyContinue) } catch { $now = 0 }
 
-$version= "1.1.0"
-
-$scriptBasePath= $PSScriptRoot
-$scriptName= $PSCommandPath
+$version = "1.1.0"
 
 #
 # modulePath
 #
-if (-not $modulePath) { 
-    #$modulePath= $scriptBasePath.substring(0,$scriptBasePath.LastIndexOf("\")) 
-    $modulePath= $scriptBasePath
+$moduleRoot = Join-Path $PSScriptRoot "Modules"
+
+if (Test-Path $moduleRoot) {
+    if ($env:PSModulePath -notmatch [regex]::Escape($moduleRoot)) {
+        $env:PSModulePath = "$moduleRoot;$env:PSModulePath"
+    }
 }
 
-$Script:currentPSModulePath= $env:PSModulePath
-if ($env:PSModulePath -notmatch ";"+$($modulePath.replace("\","\\"))+"\\modules") {
-    $env:PSModulePath+=";$modulePath\modules"
+# Clear existing modules to ensure fresh import
+"Breakglass", "KeePassXC", "PasswordSafe", "SymantecPAM", "Logging" | ForEach-Object {
+    if (Get-Module -Name $_) { Remove-Module -Name $_ }
 }
 
-if ($(Get-Module).name -contains "Breakglass") { Remove-Module Breakglass }
-if ($(Get-Module).name -contains "KeePassXC") { Remove-Module KeePassXC }
-if ($(Get-Module).name -contains "PasswordSafe") { Remove-Module PasswordSafe }
-if ($(Get-Module).name -contains "SymantecPAM") { Remove-Module SymantecPAM }
-
-
+# Import required modules
+Import-Module Logging -Force
 if ($PAMType -eq "PasswordSafe") { Import-Module PasswordSafe -Force }
 if ($PAMType -eq "SymantecPAM") { Import-Module SymantecPAM -Force }
 if ($VaultType -eq "KeePassXC") { Import-Module KeePassXC -Force }
@@ -82,30 +89,30 @@ Import-Module Breakglass -Force
 
 # ----------------------------------------------------------------------------------
 try {
-
     Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Multiple:$Multiple -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
-
-} 
+}
 catch {
-    Write-Host "Exception: $($_.Exception.GetType().FullName)`nMessage: $($_.Exception.Message)`nDetails: $($_.Exception.Details)" -ForegroundColor Yellow
-    Write-Host $_.ScriptStackTrace -ForegroundColor Gray
+    Write-Log -Message "Exception: $($_.Exception.GetType().FullName)`nMessage: $($_.Exception.Message)`nDetails: $($_.Exception.Details)" -Level Error -Quiet:$Quiet
+    Write-Log -Message $_.ScriptStackTrace -Level Debug -Quiet:$Quiet
 }
 finally {
     if (-not $Quiet -or $WhatIf) {
         try {
             # --- Elapsed time ---
-            $t= $([int]((Get-Date -ErrorAction SilentlyContinue)-$startTime).TotalSeconds)
+            $t = [int]((Get-Date -ErrorAction SilentlyContinue) - $startTime).TotalSeconds
 
-            $h= [int][Math]::Floor( $t / 3600 )
-            $m= [int][Math]::Floor( ($t - $h*3600) / 60 )
-            $s= [int][Math]::Floor( $t - $h*3600 -$m*60 )
+            $h = [int][Math]::Floor($t / 3600)
+            $m = [int][Math]::Floor(($t - $h * 3600) / 60)
+            $s = [int][Math]::Floor($t - $h * 3600 - $m * 60)
 
-            if ($h -gt 0)     {Write-Host "Run time: $h hours, $m minutes, $s seconds" -ForegroundColor Gray}
-            elseif ($m -gt 0) {Write-Host "Run time: $m minutes, $s seconds" -ForegroundColor Gray}
-            else              {Write-Host "Run time: $s seconds" -ForegroundColor Gray}
+            $duration = if ($h -gt 0) { "$h hours, $m minutes, $s seconds" }
+            elseif ($m -gt 0) { "$m minutes, $s seconds" }
+            else { "$s seconds" }
+
+            Write-Log -Message "Run time: $duration" -Level Info -Quiet:$Quiet
         } catch {}
 
-        Write-Host "Finished aligning '$PAMType' accounts with '$VaultType' database" -ForegroundColor White
+        Write-Log -Message "Finished aligning '$PAMType' accounts with '$VaultType' database" -Level Info -Quiet:$Quiet
     }
 }
 

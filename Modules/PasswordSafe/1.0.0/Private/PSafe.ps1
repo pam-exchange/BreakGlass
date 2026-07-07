@@ -231,7 +231,7 @@ function PSafe-FindCertificateForUPN([string]$upnName)
 function PSafe-FindClientCertificates([string]$certStore)
 {
     $certs = Get-ChildItem -Path "cert:\${certStore}\My" -EKU "Client Authentication";
-    retrn $certs;
+    return $certs;
 }
 
 

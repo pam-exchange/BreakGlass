@@ -24,23 +24,43 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 function New-KeePassXCDatabase {
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
-        [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
-        [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
+        [Parameter(Mandatory = $true)]
+        [string] $DatabaseFilename,
 
-        [Parameter(Mandatory=$false)][switch]$Quiet= $false,
-        [Parameter(Mandatory=$false)][switch]$WhatIf= $false
+        [Parameter(Mandatory = $false)]
+        [string] $KeyFileFilename,
+
+        [Parameter(Mandatory = $true)]
+        [SecureString] $MasterPassword,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $Quiet = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $WhatIf = $false
     )
 
-#    if (-not $Quiet -or -$WhatIf) {
-#        Write-Host "Creating database '$DatabaseFilename'" -ForegroundColor Gray
-#    }
+    if ($WhatIf) { $Quiet = $false }
 
-	if ($KeyFileFilename) {
-		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-key-file $KeyFileFilename --set-password $DatabaseFilename 2>&1
-	} else {
-		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-password $DatabaseFilename 2>&1
-	}
+    if (-not $Quiet) { Write-Host "Creating KeePassXC database '$DatabaseFilename'" -ForegroundColor Gray }
+
+    $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($MasterPassword)
+    $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+
+    # CLI requires password to be entered twice for confirmation during creation
+    $passwordConfirm = $plainPassword + "`n" + $plainPassword
+
+    if ($KeyFileFilename) {
+        $msg = $passwordConfirm | keepassxc-cli db-create --key-file $KeyFileFilename $DatabaseFilename 2>&1
+    }
+    else {
+        $msg = $passwordConfirm | keepassxc-cli db-create $DatabaseFilename 2>&1
+    }
+
     return Test-Message($msg)
 }
+
+# --- end-of-file ---

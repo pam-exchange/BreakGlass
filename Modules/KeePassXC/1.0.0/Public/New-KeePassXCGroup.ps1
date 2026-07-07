@@ -24,27 +24,45 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 function New-KeePassXCGroup {
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)][string]$DatabaseFilename= $Script:kpDatabaseFilename,
-        [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
-        [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
-        [Parameter(Mandatory=$true)][string]$Group,
-		
-        [Parameter(Mandatory=$false)][switch]$Quiet= $false,
-        [Parameter(Mandatory=$false)][switch]$WhatIf= $false
+        [Parameter(Mandatory = $false)]
+        [string] $DatabaseFilename = $Script:kpDatabaseFilename,
+
+        [Parameter(Mandatory = $false)]
+        [string] $KeyFileFilename = $Script:kpKeyFileFilename,
+
+        [Parameter(Mandatory = $false)]
+        [SecureString] $MasterPassword = $Script:kpMasterPassword,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Group,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $Quiet = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $WhatIf = $false
     )
 
     if (-not $Script:kpInitialized) {
-        $msg= "KeePassXC module is not initialized"
-        if (-not $Quiet -or $WhatIf) {Write-Host $msg -ForegroundColor Yellow}
-        throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
+        $msg = "KeePassXC module is not initialized"
+        if (-not $Quiet -or $WhatIf) { Write-Host $msg -ForegroundColor Yellow }
+        throw (New-Object KeePassXCException($EXCEPTION_INITIALIZE, $msg))
     }
 
-	if ($KeyFileFilename) {
-		$msg= $MasterPassword | keepassxc-cli mkdir --key-file $KeyFileFilename $DatabaseFilename "$Group" 2>&1
-	} else {
-		$msg= $MasterPassword | keepassxc-cli mkdir $DatabaseFilename "$Group" 2>&1
-	}
+    $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($MasterPassword)
+    $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+
+    if ($KeyFileFilename) {
+        $msg = $plainPassword | keepassxc-cli group-add --key-file $KeyFileFilename $DatabaseFilename $Group 2>&1
+    }
+    else {
+        $msg = $plainPassword | keepassxc-cli group-add $DatabaseFilename $Group 2>&1
+    }
 
     return Test-Message($msg)
 }
+
+# --- end-of-file ---

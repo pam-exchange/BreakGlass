@@ -22,59 +22,79 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 #>
+
 #--------------------------------------------------------------------------------------
-function Start-PasswordSafe (
+function Start-PasswordSafe {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $ApiDNS,
 
-    [Parameter(Mandatory = $true)] [string]$apiDNS,
-    [Parameter(Mandatory = $true)] [string]$apiWorkgroup,
-    [Parameter(Mandatory = $true)] [string]$apiKey,
-    [Parameter(Mandatory = $true)] [string]$apiUsername,
-    [Parameter(Mandatory = $false)] [string]$apiPassword
-)
-{
-	process {
-		$Script:apiWorkgroup= $apiWorkgroup
-		$Script:apiURL= "https://$apiDNS/BeyondTrust/api/public/v3/"
-		$Script:apiKey= $apiKey
-		$Script:apiUsername= $apiUsername
-		$Script:apiPassword= $apiPassword
+        [Parameter(Mandatory = $true)]
+        [string] $ApiWorkgroup,
 
-		$method = "POST";
-		$uri= $Script:apiURL+"Auth/SignAppin"
-		$headers = PSafe-BuildHeaders;
-		$Script:PSHeaders= $headers
+        [Parameter(Mandatory = $true)]
+        [SecureString] $ApiKey,
 
-		#Write-PSFMessage -Level Debug "uri= $uri"
-		#Write-PSFMessage -Level Debug "headers.Authorization= $($headers.Authorization)"
+        [Parameter(Mandatory = $true)]
+        [string] $ApiUsername,
 
-		try
-		{
-			if ($Script:authCert -eq $null) {
-				$result = Invoke-RestMethod -Uri $uri -Method $method -Headers $headers -SessionVariable Script:session
-			}
-			else {
-				$result = Invoke-RestMethod -Uri $uri -Method $method -Headers $headers -SessionVariable Script:session -Certificate $Script:authCert
-			}
-			return $result;
-		}
-		catch [System.Net.WebException]
-		{
-			#401 with WWW-Authenticate-2FA header expected for two-factor authentication challenge
-			if($_.Exception.Response.StatusCode -eq 401 -and $_.Exception.Response.Headers.Contains("WWW-Authenticate-2FA") -eq $true)
-			{
-				$challengeMessage = $_.Exception.Response.Headers["WWW-Authenticate-2FA"];
-				$challengeResponse = Read-Host $challengeMessage;
-				PSafe-SignAppinChallenge $challengeResponse;
-			}
-			elseif ($_.Exception.Response.StatusCode -eq "Unauthorized") {
-				$details = $DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -f $apiUsername
-				throw ( New-Object PasswordSafeException( $EXCEPTION_NOT_AUTHORIZED, $details ) )
-			}
-			else {
-				throw;
-			}
-		}
-	}
+        [Parameter(Mandatory = $false)]
+        [SecureString] $ApiPassword
+    )
+
+    process {
+        $Script:apiWorkgroup = $ApiWorkgroup
+        $Script:apiURL = "https://$ApiDNS/BeyondTrust/api/public/v3/"
+
+        # Convert SecureString to plain text for headers
+        $ptrKey = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($ApiKey)
+        $plainApiKey = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptrKey)
+        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptrKey)
+        $Script:apiKey = $plainApiKey
+
+        $Script:apiUsername = $ApiUsername
+
+        if ($ApiPassword) {
+            $ptrPwd = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($ApiPassword)
+            $plainApiPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptrPwd)
+            [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptrPwd)
+            $Script:apiPassword = $plainApiPassword
+        }
+        else {
+            $Script:apiPassword = $null
+        }
+
+        $method = "POST"
+        $uri = $Script:apiURL + "Auth/SignAppin"
+        $headers = PSafe-BuildHeaders
+        $Script:PSHeaders = $headers
+
+        try {
+            if ($Script:authCert -eq $null) {
+                $result = Invoke-RestMethod -Uri $uri -Method $method -Headers $headers -SessionVariable Script:session
+            }
+            else {
+                $result = Invoke-RestMethod -Uri $uri -Method $method -Headers $headers -SessionVariable Script:session -Certificate $Script:authCert
+            }
+            return $result
+        }
+        catch [System.Net.WebException] {
+            #401 with WWW-Authenticate-2FA header expected for two-factor authentication challenge
+            if ($_.Exception.Response.StatusCode -eq 401 -and $_.Exception.Response.Headers.Contains("WWW-Authenticate-2FA") -eq $true) {
+                $challengeMessage = $_.Exception.Response.Headers["WWW-Authenticate-2FA"]
+                $challengeResponse = Read-Host $challengeMessage
+                PSafe-SignAppinChallenge $challengeResponse
+            }
+            elseif ($_.Exception.Response.StatusCode -eq "Unauthorized") {
+                $details = $DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -f $ApiUsername
+                throw (New-Object PasswordSafeException($EXCEPTION_NOT_AUTHORIZED, $details))
+            }
+            else {
+                throw
+            }
+        }
+    }
 }
 
 # --- end-of-file ---

@@ -24,42 +24,69 @@ SOFTWARE.
 #>
 #--------------------------------------------------------------------------------------
 function New-KeePassXCEntry {
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)][string] $DatabaseFilename= $Script:kpDatabaseFilename,
-        [Parameter(Mandatory=$false)][string] $KeyFileFilename= $Script:kpKeyFileFilename,
-        [Parameter(Mandatory=$false)][string] $MasterPassword= $Script:kpMasterPassword,
-        [Parameter(Mandatory=$false)][string] $Group,
+        [Parameter(Mandatory = $false)]
+        [string] $DatabaseFilename = $Script:kpDatabaseFilename,
 
-        [Parameter(Mandatory=$true)][string] $Title,
-        [Parameter(Mandatory=$true)][string] $Username,
-        [Parameter(Mandatory=$true)][string] $Password,
-        [Parameter(Mandatory=$false)][switch] $Verified= $false,
+        [Parameter(Mandatory = $false)]
+        [string] $KeyFileFilename = $Script:kpKeyFileFilename,
+
+        [Parameter(Mandatory = $false)]
+        [SecureString] $MasterPassword = $Script:kpMasterPassword,
+
+        [Parameter(Mandatory = $false)]
+        [string] $Group,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Title,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Username,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Password,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $Verified = $false,
 		
-        [Parameter(Mandatory=$false)][switch] $Multiple= $false,
-        [Parameter(Mandatory=$false)][switch] $Quiet= $false,
-        [Parameter(Mandatory=$false)][switch] $WhatIf= $false
+        [Parameter(Mandatory = $false)]
+        [switch] $Multiple = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $Quiet = $false,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $WhatIf = $false
     )
 
     if (-not $Script:kpInitialized) {
-        $msg= "KeePassXC module is not initialized"
-        if (-not $Quiet -or $WhatIf) {Write-Host $msg -ForegroundColor Yellow}
-        throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
+        $msg = "KeePassXC module is not initialized"
+        if (-not $Quiet -or $WhatIf) { Write-Host $msg -ForegroundColor Yellow }
+        throw (New-Object KeePassXCException($EXCEPTION_INITIALIZE, $msg))
     }
 
     if ($Password -match "-----") {
         # unlikely that a generated passwords contains 5 -
-        $notes= $password
-        $password= "SSH Private Key"
+        $notes = $Password
+        $Password = "SSH Private Key"
     }
     else {
-        if ($Verified) {$notes= "Password is verified"} 
-        else {$notes= "Password is not verified"}
+        if ($Verified) { $notes = "Password is verified" }
+        else { $notes = "Password is not verified" }
     }
 
+    $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($MasterPassword)
+    $plainMasterPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+
     if ($KeyFileFilename) {
-		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli add --password-prompt --username $Username --notes $notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$title" 2>&1
-	} else {
-		$msg= $MasterPassword+"`n"+$Password | keepassxc-cli add --password-prompt --username $Username --notes $notes $DatabaseFilename "$Group/$title" 2>&1
-	}
+        $msg = $plainMasterPassword + "`n" + $Password | keepassxc-cli add --password-prompt --username $Username --notes $notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$Title" 2>&1
+    }
+    else {
+        $msg = $plainMasterPassword + "`n" + $Password | keepassxc-cli add --password-prompt --username $Username --notes $notes $DatabaseFilename "$Group/$Title" 2>&1
+    }
     return Test-Message($msg)
 }
+
+# --- end-of-file ---

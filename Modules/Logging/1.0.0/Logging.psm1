@@ -23,39 +23,46 @@ SOFTWARE.
 
 #>
 
-#--------------------------------------------------------------------------------------
-function Start-SymantecPAM {
+function Write-Log {
     [CmdletBinding()]
-    param (
-        [Parameter(Mandatory = $true)]
-        [string] $CliDNS,
-
-        [Parameter(Mandatory = $true)]
-        [string] $CliUsername,
-
-        [Parameter(Mandatory = $true)]
-        [SecureString] $CliPassword,
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string] $Message,
 
         [Parameter(Mandatory = $false)]
-        [int] $CliPageSize = 100
+        [ValidateSet("Info", "Warning", "Error", "Debug", "Success")]
+        [string] $Level = "Info",
+
+        [Parameter(Mandatory = $false)]
+        [switch] $Quiet,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $NoNewline
     )
 
-    process {
-        $Script:cliDNS = $CliDNS
-        $Script:cliUsername = $CliUsername
+    if ($Quiet -and $Level -notin @("Error", "Warning")) {
+        return
+    }
 
-        $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($CliPassword)
-        $plainCliPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
-        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
-        $Script:cliPassword = $plainCliPassword
+    $color = switch ($Level) {
+        "Info"    { "Gray" }
+        "Warning" { "Yellow" }
+        "Error"   { "Red" }
+        "Debug"   { "DarkGray" }
+        "Success" { "Green" }
+        default   { "White" }
+    }
 
-        $Script:cliPageSize = $CliPageSize
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    # Future enhancement: output to file
+    # $logEntry = "[$timestamp] [$Level] $Message"
 
-        #
-        # TO-DO: Implement login logic for Symantec PAM
-        # For now, it just sets the global script variables
-        #
+    if ($NoNewline) {
+        Write-Host $Message -ForegroundColor $color -NoNewline
+    }
+    else {
+        Write-Host $Message -ForegroundColor $color
     }
 }
 
-# --- end-of-file ---
+Export-ModuleMember -Function Write-Log
