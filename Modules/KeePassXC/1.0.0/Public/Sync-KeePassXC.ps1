@@ -84,10 +84,10 @@ function Sync-KeePassXC {
                 # Password has changed
                 #
                 if ($WhatIf) {
-                    Write-Log "WhatIf: Updating '$title'" -Level Info -ForegroundColor Green
+                    Write-Log "WhatIf: Updating '$title'" -Level Info
                 }
                 else {
-                    if (-not $Quiet) { Write-Log "Updating '$title'" -Level Info -ForegroundColor Green }
+                    if (-not $Quiet) { Write-Log "Updating '$title'" -Level Info }
 
                     if ($Multiple) {
                         $fileMasterPassword = $vaultHash[$d.InputObject].options.password
@@ -130,10 +130,10 @@ function Sync-KeePassXC {
             # Add new entry to KeePassXC
             #
             if ($WhatIf) {
-                Write-Log "WhatIf: Adding '$title'" -Level Info -ForegroundColor Green
+                Write-Log "WhatIf: Adding '$title'" -Level Info
             }
             else {
-                if (-not $Quiet) { Write-Log "Adding '$title'" -Level Info -ForegroundColor Green }
+                if (-not $Quiet) { Write-Log "Adding '$title'" -Level Info }
 
                 if ($Multiple) {
                     $fileMasterPassword = New-BreakglassPassword -BlockLength 4
@@ -178,10 +178,10 @@ function Sync-KeePassXC {
             # Remove entry from KeePassXC
             #
             if ($WhatIf) {
-                Write-Log "WhatIf: Removing '$title'" -Level Info -ForegroundColor Green
+                Write-Log "WhatIf: Removing '$title'" -Level Info
             }
             else {
-                if (-not $Quiet) { Write-Log "Removing '$title'" -Level Info -ForegroundColor Green }
+                if (-not $Quiet) { Write-Log "Removing '$title'" -Level Info }
 
                 if ($Multiple) {
                     $res = Remove-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title

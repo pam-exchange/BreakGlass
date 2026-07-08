@@ -77,7 +77,7 @@ function Start-Breakglass {
                 FilePasswordGroup = $(if ($config["KeePassXC"].FilePasswordGroup) { $config["KeePassXC"].FilePasswordGroup } else { "/FilePassword" });
                 MasterPassword    = $config["KeePassXC"].MasterPassword;
             }
-            $res = Start-KeePassXC @loginParams
+            $res = Start-KeePassXC @loginParams -CreateDatabase
         }
     }
 }

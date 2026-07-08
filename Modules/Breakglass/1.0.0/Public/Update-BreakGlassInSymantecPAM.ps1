@@ -37,19 +37,23 @@ function Update-BreakglassInSymantecPAM {
 
     foreach ($acc in $Accounts) {
         try {
-            if ($WhatIf) {Write-Host "WhatIf: " -ForegroundColor Green -NoNewline}
-            if (-not $Quiet) {Write-Host "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -NoNewline -ForegroundColor Gray }
+            #if ($WhatIf) {Write-Host "WhatIf: " -ForegroundColor Green -NoNewline}
+            if ($WhatIf) {Write-Host "WhatIf: " -Level Info -NoNewline}
+            #if (-not $Quiet) {Write-Host "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -NoNewline -ForegroundColor Gray }
+            if (-not $Quiet) {Write-Log "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -Level Debug -NoNewline }
 
             if (-not $WhatIf) {
                 $res= Update-SymTargetAccountPassword -AccountID $acc.accountID -Password $Password
             }
         } 
         catch {
-            if (-not $Quiet) {Write-Host "Password not updated" -ForegroundColor Yellow}
+            #if (-not $Quiet) {Write-Host "Password not updated" -ForegroundColor Yellow}
+            if (-not $Quiet) { Write-Log "Password not updated" -Level Warning }
             continue
         }
 
-        if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
+        #if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
+		if (-not $Quiet) { Write-Log "Password updated" -Level Info }
 
         $pwd= Get-SymTargetAccountPassword -AccountID $acc.accountID
         $acc.accountpassword= $pwd

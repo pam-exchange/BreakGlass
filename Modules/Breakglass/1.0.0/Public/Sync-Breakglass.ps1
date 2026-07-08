@@ -50,14 +50,14 @@ function Sync-Breakglass {
         #
         # Fetch breakglass accounts from PAM
         #
-        if (-not $Quiet) { Write-Log "Finding breakglass accounts in '$PAMType'" -Level Info }
+        if (-not $Quiet) { Write-Log "Finding breakglass accounts in '$PAMType'" -Level Success }
         $pamAccounts = Get-BreakglassFromPAM -PAMType $PAMType -Quiet:$Quiet -WhatIf:$WhatIf
     
         if (-not $Quiet) {
             $pamAccounts | ForEach-Object { Write-Log "$($_.server) | $($_.accountType) | $($_.accountName)" -Level Debug }
             if ($null -eq $pamAccounts) { $cnt = 0 }
             elseif ($pamAccounts.GetType().Name -eq "PSCustomObject") { $cnt = 1 } else { $cnt = $pamAccounts.Count }
-            Write-Log "Found '$cnt' breakglass accounts in '$PAMType'" -Level Info -ForegroundColor Gray
+            Write-Log "Found '$cnt' breakglass accounts in '$PAMType'" -Level Debug
         }
 
         if ($cnt -eq 0) {
@@ -65,9 +65,9 @@ function Sync-Breakglass {
             # Could be an error reading from PAM, but it is unexpected and
             # nothing further is done for now.
             #
-            Write-Log "No accounts are found in '$PAMType'." -Level Warning -ForegroundColor Green
-            Write-Log "This is unexpected and processing is stopped" -Level Warning -ForegroundColor Green
-            Write-Log "If there really are no breakglass accounts in PAM, just delete the Vault database" -Level Warning -ForegroundColor Gray
+            Write-Log "No accounts are found in '$PAMType'." -Level Warning
+            Write-Log "This is unexpected and processing is stopped" -Level Warning
+            Write-Log "If there really are no breakglass accounts in PAM, just delete the Vault database" -Level Warning
             return
         }
 
@@ -77,7 +77,7 @@ function Sync-Breakglass {
         #
         if ($Update) {
             if ($pamAccounts) {
-                if (-not $Quiet) { Write-Log "Updating password on breakglass accounts in '$PAMType'" -Level Info }
+                if (-not $Quiet) { Write-Log "Updating password on breakglass accounts in '$PAMType'" -Level Success }
                 $res = Update-BreakGlassInPAM -PAMType $PAMType -Accounts $pamAccounts -Quiet:$Quiet -WhatIf:$WhatIf
             }
             else {
@@ -88,19 +88,19 @@ function Sync-Breakglass {
         #
         # Fetch breakglass accounts from Vault
         #
-        if (-not $Quiet) { Write-Log "Finding accounts in '$VaultType'" -Level Info }
+        if (-not $Quiet) { Write-Log "Finding accounts in '$VaultType'" -Level Success }
         $vaultAccounts = Get-BreakglassFromVault -VaultType $VaultType -Multiple:$Multiple -Quiet:$Quiet -WhatIf:$WhatIf
         if (-not $Quiet) {
             $vaultAccounts | ForEach-Object { Write-Log "$($_.title)" -Level Debug }
             if ($null -eq $vaultAccounts) { $cnt = 0 }
             elseif ($vaultAccounts.GetType().Name -eq "PSCustomObject") { $cnt = 1 } else { $cnt = $vaultAccounts.Count }
-            Write-Log "Found '$cnt' breakglass accounts in '$VaultType'" -Level Info -ForegroundColor Gray
+            Write-Log "Found '$cnt' breakglass accounts in '$VaultType'" -Level Debug
         }
         
         #
         # Align accounts from PAM with local Vault
         #
-        if (-not $Quiet) { Write-Log "Align '$PAMType' accounts with '$VaultType' database" -Level Info }
+        if (-not $Quiet) { Write-Log "Align '$PAMType' accounts with '$VaultType' database" -Level Success }
         $res = Sync-BreakglassWithVault -VaultType $VaultType -pamAccounts $pamAccounts -vaultAccounts $vaultAccounts -Multiple:$Multiple -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
     } 
     catch {

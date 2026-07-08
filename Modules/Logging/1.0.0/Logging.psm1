@@ -19,19 +19,21 @@ function Write-Log {
     $callerInfo = ""
     if ($null -ne $caller) {
         $fileName = Split-Path $caller.ScriptName -Leaf
-        $callerInfo = "[$fileName:$($caller.ScriptLineNumber) $($caller.FunctionName)]"
+        $callerInfo = "   [$fileName"+":"+"$($caller.ScriptLineNumber)]"
     }
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logMessage = "[$timestamp] [$Level] $callerInfo $Message"
+    #$logMessage = "[$timestamp] [$Level] $Message $callerInfo"
+    $logMessage = $Message
+    $logMessage = "[$Level] $Message $callerInfo"
 
     if (-not $ForegroundColor) {
         switch ($Level) {
-            "Info"    { $ForegroundColor = "White" }
+            "Info"    { $ForegroundColor = "Green" }
             "Warning" { $ForegroundColor = "Yellow" }
             "Error"   { $ForegroundColor = "Red" }
             "Debug"   { $ForegroundColor = "Gray" }
-            "Success" { $ForegroundColor = "Green" }
+            "Success" { $ForegroundColor = "White" }
             default   { $ForegroundColor = "White" }
         }
     }

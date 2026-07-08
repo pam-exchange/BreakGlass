@@ -101,12 +101,20 @@ finally {
             $m= [int][Math]::Floor( ($t - $h*3600) / 60 )
             $s= [int][Math]::Floor( $t - $h*3600 -$m*60 )
 
-            if ($h -gt 0)     {Write-Host "Run time: $h hours, $m minutes, $s seconds" -ForegroundColor Gray}
-            elseif ($m -gt 0) {Write-Host "Run time: $m minutes, $s seconds" -ForegroundColor Gray}
-            else              {Write-Host "Run time: $s seconds" -ForegroundColor Gray}
+            #if ($h -gt 0)     {Write-Host "Run time: $h hours, $m minutes, $s seconds" -ForegroundColor Gray}
+            #elseif ($m -gt 0) {Write-Host "Run time: $m minutes, $s seconds" -ForegroundColor Gray}
+            #else              {Write-Host "Run time: $s seconds" -ForegroundColor Gray}
+
+            $duration = if ($h -gt 0) { "$h hours, $m minutes, $s seconds" }
+            elseif ($m -gt 0) { "$m minutes, $s seconds" }
+            else { "$s seconds" }
+
+            Write-Log -Message "Run time: $duration" -Level Success
+
         } catch {}
 
-        Write-Host "Finished aligning '$PAMType' accounts with '$VaultType' database" -ForegroundColor White
+        #Write-Host "Finished aligning '$PAMType' accounts with '$VaultType' database" -ForegroundColor White
+        Write-Log "Finished aligning '$PAMType' accounts with '$VaultType' database" -Level Success
     }
 }
 
