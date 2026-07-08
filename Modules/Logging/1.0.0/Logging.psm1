@@ -1,8 +1,17 @@
 function Write-Log {
     param (
-        [Parameter(Mandatory=$true)][string]$Message,
-        [Parameter(Mandatory=$false)][ValidateSet("Info", "Warning", "Error", "Debug")][string]$Level = "Info",
-        [Parameter(Mandatory=$false)][ConsoleColor]$ForegroundColor
+        [Parameter(Mandatory=$true)]
+        [string] $Message,
+        
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("Info", "Warning", "Error", "Debug","Success")]
+        [string] $Level = "Info",
+        
+        [Parameter(Mandatory=$false)]
+        [ConsoleColor] $ForegroundColor,
+        
+        [Parameter(Mandatory = $false)]
+        [switch] $NoNewline = $false
     )
 
     $stack = Get-PSCallStack
@@ -22,10 +31,12 @@ function Write-Log {
             "Warning" { $ForegroundColor = "Yellow" }
             "Error"   { $ForegroundColor = "Red" }
             "Debug"   { $ForegroundColor = "Gray" }
+            "Success" { $ForegroundColor = "Green" }
+            default   { $ForegroundColor = "White" }
         }
     }
 
-    Write-Host $logMessage -ForegroundColor $ForegroundColor
+    Write-Host $logMessage -ForegroundColor $ForegroundColor -NoNewline:$NoNewLine
 }
 
 Export-ModuleMember -Function Write-Log
