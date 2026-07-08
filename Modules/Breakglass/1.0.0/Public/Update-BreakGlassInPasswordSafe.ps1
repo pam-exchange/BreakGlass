@@ -46,17 +46,20 @@ function Update-BreakglassInPasswordSafe {
         # Update password and fetch the new password
         #
         try {
-            if ($WhatIf) {Write-Host "WhatIf: " -ForegroundColor Green -NoNewline}
-            if (-not $Quiet) {Write-Host "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -NoNewline -ForegroundColor Gray }
+            if ($WhatIf) {Write-Log "WhatIf: " -Level Info -NoNewline}
+            #if (-not $Quiet) {Write-Host "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -NoNewline -ForegroundColor Gray }
+			if (-not $Quiet) {Write-Log "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -Level Debug -NoNewline }
 
             if (-not $WhatIf) {
-                $res= Update-PwsManagedAccountPassword -AccountID $acc.AccountID -Password $Password
+                $res = Update-PwsManagedAccountPassword -AccountID $acc.AccountID -Password $Password
             }
 
-            if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
+            #if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
+			if (-not $Quiet) { Write-Log "Password updated" -Level Debug -ForegroundColor Green }
         }
         catch {
-            if (-not $Quiet) {Write-Host "Password not updated" -ForegroundColor Yellow}
+            #if (-not $Quiet) {Write-Host "Password not updated" -ForegroundColor Yellow}
+			if (-not $Quiet) { Write-Log "Password not updated" -Level Warning }
             continue
         }
         if ($WhatIf) {
@@ -81,22 +84,23 @@ function Update-BreakglassInPasswordSafe {
 
             try {
                 # Find request by IDs and filter request already expired
-                $now= Get-Date
-                $req= $requests | Where-Object {($_.accountID -eq $acc.AccountID) -and ($now -lt [DateTime]$($_.ExpiresDate))}
+                $now = Get-Date
+                $req = $requests | Where-Object {($_.accountID -eq $acc.AccountID) -and ($now -lt [DateTime]$($_.ExpiresDate))}
 
                 if (-not $req) {
-                    $reqID= New-PwsRequest -AccountID $acc.ID -SystemID $acc.SystemId -Duration 15
+                    $reqID = New-PwsRequest -AccountID $acc.ID -SystemID $acc.SystemId -Duration 15
                 } else {
-                    $reqID= $req.RequestID
+                    $reqID = $req.RequestID
                 }
 
-                $pwd= Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$($acc.useDSS)
+                $pwd = Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$($acc.useDSS)
                 $acc.accountPassword= $pwd
                 break
             } 
             catch {
                 $cnt++
-                if (-not $Quiet) {Write-Host "$($_.Exception.Message) - $($_.Exception.Details)" -ForegroundColor DarkGray}
+                #if (-not $Quiet) {Write-Host "$($_.Exception.Message) - $($_.Exception.Details)" -ForegroundColor DarkGray}
+				if (-not $Quiet) {Write-Log "$($_.Exception.Message) - $($_.Exception.Details)" -Level Error }
                 if ($cnt -gt 5) {
                     throw
                 }

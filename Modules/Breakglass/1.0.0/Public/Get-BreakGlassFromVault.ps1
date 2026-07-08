@@ -28,7 +28,7 @@ function Get-BreakglassFromVault {
     param (
         [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType= "KeePassXC",
 
-        [Parameter(Mandatory=$false)][switch] $Multiple= $false,
+        [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
     )
@@ -39,7 +39,7 @@ function Get-BreakglassFromVault {
     {
         "KeePassXC" 
         {
-            return Get-KeePassXCEntries -Multiple:$Multiple -Quiet:$Quiet -WhatIf:$WhatIf
+            return Get-KeePassXCEntries -Single:$Single -Quiet:$Quiet -WhatIf:$WhatIf
         }
     }
 }

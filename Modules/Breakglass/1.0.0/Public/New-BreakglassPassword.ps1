@@ -25,15 +25,14 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function New-BreakglassPassword {
     param (
-        [Parameter(Mandatory=$false)][int] $Length= 32,
-        [Parameter(Mandatory=$false)][int] $BlockLength
+        [Parameter(Mandatory = $false)][int] $Length = 32,
+        [Parameter(Mandatory = $false)][int] $BlockLength
     )
 
-    $passwd= -join ((65..90) + (97..122) + (48..57) | Get-Random -Count $Length | % {[char]$_}) 
+    $password = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object { [char]$_ })
 
     if ($BlockLength) {
-        return $passwd -replace "(?<=\G.{$($BlockLength)})(?!$)", '-'
+        return $password -replace "(?<=\G.{$($BlockLength)})(?!$)", '-'
     }
-    return $passwd
-   
+    return $password
 }

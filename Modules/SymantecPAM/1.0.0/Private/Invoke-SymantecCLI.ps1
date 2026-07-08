@@ -38,23 +38,25 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
 
 #--------------------------------------------------------------------------------------
-function Invoke-SymantecCLI () {
-
-    Param(
-        [Parameter(Mandatory=$true)][string] $Cmd,
-        [Parameter(Mandatory=$false)][Hashtable] $Params= @{}
+function Invoke-SymantecCLI {
+    param (
+        [Parameter(Mandatory = $true)][string] $Cmd,
+        [Parameter(Mandatory = $false)][Hashtable] $Params = @{}
     )
 
-    $url= "$($Script:cliUrl)`?cmdName=$cmd"
-    $url+= "&adminUserID=$($Script:cliUsername)"
-    $url+= "&adminPassword=$($Script:clipassword)"
-    $url+= "&Page.Size=$($Script:cliPageSize)"
-    
-    $paramsStr= ($params.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join "&"
-    if ($paramsStr) {$url+= "&"+$paramsStr}
+    $url = New-Object System.Text.StringBuilder
+    [void]$url.Append("$($Script:cliUrl)?cmdName=$Cmd")
+    [void]$url.Append("&adminUserID=$($Script:cliUsername)")
+    [void]$url.Append("&adminPassword=$($Script:clipassword)")
+    [void]$url.Append("&Page.Size=$($Script:cliPageSize)")
+
+    $paramsStr = ($Params.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join "&"
+    if ($paramsStr) { [void]$url.Append("&" + $paramsStr) }
+
+    $finalUrl = $url.ToString()
 
     try {
-        $res= Invoke-RestMethod -Uri $url -Method Get
+        $res = Invoke-RestMethod -Uri $finalUrl -Method Get
 
         $statusCode= [int]$($res.DocumentElement.statusCode)
         if ($statusCode -eq 400) {

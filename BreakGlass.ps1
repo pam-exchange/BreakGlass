@@ -42,7 +42,7 @@ param (
     [Parameter(Mandatory=$false)][String] $VaultType= "KeePassXC",
     [Parameter(Mandatory=$false)][string] $ConfigPath= "c:\temp",
 
-    [Parameter(Mandatory=$false)][switch] $Multiple= $false,
+    [Parameter(Mandatory=$false)][switch] $Single= $false,
     [Parameter(Mandatory=$false)][switch] $Update= $false,
 
     [Parameter(Mandatory=$false)][switch] $Quiet= $false,
@@ -59,8 +59,8 @@ $scriptName= $PSCommandPath
 #
 # modulePath
 #
-if (-not $modulePath) { 
-    #$modulePath= $scriptBasePath.substring(0,$scriptBasePath.LastIndexOf("\")) 
+if (-not $modulePath) {
+    #$modulePath= $scriptBasePath.substring(0,$scriptBasePath.LastIndexOf("\"))
     $modulePath= $scriptBasePath
 }
 
@@ -73,8 +73,9 @@ if ($(Get-Module).name -contains "Breakglass") { Remove-Module Breakglass }
 if ($(Get-Module).name -contains "KeePassXC") { Remove-Module KeePassXC }
 if ($(Get-Module).name -contains "PasswordSafe") { Remove-Module PasswordSafe }
 if ($(Get-Module).name -contains "SymantecPAM") { Remove-Module SymantecPAM }
+if ($(Get-Module).name -contains "Logging") { Remove-Module Logging }
 
-
+Import-Module Logging -Force
 if ($PAMType -eq "PasswordSafe") { Import-Module PasswordSafe -Force }
 if ($PAMType -eq "SymantecPAM") { Import-Module SymantecPAM -Force }
 if ($VaultType -eq "KeePassXC") { Import-Module KeePassXC -Force }
@@ -83,9 +84,9 @@ Import-Module Breakglass -Force
 # ----------------------------------------------------------------------------------
 try {
 
-    Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Multiple:$Multiple -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
+    Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Single:$Single -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
 
-} 
+}
 catch {
     Write-Host "Exception: $($_.Exception.GetType().FullName)`nMessage: $($_.Exception.Message)`nDetails: $($_.Exception.Details)" -ForegroundColor Yellow
     Write-Host $_.ScriptStackTrace -ForegroundColor Gray
@@ -100,12 +101,20 @@ finally {
             $m= [int][Math]::Floor( ($t - $h*3600) / 60 )
             $s= [int][Math]::Floor( $t - $h*3600 -$m*60 )
 
-            if ($h -gt 0)     {Write-Host "Run time: $h hours, $m minutes, $s seconds" -ForegroundColor Gray}
-            elseif ($m -gt 0) {Write-Host "Run time: $m minutes, $s seconds" -ForegroundColor Gray}
-            else              {Write-Host "Run time: $s seconds" -ForegroundColor Gray}
+            #if ($h -gt 0)     {Write-Host "Run time: $h hours, $m minutes, $s seconds" -ForegroundColor Gray}
+            #elseif ($m -gt 0) {Write-Host "Run time: $m minutes, $s seconds" -ForegroundColor Gray}
+            #else              {Write-Host "Run time: $s seconds" -ForegroundColor Gray}
+
+            $duration = if ($h -gt 0) { "$h hours, $m minutes, $s seconds" }
+            elseif ($m -gt 0) { "$m minutes, $s seconds" }
+            else { "$s seconds" }
+
+            Write-Log -Message "Run time: $duration" -Level Success
+
         } catch {}
 
-        Write-Host "Finished aligning '$PAMType' accounts with '$VaultType' database" -ForegroundColor White
+        #Write-Host "Finished aligning '$PAMType' accounts with '$VaultType' database" -ForegroundColor White
+        Write-Log "Finished aligning '$PAMType' accounts with '$VaultType' database" -Level Success
     }
 }
 

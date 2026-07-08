@@ -19,11 +19,11 @@ Additional resources:
 
 The main script, `Breakglass.ps1`, fetches account information (passwords or SSH keys) from PAM and stores them in a local vault. If entries in the local vault no longer exist in PAM, they are removed. New or updated breakglass accounts in PAM are added or updated in the vault.
 
-It is possible to use the switch -Multiple to store each breakglass account in seperate files. the master database will contain random passwords for the individual files.
+By default account passwords are stored in individual database vaults. The master database vault will contain a generated password for the individual account database vaults. Using the switch `-Single` will store all account passwords in one database vault.
 
 Example:
 ```powershell
-> .\Breakglass.ps1 -PAMType SymantecPAM -Update
+> .\Breakglass.ps1 -PAMType SymantecPAM -Update -Single
 ```
 
 ![Running Breakglass](/Docs/BreakGlass-Example.png)
@@ -40,7 +40,7 @@ Example:
 - `-PAMType <SymantecPAM | PasswordSafe>` - PAM system used.
 - `-VaultType <KeePassXC>` - The type of vault. Only KeePassXC is available.
 - `-ConfigPath <path | filename>` - Path or filename for configuration file.
-- `-Multiple` - Password for breakglass accounts is stored in individual files. The master database contains individual passwords for each account database.
+- `-Single` - Password for breakglass accounts is stored in a single database vault.
 - `-Update` - Perform a password in PAM for breakglass accounts before storing them in the vault.
 - `-Quiet` - Reduce output on console.
 - `-WhatIf` - Show what will be updated without performing updates.

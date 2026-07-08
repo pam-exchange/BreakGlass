@@ -26,21 +26,24 @@ SOFTWARE.
 # ------------------------------------------------------------------------------------
 function Get-KeePassXCEntries {
     param (
-        [Parameter(Mandatory=$false)][switch] $Multiple= $false,
+        [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
     )
 
     if ($WhatIf) {$quiet= $false}
 
-	if ($Multiple) {
+	if ($Single) {
+		return Get-KeePassXCEntry -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
+	}
+	else {
 		#
 		# Get KeePass passwords for individual KeePass database
 		#
-		$FilePasswords= Get-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Quiet:$Quiet -WhatIf:$WhatIf
+		$filePasswords= Get-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Quiet:$Quiet -WhatIf:$WhatIf
 		$vaultEntries= New-Object System.Collections.ArrayList
-		foreach ($file in $FilePasswords) {
-			$filename= Get-KeePassXCDatabaseFilename -Title $file.title -Multiple
+		foreach ($file in $filePasswords) {
+			$filename= Get-KeePassXCDatabaseFilename -Title $file.title -Single:$Single
 			if (Test-Path $filename) {
 				$entry= Get-KeePassXCEntry -DatabaseFilename $filename -MasterPassword $file.password -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
 
@@ -54,10 +57,7 @@ function Get-KeePassXCEntries {
 				$vaultEntries.Add( [PSCustomObject]@{title=$file.title; username=$file.username; password=$null;options= $options} ) | Out-Null
 			}
 		}
-		return $vaultEntries
-	}
-	else {
-		return Get-KeePassXCEntry -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
+		return $vaultEntries		
 	}
 }
 

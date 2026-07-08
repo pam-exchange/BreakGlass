@@ -25,50 +25,40 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 function Read-BreakglassConfig {
     param (
-        [Parameter(Mandatory=$false)][string]$ConfigPath= "c:\temp"
+        [Parameter(Mandatory=$false)][string] $ConfigPath = "c:\temp"
     )
     #
     # Fetch credentials for KeePassXC and PAM
     #
-    $runHostname= $([System.Net.DNS]::GetHostByName('').hostname).ToLower()
+    $runHostname = $([System.Net.DNS]::GetHostByName('').hostname).ToLower()
 
-    $whoami= [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-    $idx= $whoami.IndexOf("\")
-    if ($idx -ge 0) { $whoami= $whoami.substring($whoami.IndexOf("\")+1) }
+    $whoAmI = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+    $idx = $whoAmI.IndexOf("\")
+    if ($idx -ge 0) { $whoAmI = $whoAmI.Substring($whoAmI.IndexOf("\") + 1) }
 
     if (Test-Path -Path $ConfigPath -PathType Container) {
-        $ConfigPath+= "\Breakglass-XXXX.properties"
+        $ConfigPath = Join-Path $ConfigPath "Breakglass-XXXX.properties"
     }
 
-    $finalConfig= New-Object System.Collections.Hashtable
+    $finalConfig = New-Object System.Collections.Hashtable
 
-    $configFile= $ConfigPath.replace("XXXX", "$($runHostname)_$($whoami)")
+    $configFile = $ConfigPath.Replace("XXXX", "$($runHostname)_$($whoAmI)")
     if (Test-Path -Path $configFile) {
-        $configJson= Get-Content -path $configFile
+        $configJson = Get-Content -Path $configFile
 
-        $config= $configJson | ConvertFrom-Json
+        $config = $configJson | ConvertFrom-Json
 
-        $config | %{
+        $config | ForEach-Object {
             if ($_.type -eq "KeePassXC") {
                 #
                 # KeePassXC credentials and configuration
                 #
                 $securePwd = $($_.MasterPassword) | ConvertTo-SecureString
-                $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePwd)
-                $MasterPassword= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
+                $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePwd)
+                $masterPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
 
-                <#
-                if (-not $MasterPassword) {
-                    # Prompt for the master password (securely)
-                    $pw = Read-Host -Prompt "Enter KeePassXC master password" -AsSecureString
-                    $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($pw)
-                    $MasterPassword= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-                    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
-                }
-                #>
-
-                $finalConfig.Add("KeePassXC", [PSCustomObject]@{ DatabasePath= $_.DatabasePath; DatabaseName= $_.DatabaseName; KeyFileFilename= $_.KeyFileFilename; Group= $_.Group; MasterPassword=$MasterPassword } )
+                $finalConfig.Add("KeePassXC", [PSCustomObject]@{ DatabasePath = $_.DatabasePath; DatabaseName = $_.DatabaseName; KeyFileFilename = $_.KeyFileFilename; Group = $_.Group; MasterPassword = $masterPassword })
             }
 
             if ($_.type -eq "PasswordSafe") {
@@ -76,16 +66,16 @@ function Read-BreakglassConfig {
                 # PAM API credentials and configuration
                 #
                 $securePwd = $($_.password) | ConvertTo-SecureString
-                $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePwd)
-                $pamApiPassword= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
+                $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePwd)
+                $pamApiPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
 
                 $secureKey = $($_.ApiKey) | ConvertTo-SecureString
-                $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureKey)
-                $pamApiKey= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
+                $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureKey)
+                $pamApiKey = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
 
-                $finalConfig.Add("PasswordSafe", [PSCustomObject]@{ DNS= $_.DNS; username= $_.username; workgroup= $_.workgroup; apiKey=$pamApiKey; password=$pamApiPassword } )
+                $finalConfig.Add("PasswordSafe", [PSCustomObject]@{ DNS = $_.DNS; username = $_.username; workgroup = $_.workgroup; apiKey = $pamApiKey; password = $pamApiPassword })
             }
 
             if ($_.type -eq "SymantecPAM") {
@@ -93,11 +83,11 @@ function Read-BreakglassConfig {
                 # PAM API credentials and configuration
                 #
                 $securePwd = $($_.password) | ConvertTo-SecureString
-                $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePwd)
-                $cliPassword= [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
+                $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePwd)
+                $cliPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+                [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
 
-                $finalConfig.Add("SymantecPAM", [PSCustomObject]@{ DNS= $_.DNS; username= $_.username; password=$cliPassword } )
+                $finalConfig.Add("SymantecPAM", [PSCustomObject]@{ DNS = $_.DNS; username = $_.username; password = $cliPassword })
             }
         }
     }

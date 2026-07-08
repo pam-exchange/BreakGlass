@@ -30,9 +30,9 @@ function Stop-Breakglass ()
 	try
 	{
         switch ($Script:PAMType) {
-            "PasswordSafe" 
+            "PasswordSafe"
             {
-    		    $res= Stop-PasswordSafe
+		    $res= Stop-PasswordSafe
             }
             "SymantecPAM"
             {
@@ -43,7 +43,7 @@ function Stop-Breakglass ()
         switch ($Script:VaultType) {
             "KeePassXC"
             {
-        		$res= Stop-KeePassXC
+			$res= Stop-KeePassXC
             }
         }
 	}

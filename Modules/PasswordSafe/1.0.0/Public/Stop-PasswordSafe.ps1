@@ -29,7 +29,7 @@ function Stop-PasswordSafe ()
 	#Write-PSFMessage -Level Debug ("Signout from BryondTrust")
 	try
 	{
-		$res= PSafe-Post "Auth/Signout"		
+		$res= PSafe-Post "Auth/Signout"
 	}
 	catch [System.Net.WebException]
 	{
