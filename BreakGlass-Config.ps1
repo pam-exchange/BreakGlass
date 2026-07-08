@@ -1,28 +1,28 @@
 $version= "1.0.0"
 
 $configKeePassXC= @{
-        type="KeePassXC"; 
-		DatabasePath= "c:\temp\"; 
+        type="KeePassXC";
+		DatabasePath= "c:\temp\";
         DatabaseName= "BreakGlass";
-		#KeyFileFilename= "c:\temp\BreakGlass.keyfile"; 
-		MasterPassword= "xxxxx"; 
+		#KeyFileFilename= "c:\temp\BreakGlass.keyfile";
+		MasterPassword= "xxxxx";
         Group= "BreakGlass";
 		FilePasswordGroup= "FilePassword";
     }
 
 $configPasswordSafe = @{
-        type="PasswordSafe"; 
+        type="PasswordSafe";
 		DNS= "xxxx.example.com";
-		username= "api_Breakglass"; 
-		password= "Kuxxxxxxxxxmq3T!"; 
+		username= "api_Breakglass";
+		password= "Kuxxxxxxxxxmq3T!";
 		apiKey= "4ef9xxxxxxxxxxxxx3ddcd5af146";
         Workgroup= "Default Workgroup";
     }
 
 $configSymantecPAM = @{
-        type="SymantecPAM"; 
+        type="SymantecPAM";
 		DNS= "192.168.242.5";
-		username= "cli_breakglass"; 
+		username= "cli_breakglass";
 		password= "xxxxx";
     }
 
@@ -43,38 +43,38 @@ try {
     #
     # prepare configKeePassXC
     #
-    $securePassword= $configKeePassXC.MasterPassword | ConvertTo-SecureString -AsPlainText -Force 
-    $configKeePassXC.MasterPassword= $securePassword | ConvertFrom-SecureString 
+    $securePassword= $configKeePassXC.MasterPassword | ConvertTo-SecureString -AsPlainText -Force
+    $configKeePassXC.MasterPassword= $securePassword | ConvertFrom-SecureString
 
     #
     # prepare configPasswordSafe
     #
-    $securePassword= $configPasswordSafe.password | ConvertTo-SecureString -AsPlainText -Force 
-    $configPasswordSafe.password= $securePassword | ConvertFrom-SecureString 
+    $securePassword= $configPasswordSafe.password | ConvertTo-SecureString -AsPlainText -Force
+    $configPasswordSafe.password= $securePassword | ConvertFrom-SecureString
 
-    $securePassword= $configPasswordSafe.apiKey | ConvertTo-SecureString -AsPlainText -Force 
-    $configPasswordSafe.apiKey= $securePassword | ConvertFrom-SecureString 
+    $securePassword= $configPasswordSafe.apiKey | ConvertTo-SecureString -AsPlainText -Force
+    $configPasswordSafe.apiKey= $securePassword | ConvertFrom-SecureString
 
     #
     # prepare configSymantecPAM
     #
-    $securePassword= $configSymantecPAM.password | ConvertTo-SecureString -AsPlainText -Force 
-    $configSymantecPAM.password= $securePassword | ConvertFrom-SecureString 
+    $securePassword= $configSymantecPAM.password | ConvertTo-SecureString -AsPlainText -Force
+    $configSymantecPAM.password= $securePassword | ConvertFrom-SecureString
 
     #
     # Convert to Json and save to file
-    # 
+    #
     $config= New-Object System.Collections.ArrayList
     $config.add( $configKeePassXC ) | Out-Null
     $config.add( $configPasswordSafe ) | Out-Null
     $config.add( $configSymantecPAM ) | Out-Null
-    
+
     $configJson= $config | ConvertTo-Json
 
     $outFilename= "c:\Temp\Breakglass-$($runHostname)_$($whoami).properties"
     Write-Host "Write configuration to '$outFilename'"
     $configJson | Out-file -FilePath $outFilename -Encoding ascii
-} 
+}
 catch {
     Write-Error "Expected exception received, Name= $($_.Exception.Message), details= $($_.Exception.Details)"
 }

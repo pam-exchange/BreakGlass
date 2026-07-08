@@ -23,68 +23,61 @@ SOFTWARE.
 
 #>
 #--------------------------------------------------------------------------------------
-function Start-Breakglass (
-    [Parameter(Mandatory=$false)][PAM_TYPE] $PAMType= "PasswordSafe",
-    [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType= "KeePassXC",
-    [Parameter(Mandatory=$false)][string]$ConfigPath= "c:\temp"
-)
-{
-	#Write-PSFMessage -Level Debug ("Start-BeyondTrust: start")
+function Start-Breakglass {
+    param (
+        [Parameter(Mandatory = $false)][PAM_TYPE] $PAMType = "PasswordSafe",
+        [Parameter(Mandatory = $false)][VAULT_TYPE] $VaultType = "KeePassXC",
+        [Parameter(Mandatory = $false)][string] $ConfigPath = "c:\temp"
+    )
 
-    $config= Read-BreakglassConfig -ConfigPath $ConfigPath
+    $config = Read-BreakglassConfig -ConfigPath $ConfigPath
 
-
-    $Script:PAMType= $PAMType
-    switch ($PAMType) 
-    {
-        "PasswordSafe" 
-        {
-            $Login= @{
-                apiDNS= $config[ "PasswordSafe" ].DNS;
-                apiKey= $config[ "PasswordSafe" ].apiKey;
-                apiUsername= $config[ "PasswordSafe" ].username;
-                apiPassword= $config[ "PasswordSafe" ].password;
-                apiWorkgroup= $config[ "PasswordSafe" ].Workgroup;
+    $Script:PAMType = $PAMType
+    switch ($PAMType) {
+        "PasswordSafe" {
+            $loginParams = @{
+                apiDNS       = $config["PasswordSafe"].DNS;
+                apiKey       = $config["PasswordSafe"].apiKey;
+                apiUsername  = $config["PasswordSafe"].username;
+                apiPassword  = $config["PasswordSafe"].password;
+                apiWorkgroup = $config["PasswordSafe"].Workgroup;
             }
-            $res= Start-PasswordSafe @Login
+            $res = Start-PasswordSafe @loginParams
         }
 
-        "SymantecPAM" 
-        {
+        "SymantecPAM" {
             #
             # Login to PAM with credentials from Credentials file
             #
-            $Login= @{
-                cliDNS= $config[ "SymantecPAM" ].DNS;
-                cliUsername= $config[ "SymantecPAM" ].username;
-                cliPassword= $config[ "SymantecPAM" ].password;
-                cliPageSize= 100000;
+            $loginParams = @{
+                cliDNS      = $config["SymantecPAM"].DNS;
+                cliUsername = $config["SymantecPAM"].username;
+                cliPassword = $config["SymantecPAM"].password;
+                cliPageSize = 100000;
             }
-            $res= Start-SymantecPAM @Login
+            $res = Start-SymantecPAM @loginParams
         }
     }
 
-    $Script:VaultType= $VaultType
-    switch ($VaultType) 
-    {
-        "KeePassXC"
-        {
-            $kpDatabasePath= $config[ "KeePassXC" ].DatabasePath
-            if (!$kpDatabasePath.EndsWith('\')) {
-                $kpDatabasePath+= '\'
+    $Script:VaultType = $VaultType
+    switch ($VaultType) {
+        "KeePassXC" {
+            $kpDatabasePath = $config["KeePassXC"].DatabasePath
+            if (-not $kpDatabasePath.EndsWith('\')) {
+                $kpDatabasePath += '\'
             }
-            $kpDatabaseName= $config[ "KeePassXC" ].DatabaseName
+            $kpDatabaseName = $config["KeePassXC"].DatabaseName
 
-            $Login= @{
-                databasePath= $kpDatabasePath;
-                databaseName= $kpDatabaseName;
-                databaseFilename= $kpDatabasePath+$kpDatabaseName+".kdbx";
-                KeyFileFilename= $config[ "KeePassXC" ].KeyFileFilename;
-                Group= $(if ($config[ "KeePassXC" ].Group) {$config[ "KeePassXC" ].Group} else {"/BreakGlass"});
-                FilePasswordGroup= $(if ($config[ "KeePassXC" ].FilePasswordGroup) {$config[ "KeePassXC" ].FilePasswordGroup} else {"/FilePassword"});
-                MasterPassword= $config[ "KeePassXC" ].MasterPassword;
+            $loginParams = @{
+                databasePath      = $kpDatabasePath;
+                databaseName      = $kpDatabaseName;
+                databaseFilename  = $kpDatabasePath + $kpDatabaseName + ".kdbx";
+                KeyFileFilename   = $config["KeePassXC"].KeyFileFilename;
+                Group             = $(if ($config["KeePassXC"].Group) { $config["KeePassXC"].Group } else { "/BreakGlass" });
+                FilePasswordGroup = $(if ($config["KeePassXC"].FilePasswordGroup) { $config["KeePassXC"].FilePasswordGroup } else { "/FilePassword" });
+                MasterPassword    = $config["KeePassXC"].MasterPassword;
             }
-            $res= Start-KeePassXC @Login
+            $res = Start-KeePassXC @loginParams
         }
     }
 }

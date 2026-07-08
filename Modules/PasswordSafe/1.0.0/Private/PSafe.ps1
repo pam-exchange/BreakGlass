@@ -42,11 +42,11 @@ function PSafe-BuildUri([string]$api)
 function PSafe-BuildHeaders()
 {
     #Build the Authorization header
-    if ( $Script:apiPassword -eq $null ) { 
-		return @{ Authorization="PS-Auth key=${Script:apiKey}; runas=${Script:apiUsername};"; }; 
+    if ( $Script:apiPassword -eq $null ) {
+		return @{ Authorization="PS-Auth key=${Script:apiKey}; runas=${Script:apiUsername};"; };
 	}
-    else { 
-		return @{ Authorization="PS-Auth key=${Script:apiKey}; runas=${Script:apiUsername}; pwd=[${Script:apiPassword}];"; }; 
+    else {
+		return @{ Authorization="PS-Auth key=${Script:apiKey}; runas=${Script:apiUsername}; pwd=[${Script:apiPassword}];"; };
 	}
 }
 
@@ -62,7 +62,7 @@ function PSafe-SignAppinChallenge($challengeResponse)
     $headers = @{ Authorization="PS-Auth key=${Script:ApiToken}; runas=${Script:Username};"; }
 
     # add challenge to the Auth header
-    $headers["Authorization"] = "$($headers["Authorization"]) challenge=$($challengeResponse);"; 
+    $headers["Authorization"] = "$($headers["Authorization"]) challenge=$($challengeResponse);";
 
     if ($Script:authCert -eq $null) {
         $result = Invoke-RestMethod -Uri $uri -Method $method -Headers $headers -WebSession $Script:session
@@ -78,7 +78,7 @@ function PSafe-SignAppinChallenge($challengeResponse)
 function PSafe-RestMethod([string]$method, [string]$api, $body)
 {
     $uri= "$($Script:apiUrl)$api"
-    
+
 #    $local:attempt= 1
 #    while ($true) {
         try {
@@ -174,14 +174,14 @@ function PSafe-FindCertificate([string]$runAsUser)
     {
         #Beyond Insight certificate
         "BICertificate"
-        { 
+        {
             $cert = PSafe-FindBICertificate $upn;
             return $cert;
         }
 
         #Smart Cards or equivalent
         "SmartCardLogon"
-        { 
+        {
             # Assume UPN
             $upn = $runAsUser;
 
@@ -198,7 +198,7 @@ function PSafe-FindCertificate([string]$runAsUser)
             $cert = PSafe-FindCertificateForUPN $upn;
             return $cert;
         }
-            
+
         default { return $null; }
     }
 }
@@ -228,21 +228,23 @@ function PSafe-FindCertificateForUPN([string]$upnName)
 
 #--------------------------------------------------------------------------------------
 #Finds all client certificates in the given certificate store
-function PSafe-FindClientCertificates([string]$certStore)
-{
-    $certs = Get-ChildItem -Path "cert:\${certStore}\My" -EKU "Client Authentication";
-    retrn $certs;
+function PSafe-FindClientCertificates {
+    param (
+        [string] $certStore
+    )
+    $certs = Get-ChildItem -Path "cert:\$certStore\My" -EKU "Client Authentication"
+    return $certs
 }
 
 
 #--------------------------------------------------------------------------------------
-function uriencode( [string]$var ) 
+function uriencode( [string]$var )
 {
     return [uri]::EscapeUriString($var)
 }
 
 #--------------------------------------------------------------------------------------
-function urlencode( [string]$var ) 
+function urlencode( [string]$var )
 {
     return [System.Web.HTTPUtility]::UrlEncode($var)
 }

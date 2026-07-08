@@ -59,8 +59,8 @@ $scriptName= $PSCommandPath
 #
 # modulePath
 #
-if (-not $modulePath) { 
-    #$modulePath= $scriptBasePath.substring(0,$scriptBasePath.LastIndexOf("\")) 
+if (-not $modulePath) {
+    #$modulePath= $scriptBasePath.substring(0,$scriptBasePath.LastIndexOf("\"))
     $modulePath= $scriptBasePath
 }
 
@@ -73,8 +73,9 @@ if ($(Get-Module).name -contains "Breakglass") { Remove-Module Breakglass }
 if ($(Get-Module).name -contains "KeePassXC") { Remove-Module KeePassXC }
 if ($(Get-Module).name -contains "PasswordSafe") { Remove-Module PasswordSafe }
 if ($(Get-Module).name -contains "SymantecPAM") { Remove-Module SymantecPAM }
+if ($(Get-Module).name -contains "Logging") { Remove-Module Logging }
 
-
+Import-Module Logging -Force
 if ($PAMType -eq "PasswordSafe") { Import-Module PasswordSafe -Force }
 if ($PAMType -eq "SymantecPAM") { Import-Module SymantecPAM -Force }
 if ($VaultType -eq "KeePassXC") { Import-Module KeePassXC -Force }
@@ -85,7 +86,7 @@ try {
 
     Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Multiple:$Multiple -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
 
-} 
+}
 catch {
     Write-Host "Exception: $($_.Exception.GetType().FullName)`nMessage: $($_.Exception.Message)`nDetails: $($_.Exception.Details)" -ForegroundColor Yellow
     Write-Host $_.ScriptStackTrace -ForegroundColor Gray

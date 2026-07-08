@@ -25,7 +25,7 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 Set-Variable EXCEPTION_INVALID_PARAMETER -Option Constant -Value "Invalid parameters"
 Set-Variable EXCEPTION_NOT_FOUND -Option Constant -Value "Not found"
-#Set-Variable EXCEPTION_DUPLICATE -Option Constant -Value "Duplicate" 
+#Set-Variable EXCEPTION_DUPLICATE -Option Constant -Value "Duplicate"
 #Set-Variable EXCEPTION_DEPENDENCY -Option Constant -Value "Dependency"
 Set-Variable EXCEPTION_NOT_AUTHORIZED -Option Constant -Value "Not authorized"
 #Set-Variable EXCEPTION_FORBIDDEN -Option Constant -Value "Forbidden"

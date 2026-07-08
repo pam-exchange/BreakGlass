@@ -23,20 +23,18 @@ SOFTWARE.
 
 #>
 #--------------------------------------------------------------------------------------
-function Start-SymantecPAM (
+function Start-SymantecPAM {
+    param (
+        [Parameter(Mandatory = $true)][string] $CliDNS,
+        [Parameter(Mandatory = $true)][string] $CliUsername,
+        [Parameter(Mandatory = $true)][string] $CliPassword,
+        [Parameter(Mandatory = $false)][int] $CliPageSize = 100000
+    )
 
-    [Parameter(Mandatory = $true)] [string]$cliDNS,
-    [Parameter(Mandatory = $true)] [string]$cliUsername,
-    [Parameter(Mandatory = $true)] [string]$cliPassword,
-    [Parameter(Mandatory = $false)] [int]$cliPageSize= 100000
-)
-{
-	#Write-PSFMessage -Level Debug ("Start-BeyondTrust: start")
-
-    $Script:cliURL= "https://$($cliDNS)/cspm/servlet/adminCLI"
-    $Script:cliUsername= $cliUsername
-    $Script:cliPassword= $cliPassword
-    $Script:cliPageSize= $cliPageSize
+    $Script:cliURL = "https://$CliDNS/cspm/servlet/adminCLI"
+    $Script:cliUsername = $CliUsername
+    $Script:cliPassword = $CliPassword
+    $Script:cliPageSize = $CliPageSize
 }
 
 # --- end-of-file ---
