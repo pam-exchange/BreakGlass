@@ -24,8 +24,8 @@ function Write-Log {
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     #$logMessage = "[$timestamp] [$Level] $Message $callerInfo"
+    #$logMessage = "[$Level] $Message $callerInfo"
     $logMessage = $Message
-    $logMessage = "[$Level] $Message $callerInfo"
 
     if (-not $ForegroundColor) {
         switch ($Level) {

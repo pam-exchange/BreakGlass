@@ -42,7 +42,7 @@ param (
     [Parameter(Mandatory=$false)][String] $VaultType= "KeePassXC",
     [Parameter(Mandatory=$false)][string] $ConfigPath= "c:\temp",
 
-    [Parameter(Mandatory=$false)][switch] $Multiple= $false,
+    [Parameter(Mandatory=$false)][switch] $Single= $false,
     [Parameter(Mandatory=$false)][switch] $Update= $false,
 
     [Parameter(Mandatory=$false)][switch] $Quiet= $false,
@@ -84,7 +84,7 @@ Import-Module Breakglass -Force
 # ----------------------------------------------------------------------------------
 try {
 
-    Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Multiple:$Multiple -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
+    Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Single:$Single -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
 
 }
 catch {

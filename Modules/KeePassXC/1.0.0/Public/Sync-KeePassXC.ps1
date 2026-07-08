@@ -28,7 +28,7 @@ function Sync-KeePassXC {
         [Parameter(Mandatory=$false)][Object[]] $pamAccounts = @(),
         [Parameter(Mandatory=$false)][Object[]] $vaultAccounts = @(),
 
-        [Parameter(Mandatory=$false)][switch] $Multiple= $false,
+        [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Update= $false,
         [Parameter(Mandatory=$false)][switch] $Quiet= $false,
         [Parameter(Mandatory=$false)][switch] $WhatIf= $false
@@ -63,8 +63,8 @@ function Sync-KeePassXC {
     }
 
     if (-not $Quiet) {
-        if ($Multiple) { Write-Log "Master database '$Script:kpDatabaseFilename'" -Level Debug }
-        else { Write-Log "Database '$Script:kpDatabaseFilename'" -Level Debug }
+        if ($Single) { Write-Log "Database '$Script:kpDatabaseFilename'" -Level Debug }
+        else { Write-Log "Master database '$Script:kpDatabaseFilename'" -Level Debug }
     }
 
     $diff= Compare-Object @($pamHash.Keys) @($vaultHash.Keys) -IncludeEqual -CaseSensitive | Sort-Object InputObject
@@ -89,9 +89,13 @@ function Sync-KeePassXC {
                 else {
                     if (-not $Quiet) { Write-Log "Updating '$title'" -Level Info }
 
-                    if ($Multiple) {
+                    if ($Single) {
+                        $res = Update-KeePassXCEntry -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
+                        if (-not $Quiet) { Write-Log "Updated entry '$Script:kpGroup/$title'" -Level Debug }
+                    }
+                    else {
                         $fileMasterPassword = $vaultHash[$d.InputObject].options.password
-                        $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title -Multiple
+                        $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
 
                         if ($Update) {
                             Remove-Item -Path $fileDatabaseFilename -ErrorAction SilentlyContinue
@@ -114,10 +118,6 @@ function Sync-KeePassXC {
                             if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
                         }
                     }
-                    else {
-                        $res = Update-KeePassXCEntry -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
-                        if (-not $Quiet) { Write-Log "Updated entry '$Script:kpGroup/$title'" -Level Debug }
-                    }
                 }
             }
             else {
@@ -135,7 +135,11 @@ function Sync-KeePassXC {
             else {
                 if (-not $Quiet) { Write-Log "Adding '$title'" -Level Info }
 
-                if ($Multiple) {
+                if ($Single) {
+                    $res = New-KeePassXCEntry -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
+                    if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
+                }
+                else {
                     $fileMasterPassword = New-BreakglassPassword -BlockLength 4
                     try {
                         $res = Update-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title -Username $userName -Password $fileMasterPassword
@@ -151,7 +155,7 @@ function Sync-KeePassXC {
                         }
                     }
 
-                    $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title -Multiple
+                    $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
                     if (Test-Path $fileDatabaseFilename) {
                         Remove-Item $fileDatabaseFilename
                         if (-not $Quiet) { Write-Log "Removed database '$fileDatabaseFilename'" -Level Debug }
@@ -164,10 +168,6 @@ function Sync-KeePassXC {
                     if (-not $Quiet) { Write-Log "Created group '$Script:kpGroup'" -Level Debug }
 
                     $res = New-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
-                    if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
-                }
-                else {
-                    $res = New-KeePassXCEntry -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
                     if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
                 }
             }
@@ -183,19 +183,22 @@ function Sync-KeePassXC {
             else {
                 if (-not $Quiet) { Write-Log "Removing '$title'" -Level Info }
 
-                if ($Multiple) {
+                if ($Single) {
+                    $res = Remove-KeePassXCEntry -Group $Script:kpGroup -Title $title
+                    if (-not $Quiet) { Write-Log "Removed entry '$Script:kpGroup/$title'" -Level Debug }
+                }
+                else {
                     $res = Remove-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title
                     if (-not $Quiet) { Write-Log "Removed entry '$Script:kpFilePasswordGroup/$title'" -Level Debug }
 
-                    $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title -Multiple
+                    $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
                     if (Test-Path $fileDatabaseFilename) {
                         Remove-Item $fileDatabaseFilename
                         if (-not $Quiet) { Write-Log "Removed database '$fileDatabaseFilename'" -Level Debug }
                     }
-                }
-                else {
-                    $res = Remove-KeePassXCEntry -Group $Script:kpGroup -Title $title
-                    if (-not $Quiet) { Write-Log "Removed entry '$Script:kpGroup/$title'" -Level Debug }
+                    else {
+                        if (-not $Quiet) { Write-Log "Database '$fileDatabaseFilename' not found" -Level Warning }
+                    }
                 }
             }
         }

@@ -29,14 +29,13 @@ function Get-KeePassXCDatabaseFilename {
         [Parameter(Mandatory=$false)][string]$DatabaseName= $Script:kpDatabaseName,
         [Parameter(Mandatory=$false)][string]$Title,
 		
-        [Parameter(Mandatory=$false)][switch]$Multiple= $false,
+        [Parameter(Mandatory=$false)][switch]$Single= $false,
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
         [Parameter(Mandatory=$false)][switch]$WhatIf= $false
     )
 
-    if ($Multiple) {
-        return $DatabasePath+$DatabaseName+"Account - $($Title).kdbx"
+    if ($Single) {
+        return $DatabasePath+$DatabaseName+".kdbx"
     }
-
-    return $DatabasePath+$DatabaseName+".kdbx"
+    return $DatabasePath+$DatabaseName+"Account - $($Title).kdbx"
 }

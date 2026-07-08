@@ -35,7 +35,7 @@ function New-KeePassXCEntry {
         [Parameter(Mandatory = $true)][string] $Password,
         [Parameter(Mandatory = $false)][switch] $Verified = $false,
 
-        [Parameter(Mandatory = $false)][switch] $Multiple = $false,
+        [Parameter(Mandatory = $false)][switch] $Single = $false,
         [Parameter(Mandatory = $false)][switch] $Quiet = $false,
         [Parameter(Mandatory = $false)][switch] $WhatIf = $false
     )
