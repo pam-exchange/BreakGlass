@@ -5,8 +5,16 @@ function Write-Log {
         [Parameter(Mandatory=$false)][ConsoleColor]$ForegroundColor
     )
 
+    $stack = Get-PSCallStack
+    $caller = $stack[1]
+    $callerInfo = ""
+    if ($null -ne $caller) {
+        $fileName = Split-Path $caller.ScriptName -Leaf
+        $callerInfo = "[$fileName:$($caller.ScriptLineNumber) $($caller.FunctionName)]"
+    }
+
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logMessage = "[$timestamp] [$Level] $Message"
+    $logMessage = "[$timestamp] [$Level] $callerInfo $Message"
 
     if (-not $ForegroundColor) {
         switch ($Level) {
