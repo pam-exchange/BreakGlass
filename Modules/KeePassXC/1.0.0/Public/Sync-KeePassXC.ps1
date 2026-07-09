@@ -98,8 +98,11 @@ function Sync-KeePassXC {
                         $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
 
                         if ($Update) {
-                            Remove-Item -Path $fileDatabaseFilename -ErrorAction SilentlyContinue
                             $fileMasterPassword = New-BreakglassPassword -BlockLength 4
+                            $res = Update-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title -Username $userName -Password $fileMasterPassword -Verified
+                            if (-not $Quiet) { Write-Log "Updated entry '$Script:kpFilePasswordGroup/$title' in database '$Script:kpDatabaseFilename'" -Level Debug }
+
+                            Remove-Item -Path $fileDatabaseFilename -ErrorAction SilentlyContinue
                             if (-not $Quiet) { Write-Log "Removed database '$fileDatabaseFilename'" -Level Debug }
                         }
 
@@ -109,7 +112,7 @@ function Sync-KeePassXC {
                         }
                         else {
                             $res = New-KeePassXCDatabase -DatabaseFilename $fileDatabaseFilename -KeyFileFilename $null -MasterPassword $fileMasterPassword
-                            if (-not $Quiet) { Write-Log "Created database database '$fileDatabaseFilename'" -Level Debug }
+                            if (-not $Quiet) { Write-Log "Created database '$fileDatabaseFilename'" -Level Debug }
 
                             $res = New-KeePassXCGroup -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup
                             if (-not $Quiet) { Write-Log "Created group '$Script:kpGroup'" -Level Debug }

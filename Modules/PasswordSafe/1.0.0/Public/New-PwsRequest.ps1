@@ -46,7 +46,7 @@ function New-PwsRequest () {
         [parameter(Mandatory=$false)][string] $SystemName,
 
         [parameter(Mandatory=$false)][int] $Duration= 1,
-        [parameter(Mandatory=$false)][CONFLICT] $Conflict= "Error",
+        [parameter(Mandatory=$false)][CONFLICT] $Conflict= "reuse",
         [parameter(Mandatory=$false)][string] $Reason= "API CheckOut",
         [parameter(Mandatory=$false)][switch] $RotateOnCheckin= $false
     )
@@ -54,12 +54,12 @@ function New-PwsRequest () {
 	process {
 		try {
 
-            if ($SystemName -and -not $SystemID -ge 0) {
+            if ($SystemName -and $SystemID -le -1) {
                 $sys= Get-PwsManagedSystem -Name $SystemName -Single
-                $SystemID= $sys.Name
+                $SystemID= $sys.ID
             }
 
-            if ($AccountName -and -not $AccountID -ge 0) {
+            if ($AccountName -and $AccountID -le -1) {
                 $acc= Get-PwsManagedAccount -Name $AccountName -SystemID $SystemID
                 $AccountID= $acc.ID
             }
@@ -72,20 +72,13 @@ function New-PwsRequest () {
                 "Reason"                 = $Reason
                 "AccessPolicyScheduleID" = $null
                 "RotateOnCheckin"        = $RotateOnCheckin
-            }
-            if ($Conflict -ne "Error") {
-                $body.Add("ConflictOption", $Conflict)
+                "ConflictOption"         = $Conflict
             }
 
             try {
 
                 $reqID = PSafe-Post "Requests" $body;
             
-                <#
-                TO-DO: Caching?
-                #>
-
-
             }
             catch {
                 Throw "Error: $_"

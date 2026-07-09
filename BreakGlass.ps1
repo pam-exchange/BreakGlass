@@ -1,15 +1,4 @@
 ﻿<#----------------------------------------------------------------------------------
-
-This script will extract breakglass accounts from PAM and store them in KeePassXC.
-
--------------
-History
-
-1.1.0 - 2025-08-04 - Added PasswordSafe
-                   - Update allowing different PAM
-1.0.0 - 2018-03-27 - First release
---------------------------------------------------------------
-
 MIT License
 
 Copyright (c) 2025 PAM-Exchange
@@ -51,8 +40,6 @@ param (
 
 try {$startTime= (Get-Date -ErrorAction SilentlyContinue)} catch {$now= 0}
 
-$version= "1.1.0"
-
 $scriptBasePath= $PSScriptRoot
 $scriptName= $PSCommandPath
 
@@ -88,8 +75,8 @@ try {
 
 }
 catch {
-    Write-Host "Exception: $($_.Exception.GetType().FullName)`nMessage: $($_.Exception.Message)`nDetails: $($_.Exception.Details)" -ForegroundColor Yellow
-    Write-Host $_.ScriptStackTrace -ForegroundColor Gray
+    Write-Log "Exception: $($_.Exception.GetType().FullName)`nMessage: $($_.Exception.Message)`nDetails: $($_.Exception.Details)" -Level Error
+    Write-Log $_.ScriptStackTrace -Level Debug
 }
 finally {
     if (-not $Quiet -or $WhatIf) {

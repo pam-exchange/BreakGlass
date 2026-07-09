@@ -132,8 +132,14 @@ MIT License - Feel free to use, modify, and distribute.
 
 ## Version history
 
+1.1.1  
+- Fixed update of encryption key for individual database after update.
+- Fixed reuests API when retrieving password in PasswordSafe.
+- PasswordSafe: Also retrieve passphrase for SSH keys if private key is encrypted. 
+
 1.1.0  
-- Added `-Multiple` will store each breakglass account in individual files.
+- Added `-Single` when storing account passwords in a single file.
+- Changed default to store account passwords in individual files.
 - Fixed bug when retrieving accounts from Password Safe. Now only retrieve accounts within configured smart rule(s).
 
 1.0.0  

@@ -35,6 +35,15 @@ function Get-PwsManagedAccountPassword ()
 
             if ($useDSS) {
                 $pwd= PSafe-Get "Credentials/$($RequestID)?type=dsskey"
+
+                if ($pwd.contains("ENCRYPTED")) {
+                    $passphrase= PSafe-Get "Credentials/$($RequestID)?type=passphrase"
+                }
+                else {
+                    $passphrase= "<< None >>"
+                }
+
+                $pwd= "Passphrase: "+$passphrase+"`n`n"+$pwd
             }
             else {
 			    $pwd= PSafe-Get "Credentials/$($RequestID)"

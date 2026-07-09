@@ -34,8 +34,6 @@ function Update-BreakglassInPasswordSafe {
 
     if ($WhatIf) {$quiet= $false}
 
-    $requests= Get-PwsRequest -Refresh
-
     #
     # loop through all accounts and fetch password for each.
     # it is required to have a request for fetching a password
@@ -67,46 +65,10 @@ function Update-BreakglassInPasswordSafe {
             continue
         }
 
-        $cnt= 0
-        do {
-            #
-            # Loop is required for the scenario that a request expired since it was requested
-            # and tested when filtering by IDs and datetime.
-            #
-            # A rare scenario, but it may happen that the test was done (not expired) and it then
-            # expires before the password is fetched using the now expired RequestID. 
-            # If there is a time mismatch between calling system and PAM, the opposite scenario
-            # that a new request is requested although a valid request still exist.
-            # If so, an exception is thrown by the calling function. 
-            # Wait a bit and try again. If the issue is different, do this at most 5 times,
-            # then rethrow the exception.
-            #
+        $reqID = New-PwsRequest -AccountID $acc.accountID -SystemName $acc.server -Duration 15
 
-            try {
-                # Find request by IDs and filter request already expired
-                $now = Get-Date
-                $req = $requests | Where-Object {($_.accountID -eq $acc.AccountID) -and ($now -lt [DateTime]$($_.ExpiresDate))}
-
-                if (-not $req) {
-                    $reqID = New-PwsRequest -AccountID $acc.ID -SystemID $acc.SystemId -Duration 15
-                } else {
-                    $reqID = $req.RequestID
-                }
-
-                $pwd = Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$($acc.useDSS)
-                $acc.accountPassword= $pwd
-                break
-            } 
-            catch {
-                $cnt++
-                #if (-not $Quiet) {Write-Host "$($_.Exception.Message) - $($_.Exception.Details)" -ForegroundColor DarkGray}
-				if (-not $Quiet) {Write-Log "$($_.Exception.Message) - $($_.Exception.Details)" -Level Error }
-                if ($cnt -gt 5) {
-                    throw
-                }
-                Sleep -Milliseconds 500
-            }
-        } while ($true)
+        $pwd = Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$($acc.useDSS)
+        $acc.accountPassword= $pwd
 
         #
         # To-Do: How to verify password?
