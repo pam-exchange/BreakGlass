@@ -29,10 +29,15 @@ Example:
 ![Running Breakglass](/Docs/BreakGlass-Example.png)
 
 > [!IMPORTANT]
-> Breakglass account naming convention: `hostname # platform/application # username`. The KeePassXC entry password is the account password. SSH private keys are stored in entry notes.
+> Breakglass account naming convention: `hostname # platform/application # username`. The KeePassXC entry password is the account password. SSH private keys are stored in entries notes.
 
 > [!CAUTION]
 > Do **not** keep KeePassXC GUI open while running the script. Doing so may cause errors and prevent updated credentials from being saved in the local vaultt.
+
+> [!NOTE]
+> When using Password Safe and accounts with DSSKeys, the passphrase for encrypting the private key is changed every time the SSH key is retrieved. I.e. it will update the  database entry even when there is no changes to the private key itself.
+
+
 
 ### Parameters
 
@@ -141,6 +146,7 @@ MIT License - Feel free to use, modify, and distribute.
 - Added `-Single` when storing account passwords in a single file.
 - Changed default to store account passwords in individual files.
 - Fixed bug when retrieving accounts from Password Safe. Now only retrieve accounts within configured smart rule(s).
+- Updated output to console with new `logging` module
 
 1.0.0  
 - Initial release
