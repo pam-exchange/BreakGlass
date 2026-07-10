@@ -1,80 +1,80 @@
 $version= "1.0.0"
 
 $configKeePassXC= @{
-        type="KeePassXC";
-        DatabasePath= "c:\temp\";
-        DatabaseName= "Breakglass";
-        #KeyFileFilename= "c:\temp\Breakglass.keyfile";
-        MasterPassword= "xxxxx";
-        Group= "Breakglass";
-        FilePasswordGroup= "FilePassword";
-    }
+    type              = "KeePassXC"
+    DatabasePath      = "c:\temp\"
+    DatabaseName      = "BreakGlass"
+    #KeyFileFilename  = "c:\temp\BreakGlass.keyfile"
+    MasterPassword    = "xxxx"
+    Group             = "BreakGlass"
+    FilePasswordGroup = "FilePassword"
+}
 
 $configPasswordSafe = @{
-        type="PasswordSafe";
-        DNS= "xxxx.example.com";
-        username= "api_Breakglass";
-        password= "Kuxxxxxxxxxmq3T!";
-        apiKey= "4ef9xxxxxxxxxxxxx3ddcd5af146";
-        Workgroup= "Default Workgroup";
-    }
+    type      = "PasswordSafe"
+    DNS       = "xxxx"
+    username  = "api_Breakglass"
+    password  = "xxxx"
+    apiKey    = "xxxx"
+    Workgroup = "Default Workgroup"
+}
 
 $configSymantecPAM = @{
-        type="SymantecPAM";
-        DNS= "192.168.242.5";
-        username= "cli_breakglass";
-        password= "xxxxx";
-    }
+    type     = "SymantecPAM"
+    DNS      = "xxxx"
+    username = "cli_breakglass"
+    password = "xxxx"
+}
 
 try {
     Write-Host "Credentials start, version=$($version) -----------------------------------"
 
-    $runHostname= $([System.Net.DNS]::GetHostByName('').hostname).ToLower()
+    $runHostname = $([System.Net.DNS]::GetHostByName('').hostname).ToLower()
     Write-Host "runHostname= $runHostname"
 
-    $whoami= [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+    $whoami = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 
-    $idx= $whoami.IndexOf("\")
+    $idx = $whoami.IndexOf("\")
     if ($idx -ge 0) {
-        $whoami= $whoami.substring($whoami.IndexOf("\")+1)
+        $whoami = $whoami.substring($whoami.IndexOf("\")+1)
     }
     Write-Host "WhoAmI= $whoami"
 
     #
     # prepare configKeePassXC
     #
-    $securePassword= $configKeePassXC.MasterPassword | ConvertTo-SecureString -AsPlainText -Force
-    $configKeePassXC.MasterPassword= $securePassword | ConvertFrom-SecureString
+    $securePassword = $configKeePassXC.MasterPassword | ConvertTo-SecureString -AsPlainText -Force 
+    $configKeePassXC.MasterPassword = $securePassword | ConvertFrom-SecureString 
 
     #
     # prepare configPasswordSafe
     #
-    $securePassword= $configPasswordSafe.password | ConvertTo-SecureString -AsPlainText -Force
-    $configPasswordSafe.password= $securePassword | ConvertFrom-SecureString
+    $securePassword = $configPasswordSafe.password | ConvertTo-SecureString -AsPlainText -Force 
+    $configPasswordSafe.password = $securePassword | ConvertFrom-SecureString 
 
-    $securePassword= $configPasswordSafe.apiKey | ConvertTo-SecureString -AsPlainText -Force
-    $configPasswordSafe.apiKey= $securePassword | ConvertFrom-SecureString
+    $securePassword = $configPasswordSafe.apiKey | ConvertTo-SecureString -AsPlainText -Force 
+    $configPasswordSafe.apiKey = $securePassword | ConvertFrom-SecureString 
 
     #
     # prepare configSymantecPAM
     #
-    $securePassword= $configSymantecPAM.password | ConvertTo-SecureString -AsPlainText -Force
-    $configSymantecPAM.password= $securePassword | ConvertFrom-SecureString
+    $securePassword = $configSymantecPAM.password | ConvertTo-SecureString -AsPlainText -Force 
+    $configSymantecPAM.password = $securePassword | ConvertFrom-SecureString 
 
     #
     # Convert to Json and save to file
-    #
-    $config= New-Object System.Collections.ArrayList
+    # 
+    $config = New-Object System.Collections.ArrayList
     $config.add( $configKeePassXC ) | Out-Null
     $config.add( $configPasswordSafe ) | Out-Null
     $config.add( $configSymantecPAM ) | Out-Null
+    
+    $configJson = $config | ConvertTo-Json
 
-    $configJson= $config | ConvertTo-Json
-
-    $outFilename= "c:\Temp\Breakglass-$($runHostname)_$($whoami).properties"
+    $outFilename = "c:\Temp\Breakglass-$($runHostname)_$($whoami).properties"
     Write-Host "Write configuration to '$outFilename'"
     $configJson | Out-file -FilePath $outFilename -Encoding ascii
-}
+} 
 catch {
     Write-Error "Expected exception received, Name= $($_.Exception.Message), details= $($_.Exception.Details)"
 }
