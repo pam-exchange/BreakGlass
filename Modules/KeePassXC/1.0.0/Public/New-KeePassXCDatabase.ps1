@@ -37,10 +37,10 @@ function New-KeePassXCDatabase {
 #        Write-Host "Creating database '$DatabaseFilename'" -ForegroundColor Gray
 #    }
 
-	if ($KeyFileFilename) {
-		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-key-file $KeyFileFilename --set-password $DatabaseFilename 2>&1
-	} else {
-		$msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-password $DatabaseFilename 2>&1
-	}
+    if ($KeyFileFilename) {
+        $msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-key-file $KeyFileFilename --set-password $DatabaseFilename 2>&1
+    } else {
+        $msg= $MasterPassword+"`n"+$MasterPassword | keepassxc-cli db-create --set-password $DatabaseFilename 2>&1
+    }
     return Test-Message($msg)
 }

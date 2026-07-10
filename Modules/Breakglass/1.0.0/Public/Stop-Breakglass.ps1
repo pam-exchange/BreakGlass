@@ -26,13 +26,13 @@ SOFTWARE.
 # signout from API
 function Stop-Breakglass ()
 {
-	#Write-PSFMessage -Level Debug ("Signout from BryondTrust")
-	try
-	{
+    #Write-PSFMessage -Level Debug ("Signout from BryondTrust")
+    try
+    {
         switch ($Script:PAMType) {
             "PasswordSafe"
             {
-		    $res= Stop-PasswordSafe
+            $res= Stop-PasswordSafe
             }
             "SymantecPAM"
             {
@@ -43,19 +43,19 @@ function Stop-Breakglass ()
         switch ($Script:VaultType) {
             "KeePassXC"
             {
-			$res= Stop-KeePassXC
+            $res= Stop-KeePassXC
             }
         }
-	}
-	catch [System.Net.WebException]
-	{
-		throw;
-	}
+    }
+    catch [System.Net.WebException]
+    {
+        throw;
+    }
     finally {
         $Script:kpDatabasePath= ""
-	    $Script:kpKeyFileFilename= ""
-	    $Script:kpGroup= ""
-	    $Script:kpMasterPassword= "*****************************************************"
+        $Script:kpKeyFileFilename= ""
+        $Script:kpGroup= ""
+        $Script:kpMasterPassword= "*****************************************************"
         $Script:kpInitialized= $false
     }
 }

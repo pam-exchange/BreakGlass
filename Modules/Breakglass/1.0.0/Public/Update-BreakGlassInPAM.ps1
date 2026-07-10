@@ -38,12 +38,12 @@ function Update-BreakglassInPAM {
     switch ($PAMType) {
         "PasswordSafe" 
         {
-            $res= Update-BreakGlassInPasswordSafe -Accounts $Accounts -Password $Password -Quiet:$Quiet -WhatIf:$WhatIf
+            $res= Update-BreakglassInPasswordSafe -Accounts $Accounts -Password $Password -Quiet:$Quiet -WhatIf:$WhatIf
         }
 
         "SymantecPAM" 
         {
-            $res= Update-BreakGlassInSymantecPAM -Accounts $Accounts -Password $Password -Quiet:$Quiet -WhatIf:$WhatIf
+            $res= Update-BreakglassInSymantecPAM -Accounts $Accounts -Password $Password -Quiet:$Quiet -WhatIf:$WhatIf
         }
     }
 }

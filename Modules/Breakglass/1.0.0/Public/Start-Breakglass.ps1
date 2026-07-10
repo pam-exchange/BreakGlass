@@ -73,7 +73,7 @@ function Start-Breakglass {
                 databaseName      = $kpDatabaseName;
                 databaseFilename  = $kpDatabasePath + $kpDatabaseName + ".kdbx";
                 KeyFileFilename   = $config["KeePassXC"].KeyFileFilename;
-                Group             = $(if ($config["KeePassXC"].Group) { $config["KeePassXC"].Group } else { "/BreakGlass" });
+                Group             = $(if ($config["KeePassXC"].Group) { $config["KeePassXC"].Group } else { "/Breakglass" });
                 FilePasswordGroup = $(if ($config["KeePassXC"].FilePasswordGroup) { $config["KeePassXC"].FilePasswordGroup } else { "/FilePassword" });
                 MasterPassword    = $config["KeePassXC"].MasterPassword;
             }

@@ -46,18 +46,18 @@ function Update-BreakglassInPasswordSafe {
         try {
             if ($WhatIf) {Write-Log "WhatIf: " -Level Info -NoNewline}
             #if (-not $Quiet) {Write-Host "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -NoNewline -ForegroundColor Gray }
-			if (-not $Quiet) {Write-Log "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -Level Debug -NoNewline }
+            if (-not $Quiet) {Write-Log "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -Level Debug -NoNewline }
 
             if (-not $WhatIf) {
-                $res = Update-PwsManagedAccountPassword -AccountID $acc.AccountID -Password $Password
+                $res = Update-PasswordSafeManagedAccountPassword -AccountID $acc.AccountID -Password $Password
             }
 
             #if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
-			if (-not $Quiet) { Write-Log "Password updated" -Level Debug -ForegroundColor Green }
+            if (-not $Quiet) { Write-Log "Password updated" -Level Debug -ForegroundColor Green }
         }
         catch {
             #if (-not $Quiet) {Write-Host "Password not updated" -ForegroundColor Yellow}
-			if (-not $Quiet) { Write-Log "Password not updated" -Level Warning }
+            if (-not $Quiet) { Write-Log "Password not updated" -Level Warning }
             continue
         }
         if ($WhatIf) {
@@ -65,15 +65,15 @@ function Update-BreakglassInPasswordSafe {
             continue
         }
 
-        $reqID = New-PwsRequest -AccountID $acc.accountID -SystemName $acc.server -Duration 15
+        $reqID = New-PasswordSafeRequest -AccountID $acc.accountID -SystemName $acc.server -Duration 15
 
-        $pwd = Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$($acc.useDSS)
+        $pwd = Get-PasswordSafeManagedAccountPassword -RequestID $reqID -useDSS:$($acc.useDSS)
         $acc.accountPassword= $pwd
 
         #
         # To-Do: How to verify password?
         #
-        #$acc.verified= Test-PwsManagedAccountPassword -AccountID $acc.AccountID
+        #$acc.verified= Test-PasswordSafeManagedAccountPassword -AccountID $acc.AccountID
 
     }
 }

@@ -47,7 +47,7 @@ function Invoke-SymantecCLI {
     $url = New-Object System.Text.StringBuilder
     [void]$url.Append("$($Script:cliUrl)?cmdName=$Cmd")
     [void]$url.Append("&adminUserID=$($Script:cliUsername)")
-    [void]$url.Append("&adminPassword=$($Script:clipassword)")
+    [void]$url.Append("&adminPassword=$($Script:cliPassword)")
     [void]$url.Append("&Page.Size=$($Script:cliPageSize)")
 
     $paramsStr = ($Params.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join "&"

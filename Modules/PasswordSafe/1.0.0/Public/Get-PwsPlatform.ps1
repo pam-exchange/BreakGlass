@@ -25,75 +25,75 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 
 $Script:cachePlatformBase= New-Object System.Collections.ArrayList
-$Script:cachePlatformByID= New-Object System.Collections.HashTable	# Index into cache array
+$Script:cachePlatformByID= New-Object System.Collections.HashTable    # Index into cache array
 
 enum DSS_FLAG {
-	Any
-	True
-	False
+    Any
+    True
+    False
 }
 
 
 
-function Get-PwsPlatform () {
+function Get-PasswordSafePlatform () {
 
     Param(
-		[Alias("PlatformID")]
+        [Alias("PlatformID")]
         [parameter(Mandatory=$false)][int] $ID= -1,
 
         [Alias("PlatformName")]
         [parameter(Mandatory=$false)][string] $Name,
-		[Parameter(Mandatory=$false)][DSS_FLAG] $DSSFlag= "Any",
-		
+        [Parameter(Mandatory=$false)][DSS_FLAG] $DSSFlag= "Any",
+        
         [Parameter(Mandatory=$false)][switch] $useRegex= $false,
         [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Refresh= $false,
         [Parameter(Mandatory=$false)][switch] $NoEmptySet= $false
     )
     
-	process {
-		try {
+    process {
+        try {
 
-			#
-			# Fetch and build cache
-			#
-			if ($refresh -or -not $Script:cachePlatformBase) {
-				$Script:cachePlatformBase.Clear()
-				$Script:cachePlatformByID.Clear()
+            #
+            # Fetch and build cache
+            #
+            if ($refresh -or -not $Script:cachePlatformBase) {
+                $Script:cachePlatformBase.Clear()
+                $Script:cachePlatformByID.Clear()
 
-				# Write-PSFMessage -Level Debug "fetch multiple"
-				$res = PSafe-Get "Platforms";
-				$res | %{
-					$tmp= _Normalize-Platform($_)
+                # Write-PSFMessage -Level Debug "fetch multiple"
+                $res = PSafe-Get "Platforms";
+                $res | %{
+                    $tmp= _Normalize-Platform($_)
 
-					$key= $tmp.ID
-					$idx= $Script:cachePlatformBase.Add( $tmp ) 
-					$Script:cachePlatformByID.Add( $key, $idx ) | Out-Null	# External ID into array idx
-				}
-			}
-			
-			#
-			# Apply filter
-			#
+                    $key= $tmp.ID
+                    $idx= $Script:cachePlatformBase.Add( $tmp ) 
+                    $Script:cachePlatformByID.Add( $key, $idx ) | Out-Null    # External ID into array idx
+                }
+            }
+            
+            #
+            # Apply filter
+            #
             if ($ID -ge 0) 
             {
-				$idx= $Script:cachePlatformByID[ [int]$ID ]		# External ID to array idx
-				$res= $Script:cachePlatformBase[ [int]$idx ]
+                $idx= $Script:cachePlatformByID[ [int]$ID ]        # External ID to array idx
+                $res= $Script:cachePlatformBase[ [int]$idx ]
             }
-			else {
-				$res= $Script:cachePlatformBase
-				if ($DSSFlag -ne "Any") { $res= $res | Where-Object {$_.DSSFlag -eq $DSSFlag} }
-				if ($useRegex) {
-					if ($name) { $res= $res | Where-Object {$_.Name -match $name} }
-				}
-				else {
-					if ($name) { $res= $res | Where-Object {$_.Name -like $name} }
-				}
-			}
-			
-			#
-			# Check boundary conditions
-			#
+            else {
+                $res= $Script:cachePlatformBase
+                if ($DSSFlag -ne "Any") { $res= $res | Where-Object {$_.DSSFlag -eq $DSSFlag} }
+                if ($useRegex) {
+                    if ($name) { $res= $res | Where-Object {$_.Name -match $name} }
+                }
+                else {
+                    if ($name) { $res= $res | Where-Object {$_.Name -like $name} }
+                }
+            }
+            
+            #
+            # Check boundary conditions
+            #
             if ($res -eq $null) {$cnt= 0}
             elseif ($res.GetType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $res.count}
 
@@ -109,7 +109,7 @@ function Get-PwsPlatform () {
             }
 
             return $res
-		}
+        }
         catch
         {
             if ($_.Exception.GetType().FullName -eq "PasswordSafeException") {throw}

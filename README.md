@@ -137,6 +137,10 @@ MIT License - Feel free to use, modify, and distribute.
 
 ## Version history
 
+1.1.2  
+- Changed consistency of naming of functions and variables
+- Refactor sync-keepassxc function
+
 1.1.1  
 - Fixed update of encryption key for individual database after update.
 - Fixed reuests API when retrieving password in PasswordSafe.

@@ -25,10 +25,10 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 
 #
-# Cache is defined in Get-PwsRequest
+# Cache is defined in Get-PasswordSafeRequest
 #
 # $Script:cacheRequestsBase= New-Object System.Collections.ArrayList
-# $Script:cacheRequestsByID= New-Object System.Collections.HashTable	# Index into cache array
+# $Script:cacheRequestsByID= New-Object System.Collections.HashTable    # Index into cache array
 #
 
 enum CONFLICT {
@@ -37,7 +37,7 @@ enum CONFLICT {
     Renew
 }
 
-function New-PwsRequest () {
+function New-PasswordSafeRequest () {
 
     Param(
         [parameter(Mandatory=$false)][int] $AccountID= -1,
@@ -51,16 +51,16 @@ function New-PwsRequest () {
         [parameter(Mandatory=$false)][switch] $RotateOnCheckin= $false
     )
     
-	process {
-		try {
+    process {
+        try {
 
             if ($SystemName -and $SystemID -le -1) {
-                $sys= Get-PwsManagedSystem -Name $SystemName -Single
+                $sys= Get-PasswordSafeManagedSystem -Name $SystemName -Single
                 $SystemID= $sys.ID
             }
 
             if ($AccountName -and $AccountID -le -1) {
-                $acc= Get-PwsManagedAccount -Name $AccountName -SystemID $SystemID
+                $acc= Get-PasswordSafeManagedAccount -Name $AccountName -SystemID $SystemID
                 $AccountID= $acc.ID
             }
 
@@ -85,7 +85,7 @@ function New-PwsRequest () {
             }
 
             return $reqID
-		}
+        }
         catch
         {
             if ($_.Exception.GetType().FullName -eq "PasswordSafeException") {throw}

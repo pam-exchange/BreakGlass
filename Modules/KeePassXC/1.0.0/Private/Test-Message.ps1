@@ -49,7 +49,7 @@ function Test-Message () {
         {
             #
             # Successfully...
-            #	
+            #    
             return $true
         }
 
@@ -58,7 +58,7 @@ function Test-Message () {
             #
             # cmd: rmdir 
             # 
-            # Group BreakGlass2 not found.
+            # Group Breakglass2 not found.
             #
             throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
         }
@@ -68,7 +68,7 @@ function Test-Message () {
             #
             # cmd: mkdir
             #
-            # Group BreakGlass already exists!
+            # Group Breakglass already exists!
             #
             throw ( New-Object KeePassXCException( $EXCEPTION_DUPLICATE, $msg))
         }
@@ -78,7 +78,7 @@ function Test-Message () {
             #
             # cmd: ls 
             #
-            # Cannot find group BreakGlass2.
+            # Cannot find group Breakglass2.
             #
             throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg))
         }
@@ -98,7 +98,7 @@ function Test-Message () {
             #
             # cmd: add
             #
-            # Could not create entry with path BreakGlass/Server01.
+            # Could not create entry with path Breakglass/Server01.
             # Duplicate or invalid group
             #
             throw ( New-Object KeePassXCException( $EXCEPTION_DUPLICATE, $msg))
@@ -112,8 +112,8 @@ function Test-Message () {
             #
             # Error: Missing positional argument(s).
             #
-            throw ( New-Object KeePassXCException( $EXCEPTION_INVALID_PARAMETER, $msg ) )		
-	    }
+            throw ( New-Object KeePassXCException( $EXCEPTION_INVALID_PARAMETER, $msg ) )        
+        }
 
     'database file may be corrupt' 
     {
@@ -122,7 +122,7 @@ function Test-Message () {
             #
             # Incorrect Master password
             #
-            throw ( New-Object KeePassXCException( $EXCEPTION_NOT_AUTHORIZED, $msg ) )		
+            throw ( New-Object KeePassXCException( $EXCEPTION_NOT_AUTHORIZED, $msg ) )        
     }
 
     'Invalid credentials were provided'
@@ -134,8 +134,8 @@ function Test-Message () {
             #
             # Error while reading the database: Invalid credentials were provided. Please try again.
             #
-            throw ( New-Object KeePassXCException( $EXCEPTION_NOT_AUTHORIZED, $msg ) )		
-	    }
+            throw ( New-Object KeePassXCException( $EXCEPTION_NOT_AUTHORIZED, $msg ) )        
+        }
 
     'Failed to load key file'
         {
@@ -146,8 +146,8 @@ function Test-Message () {
             #
             # Error: Failed to load key file c:\tmp\Passwords2.keyfile: The system cannot find the file specified.
             #
-            throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg) )		
-	    }
+            throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg) )        
+        }
 
     'Loading the key file failed'
         {
@@ -158,8 +158,8 @@ function Test-Message () {
             #
             # Error: Loading the key file failed
             #
-            throw ( New-Object KeePassXCException( $EXCEPTION_INVALID_PARAMETER, $msg) )		
-	    }
+            throw ( New-Object KeePassXCException( $EXCEPTION_INVALID_PARAMETER, $msg) )        
+        }
 
     'Failed to open database file'
         {
@@ -171,7 +171,7 @@ function Test-Message () {
             # Error: Failed to open database file c:\tmp\Passwords2.kdbx: not found
             #
             throw ( New-Object KeePassXCException( $EXCEPTION_NOT_FOUND, $msg) )
-	    }
+        }
 
         
     'The system cannot find the path specified'
@@ -192,7 +192,7 @@ function Test-Message () {
             # Error while reading the database: Not a KeePass database.
             #
             throw ( New-Object KeePassXCException( $EXCEPTION_INVALID_FORMAT, $msg ) )
-	    }
+        }
 
     default 
         {

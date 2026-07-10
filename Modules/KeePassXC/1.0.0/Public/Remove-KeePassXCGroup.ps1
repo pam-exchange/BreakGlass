@@ -29,7 +29,7 @@ function Remove-KeePassXCGroup {
         [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
         [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$false)][string]$Group,
-		
+        
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
         [Parameter(Mandatory=$false)][switch]$WhatIf= $false
     )
@@ -41,10 +41,10 @@ function Remove-KeePassXCGroup {
     }
 
     if ($KeyFileFilename) {
-		$msg= $MasterPassword | keepassxc-cli rmdir --key-file $KeyFileFilename $DatabaseFilename $Group 2>&1
-	} else {
-		$msg= $MasterPassword | keepassxc-cli rmdir $DatabaseFilename $Group 2>&1
-	}
+        $msg= $MasterPassword | keepassxc-cli rmdir --key-file $KeyFileFilename $DatabaseFilename $Group 2>&1
+    } else {
+        $msg= $MasterPassword | keepassxc-cli rmdir $DatabaseFilename $Group 2>&1
+    }
 
-	return Test-Message($msg)
+    return Test-Message($msg)
 }

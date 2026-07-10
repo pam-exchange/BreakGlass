@@ -29,7 +29,7 @@ function New-KeePassXCGroup {
         [Parameter(Mandatory=$false)][string]$KeyFileFilename= $Script:kpKeyFileFilename,
         [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$true)][string]$Group,
-		
+        
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
         [Parameter(Mandatory=$false)][switch]$WhatIf= $false
     )
@@ -40,11 +40,11 @@ function New-KeePassXCGroup {
         throw ( New-Object KeePassXCException( $EXCEPTION_INITIALIZE, $msg))
     }
 
-	if ($KeyFileFilename) {
-		$msg= $MasterPassword | keepassxc-cli mkdir --key-file $KeyFileFilename $DatabaseFilename "$Group" 2>&1
-	} else {
-		$msg= $MasterPassword | keepassxc-cli mkdir $DatabaseFilename "$Group" 2>&1
-	}
+    if ($KeyFileFilename) {
+        $msg= $MasterPassword | keepassxc-cli mkdir --key-file $KeyFileFilename $DatabaseFilename "$Group" 2>&1
+    } else {
+        $msg= $MasterPassword | keepassxc-cli mkdir $DatabaseFilename "$Group" 2>&1
+    }
 
     return Test-Message($msg)
 }

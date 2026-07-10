@@ -23,17 +23,17 @@ SOFTWARE.
 
 #>
 #--------------------------------------------------------------------------------------
-function Test-PwsManagedAccountPassword () 
+function Test-PasswordSafeManagedAccountPassword () 
 {
     Param(
         [Parameter(Mandatory=$true)][int] $AccountID
     )
     
-	process {
-		try {
+    process {
+        try {
             $res= PSafe-Post "ManagedAccounts/$AccountID/Credentials/Test"
             return $res.Success
-		}
+        }
         catch
         {
             if ($_.Exception.GetType().FullName -eq "PasswordSafeException") {throw}

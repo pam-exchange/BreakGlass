@@ -23,14 +23,14 @@ SOFTWARE.
 
 #>
 #--------------------------------------------------------------------------------------
-function Update-PwsManagedAccountPassword () 
+function Update-PasswordSafeManagedAccountPassword () 
 {
     Param(
         [Parameter(Mandatory=$true)][int] $AccountID,
         [Parameter(Mandatory=$false)][string] $Password
     )
     
-	process {
+    process {
         $body = @{ Queue= $false; }
 
         $res= PSafe-Post "ManagedAccounts/$AccountID/Credentials/Change" $body;

@@ -52,24 +52,24 @@ function Start-PasswordSafe {
             }
             return $result
         }
-		catch [System.Net.WebException]
-		{
-			#401 with WWW-Authenticate-2FA header expected for two-factor authentication challenge
-			if($_.Exception.Response.StatusCode -eq 401 -and $_.Exception.Response.Headers.Contains("WWW-Authenticate-2FA") -eq $true)
-			{
-				$challengeMessage = $_.Exception.Response.Headers["WWW-Authenticate-2FA"];
-				$challengeResponse = Read-Host $challengeMessage;
-				PSafe-SignAppinChallenge $challengeResponse;
-			}
+        catch [System.Net.WebException]
+        {
+            #401 with WWW-Authenticate-2FA header expected for two-factor authentication challenge
+            if($_.Exception.Response.StatusCode -eq 401 -and $_.Exception.Response.Headers.Contains("WWW-Authenticate-2FA") -eq $true)
+            {
+                $challengeMessage = $_.Exception.Response.Headers["WWW-Authenticate-2FA"];
+                $challengeResponse = Read-Host $challengeMessage;
+                PSafe-SignAppinChallenge $challengeResponse;
+            }
             elseif ($_.Exception.Response.StatusCode -eq "Unauthorized") {
                 $details = $DETAILS_EXCEPTION_NOT_AUTHORIZED_01 -f $ApiUsername
                 throw (New-Object PasswordSafeException($EXCEPTION_NOT_AUTHORIZED, $details))
             }
-			else {
-				throw;
-			}
-		}
-	}
+            else {
+                throw;
+            }
+        }
+    }
 }
 
 # --- end-of-file ---

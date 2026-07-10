@@ -22,11 +22,144 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 #>
+
+function Invoke-SyncUpdate-KeePassXC {
+    param (
+        [Parameter(Mandatory=$true)][string] $Title,
+        [Parameter(Mandatory=$true)][string] $Username,
+        [Parameter(Mandatory=$true)][string] $Password,
+        [Parameter(Mandatory=$false)][switch] $Verified= $false,
+
+        [Parameter(Mandatory=$false)][switch] $Single= $false,
+        [Parameter(Mandatory=$false)][switch] $Update= $false,
+        [Parameter(Mandatory=$false)][switch] $Quiet= $false
+    )
+
+    #
+    # Same entry from Breakglass list and KeePassXC list is found
+    #
+    if ($Single) {
+        $res = Update-KeePassXCEntry -Group $Script:kpGroup -Title $title -Username $username -Password $password -Verified:$verified
+        if (-not $Quiet) { Write-Log "Updated entry '$Script:kpGroup/$title'" -Level Debug }
+    }
+    else {
+        $fileMasterPassword = $vaultHash[$d.InputObject].options.password
+        $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
+
+        if ($Update) {
+            $fileMasterPassword = New-BreakglassPassword -BlockLength 4
+            $res = Update-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title -Username $username -Password $fileMasterPassword -Verified
+            if (-not $Quiet) { Write-Log "Updated entry '$Script:kpFilePasswordGroup/$title' in database '$Script:kpDatabaseFilename'" -Level Debug }
+
+            Remove-Item -Path $fileDatabaseFilename -ErrorAction SilentlyContinue
+            if (-not $Quiet) { Write-Log "Removed database '$fileDatabaseFilename'" -Level Debug }
+        }
+
+        if (Test-Path $fileDatabaseFilename) {
+            $res = Update-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup -Title $title -Username $username -Password $password -Verified:$verified
+            if (-not $Quiet) { Write-Log "Updated entry '$Script:kpGroup/$title' in database '$fileDatabaseFilename'" -Level Debug }
+        }
+        else {
+            $res = New-KeePassXCDatabase -DatabaseFilename $fileDatabaseFilename -KeyFileFilename $null -MasterPassword $fileMasterPassword
+            if (-not $Quiet) { Write-Log "Created database '$fileDatabaseFilename'" -Level Debug }
+
+            $res = New-KeePassXCGroup -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup
+            if (-not $Quiet) { Write-Log "Created group '$Script:kpGroup'" -Level Debug }
+
+            $res = New-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup -Title $title -Username $username -Password $password -Verified:$verified
+            if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
+        }
+    }
+}
+
+function Invoke-SyncAdd-KeePassXC {
+    param (
+        [Parameter(Mandatory=$true)][string] $Title,
+        [Parameter(Mandatory=$true)][string] $Username,
+        [Parameter(Mandatory=$true)][string] $Password,
+        [Parameter(Mandatory=$false)][switch] $Verified= $false,
+
+        [Parameter(Mandatory=$false)][switch] $Single= $false,
+        [Parameter(Mandatory=$false)][switch] $Update= $false,
+        [Parameter(Mandatory=$false)][switch] $Quiet= $false
+    )
+
+    #
+    # Add new entry to KeePassXC
+    #
+    if ($Single) {
+        $res = New-KeePassXCEntry -Group $Script:kpGroup -Title $title -Username $username -Password $password -Verified:$verified
+        if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
+    }
+    else {
+        $fileMasterPassword = New-BreakglassPassword -BlockLength 4
+        try {
+            $res = Update-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title -Username $username -Password $fileMasterPassword
+            if (-not $Quiet) { Write-Log "Updated '$Script:kpFilePasswordGroup/$title'" -Level Debug }
+        }
+        catch {
+            if ($_.Exception.Message -eq "Not Found") {
+                $res = New-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title -Username $username -Password $fileMasterPassword
+                if (-not $Quiet) { Write-Log "Added '$Script:kpFilePasswordGroup/$title'" -Level Debug }
+            }
+            else {
+                throw
+            }
+        }
+
+        $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
+        if (Test-Path $fileDatabaseFilename) {
+            Remove-Item $fileDatabaseFilename
+            if (-not $Quiet) { Write-Log "Removed database '$fileDatabaseFilename'" -Level Debug }
+        }
+
+        $res = New-KeePassXCDatabase -DatabaseFilename $fileDatabaseFilename -KeyFileFilename $null -MasterPassword $fileMasterPassword
+        if (-not $Quiet) { Write-Log "Created database database '$fileDatabaseFilename'" -Level Debug }
+
+        $res = New-KeePassXCGroup -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup
+        if (-not $Quiet) { Write-Log "Created group '$Script:kpGroup'" -Level Debug }
+
+        $res = New-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup -Title $title -Username $username -Password $password -Verified:$verified
+        if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
+    }
+}
+
+function Invoke-SyncRemove-KeePassXC {
+    param (
+        [Parameter(Mandatory=$true)][string] $Title,
+
+        [Parameter(Mandatory=$false)][switch] $Single= $false,
+        [Parameter(Mandatory=$false)][switch] $Quiet= $false
+    )
+
+    #
+    # Remove entry from KeePassXC
+    #
+    if ($Single) {
+        $res = Remove-KeePassXCEntry -Group $Script:kpGroup -Title $title
+        if (-not $Quiet) { Write-Log "Removed entry '$Script:kpGroup/$title'" -Level Debug }
+    }
+    else {
+        $res = Remove-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title
+        if (-not $Quiet) { Write-Log "Removed entry '$Script:kpFilePasswordGroup/$title'" -Level Debug }
+
+        $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
+        if (Test-Path $fileDatabaseFilename) {
+            Remove-Item $fileDatabaseFilename
+            if (-not $Quiet) { Write-Log "Removed database '$fileDatabaseFilename'" -Level Debug }
+        }
+        else {
+            if (-not $Quiet) { Write-Log "Database '$fileDatabaseFilename' not found" -Level Warning }
+        }
+    }
+}
+
+
 #--------------------------------------------------------------------------------------
 function Sync-KeePassXC {
     param (
-        [Parameter(Mandatory=$false)][Object[]] $pamAccounts = @(),
-        [Parameter(Mandatory=$false)][Object[]] $vaultAccounts = @(),
+        [Parameter(Mandatory=$false)][Object[]] $PamAccounts = @(),
+        [Parameter(Mandatory=$false)][Object[]] $VaultAccounts = @(),
 
         [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Update= $false,
@@ -36,14 +169,14 @@ function Sync-KeePassXC {
 
     if ($WhatIf) { $Quiet = $false }
 
-    if ($pamAccounts -eq $null) { $pamAccounts = @() }
-    if ($vaultAccounts -eq $null) { $vaultAccounts = @() }
+    if ($null -eq $PamAccounts) { $PamAccounts = @() }
+    if ($null -eq $VaultAccounts) { $VaultAccounts = @() }
 
     #
     # Build hash for vaultAccounts
     #
     $vaultHash = New-Object System.Collections.Hashtable
-    $vaultAccounts | ForEach-Object {
+    $VaultAccounts | ForEach-Object {
         $vaultHash.Add($_.title, [PSCustomObject]@{ username = $_.username; password = $_.password; options = $_.options }) | Out-Null
     }
 
@@ -51,7 +184,7 @@ function Sync-KeePassXC {
     # Build hash table with key using server, type and username
     #
     $pamHash = New-Object System.Collections.Hashtable
-    $pamAccounts | ForEach-Object {
+    $PamAccounts | ForEach-Object {
         $key = "$($_.Server) # $($_.accountType) # $($_.accountName)"
 
         if ($pamHash.ContainsKey($key)) {
@@ -71,13 +204,14 @@ function Sync-KeePassXC {
     foreach ($d in $diff) {
 
         $title= $d.InputObject
-		$userName= $($pamHash[$d.InputObject].username)
-		$password= $($pamHash[$d.InputObject].password)
+        $username= $($pamHash[$d.InputObject].username)
+        $password= $($pamHash[$d.InputObject].password)
         $verified= $($pamHash[$d.InputObject].verified)
 
         if ($d.SideIndicator -eq "==") {
+
             #
-            # Same entry from BreakGlass list and KeePassXC list is found
+            # Same entry from Breakglass list and KeePassXC list is found
             #
             if ($pamHash[$d.InputObject].password -ne $vaultHash[$d.InputObject].password) {
                 #
@@ -88,39 +222,7 @@ function Sync-KeePassXC {
                 }
                 else {
                     if (-not $Quiet) { Write-Log "Updating '$title'" -Level Info }
-
-                    if ($Single) {
-                        $res = Update-KeePassXCEntry -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
-                        if (-not $Quiet) { Write-Log "Updated entry '$Script:kpGroup/$title'" -Level Debug }
-                    }
-                    else {
-                        $fileMasterPassword = $vaultHash[$d.InputObject].options.password
-                        $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
-
-                        if ($Update) {
-                            $fileMasterPassword = New-BreakglassPassword -BlockLength 4
-                            $res = Update-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title -Username $userName -Password $fileMasterPassword -Verified
-                            if (-not $Quiet) { Write-Log "Updated entry '$Script:kpFilePasswordGroup/$title' in database '$Script:kpDatabaseFilename'" -Level Debug }
-
-                            Remove-Item -Path $fileDatabaseFilename -ErrorAction SilentlyContinue
-                            if (-not $Quiet) { Write-Log "Removed database '$fileDatabaseFilename'" -Level Debug }
-                        }
-
-                        if (Test-Path $fileDatabaseFilename) {
-                            $res = Update-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
-                            if (-not $Quiet) { Write-Log "Updated entry '$Script:kpGroup/$title' in database '$fileDatabaseFilename'" -Level Debug }
-                        }
-                        else {
-                            $res = New-KeePassXCDatabase -DatabaseFilename $fileDatabaseFilename -KeyFileFilename $null -MasterPassword $fileMasterPassword
-                            if (-not $Quiet) { Write-Log "Created database '$fileDatabaseFilename'" -Level Debug }
-
-                            $res = New-KeePassXCGroup -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup
-                            if (-not $Quiet) { Write-Log "Created group '$Script:kpGroup'" -Level Debug }
-
-                            $res = New-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
-                            if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
-                        }
-                    }
+                    Invoke-SyncUpdate-KeePassXC -Title $title -Username $username -Password $password -Verified:$verified -Quiet:$Quiet -Single:$Single -Update:$Update
                 }
             }
             else {
@@ -129,6 +231,7 @@ function Sync-KeePassXC {
         }
 
         elseif ($d.SideIndicator -eq "<=") {
+
             #
             # Add new entry to KeePassXC
             #
@@ -137,42 +240,7 @@ function Sync-KeePassXC {
             }
             else {
                 if (-not $Quiet) { Write-Log "Adding '$title'" -Level Info }
-
-                if ($Single) {
-                    $res = New-KeePassXCEntry -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
-                    if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
-                }
-                else {
-                    $fileMasterPassword = New-BreakglassPassword -BlockLength 4
-                    try {
-                        $res = Update-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title -Username $userName -Password $fileMasterPassword
-                        if (-not $Quiet) { Write-Log "Updated '$Script:kpFilePasswordGroup/$title'" -Level Debug }
-                    }
-                    catch {
-                        if ($_.Exception.Message -eq "Not Found") {
-                            $res = New-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title -Username $userName -Password $fileMasterPassword
-                            if (-not $Quiet) { Write-Log "Added '$Script:kpFilePasswordGroup/$title'" -Level Debug }
-                        }
-                        else {
-                            throw
-                        }
-                    }
-
-                    $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
-                    if (Test-Path $fileDatabaseFilename) {
-                        Remove-Item $fileDatabaseFilename
-                        if (-not $Quiet) { Write-Log "Removed database '$fileDatabaseFilename'" -Level Debug }
-                    }
-
-                    $res = New-KeePassXCDatabase -DatabaseFilename $fileDatabaseFilename -KeyFileFilename $null -MasterPassword $fileMasterPassword
-                    if (-not $Quiet) { Write-Log "Created database database '$fileDatabaseFilename'" -Level Debug }
-
-                    $res = New-KeePassXCGroup -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup
-                    if (-not $Quiet) { Write-Log "Created group '$Script:kpGroup'" -Level Debug }
-
-                    $res = New-KeePassXCEntry -DatabaseFilename $fileDatabaseFilename -MasterPassword $fileMasterPassword -Group $Script:kpGroup -Title $title -Username $userName -Password $password -Verified:$verified
-                    if (-not $Quiet) { Write-Log "Added entry '$Script:kpGroup/$title'" -Level Debug }
-                }
+                Invoke-SyncAdd-KeePassXC -Title $title -Username $username -Password $password -Verified:$verified -Quiet:$Quiet -Single:$Single -Update:$Update
             }
         }
 
@@ -185,42 +253,10 @@ function Sync-KeePassXC {
             }
             else {
                 if (-not $Quiet) { Write-Log "Removing '$title'" -Level Info }
-
-                if ($Single) {
-                    $res = Remove-KeePassXCEntry -Group $Script:kpGroup -Title $title
-                    if (-not $Quiet) { Write-Log "Removed entry '$Script:kpGroup/$title'" -Level Debug }
-                }
-                else {
-                    $res = Remove-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Title $title
-                    if (-not $Quiet) { Write-Log "Removed entry '$Script:kpFilePasswordGroup/$title'" -Level Debug }
-
-                    $fileDatabaseFilename = Get-KeePassXCDatabaseFilename -Title $title
-                    if (Test-Path $fileDatabaseFilename) {
-                        Remove-Item $fileDatabaseFilename
-                        if (-not $Quiet) { Write-Log "Removed database '$fileDatabaseFilename'" -Level Debug }
-                    }
-                    else {
-                        if (-not $Quiet) { Write-Log "Database '$fileDatabaseFilename' not found" -Level Warning }
-                    }
-                }
+                Invoke-SyncRemove-KeePassXC -Title $title -Quiet:$Quiet -Single:$Single
             }
         }
     }
-
-<#
-    # 
-    # remove "Recycle Bin"
-    #
-    try {
-        if ($WhatIf) {
-            Write-Host "WhatIf: Removing 'Recycle Bin'" -ForegroundColor Green
-        }
-        else {
-            if (-not $Quiet) {Write-Host "Removing 'Recycle Bin'" -ForegroundColor Gray}
-            $res= Remove-KeePassXCGroup -Group "Recycle Bin"
-        }
-    } catch {}
-#>
 }
 
 # --- end-of-file ---

@@ -43,11 +43,11 @@ function PSafe-BuildHeaders()
 {
     #Build the Authorization header
     if ( $Script:apiPassword -eq $null ) {
-		return @{ Authorization="PS-Auth key=${Script:apiKey}; runas=${Script:apiUsername};"; };
-	}
+        return @{ Authorization="PS-Auth key=${Script:apiKey}; runas=${Script:apiUsername};"; };
+    }
     else {
-		return @{ Authorization="PS-Auth key=${Script:apiKey}; runas=${Script:apiUsername}; pwd=[${Script:apiPassword}];"; };
-	}
+        return @{ Authorization="PS-Auth key=${Script:apiKey}; runas=${Script:apiUsername}; pwd=[${Script:apiPassword}];"; };
+    }
 }
 
 #--------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ function PSafe-BuildHeaders()
 # Note: Should only be called after an initial attempt at Auth/SignAppin since it uses the existing Web Session
 function PSafe-SignAppinChallenge($challengeResponse)
 {
-	#Write-PSFMessage -Level Debug ("start")
+    #Write-PSFMessage -Level Debug ("start")
 
     $method = "POST";
     $uri= "$($Script:apiUrl)Auth/SignAppin"
@@ -70,7 +70,7 @@ function PSafe-SignAppinChallenge($challengeResponse)
     else {
         $result = Invoke-RestMethod -Uri $uri -Method $method -Headers $headers -WebSession $Script:session -Certificate $Script:authCert
     }
-	return $result
+    return $result
 }
 
 #--------------------------------------------------------------------------------------
@@ -79,21 +79,8 @@ function PSafe-RestMethod([string]$method, [string]$api, $body)
 {
     $uri= "$($Script:apiUrl)$api"
 
-#    $local:attempt= 1
-#    while ($true) {
-        try {
-            $res= Invoke-RestMethod -Uri $uri -Method $method -WebSession $Script:session -Headers $Script:PSheaders -Body $body
-            return $res
-        }
-        catch {
-#            if ($local:attempt -le 5) {
-#                $local:attempt+= 1
-#                Start-Sleep -Milliseconds 250
-#                continue
-#            }
-            throw
-        }
-#    }
+    $res= Invoke-RestMethod -Uri $uri -Method $method -WebSession $Script:session -Headers $Script:PSheaders -Body $body
+    return $res
 }
 
 #--------------------------------------------------------------------------------------
@@ -153,7 +140,7 @@ function PSafe-Delete([string]$api)
 # Calls a PUT API
 function PSafe-Put([string]$api, $body)
 {
-    PSafe-RestMethod2 "PUT" $api (ConvertTo-Json $body) "application/json"
+    PSafe-RestMethod-v2 "PUT" $api (ConvertTo-Json $body) "application/json"
 }
 
 #--------------------------------------------------------------------------------------
@@ -230,7 +217,7 @@ function PSafe-FindCertificateForUPN([string]$upnName)
 #Finds all client certificates in the given certificate store
 function PSafe-FindClientCertificates {
     param (
-        [string] $certStore
+        [string] $certStore = "LocalMachine"
     )
     $certs = Get-ChildItem -Path "cert:\$certStore\My" -EKU "Client Authentication"
     return $certs

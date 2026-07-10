@@ -27,8 +27,8 @@ function Sync-BreakglassWithVault {
     param (
         [Parameter(Mandatory=$false)][VAULT_TYPE] $VaultType= "KeePassXC",
 
-        [Parameter(Mandatory=$false)][Object[]] $pamAccounts = @(),
-        [Parameter(Mandatory=$false)][Object[]] $vaultAccounts = @(),
+        [Parameter(Mandatory=$false)][Object[]] $PamAccounts = @(),
+        [Parameter(Mandatory=$false)][Object[]] $VaultAccounts = @(),
 
         [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Update= $false,
@@ -41,7 +41,7 @@ function Sync-BreakglassWithVault {
     switch ($VaultType) {
         "KeePassXC" 
         {
-            return Sync-KeePassXC -pamAccounts $pamAccounts -vaultAccounts $vaultAccounts -Single:$Single -Quiet:$Quiet -WhatIf:$WhatIf -Update:$Update
+            return Sync-KeePassXC -pamAccounts $PamAccounts -vaultAccounts $VaultAccounts -Single:$Single -Quiet:$Quiet -WhatIf:$WhatIf -Update:$Update
         }
     }
 

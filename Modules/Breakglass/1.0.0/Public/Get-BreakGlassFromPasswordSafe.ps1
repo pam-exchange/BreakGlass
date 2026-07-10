@@ -37,7 +37,7 @@ function Get-BreakglassFromPasswordSafe {
     # Get all breakglass accounts
     # PAM smartrule will filter accounts for breakglass
     #
-    $accounts= Get-PwsManagedAccount
+    $accounts= Get-PasswordSafeManagedAccount
 
     #
     # loop through all accounts (API enabled) and fetch password for each.
@@ -45,22 +45,22 @@ function Get-BreakglassFromPasswordSafe {
     #
     foreach ($acc in $accounts) {
         if ($acc.ApiEnabled -eq $false) {
-			Write-Host "$($acc.SystemName) | $($acc.PlatformName) | $($acc.AccountName) -- ignored (not API enabled)" -ForegroundColor Yellow
+            Write-Host "$($acc.SystemName) | $($acc.PlatformName) | $($acc.AccountName) -- ignored (not API enabled)" -ForegroundColor Yellow
             continue
         }
 
-        $reqID= New-PwsRequest -AccountID $acc.AccountID -SystemID $acc.SystemID -Duration 5 -Conflict Reuse
-        $pwd= Get-PwsManagedAccountPassword -RequestID $reqID -useDSS:$acc.useDSS
+        $reqID= New-PasswordSafeRequest -AccountID $acc.AccountID -SystemID $acc.SystemID -Duration 5 -Conflict Reuse
+        $pwd= Get-PasswordSafeManagedAccountPassword -RequestID $reqID -useDSS:$acc.useDSS
 
         $list.add( [PSCustomObject]@{
-						server=$($acc.SystemName); 
-						accountType=$($acc.PlatformName); 
-						accountID=$($acc.AccountID); 
-						accountName=$($acc.AccountName); 
-						accountPassword=$pwd; 
-						verified=$Verified; 
-						useDSS=$($acc.useDSS)} 
-				) | Out-Null
+                        server=$($acc.SystemName); 
+                        accountType=$($acc.PlatformName); 
+                        accountID=$($acc.AccountID); 
+                        accountName=$($acc.AccountName); 
+                        accountPassword=$pwd; 
+                        verified=$Verified; 
+                        useDSS=$($acc.useDSS)} 
+                ) | Out-Null
     }
 
     return $list

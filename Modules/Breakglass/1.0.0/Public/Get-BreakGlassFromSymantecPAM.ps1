@@ -33,10 +33,10 @@ function Get-BreakglassFromSymantecPAM {
 
     $list= New-Object System.Collections.ArrayList
 
-    $accounts= Get-SymTargetAccount
+    $accounts= Get-SymantecPAMTargetAccount
 
     foreach ($acc in $accounts) {
-        $pwd= Get-SymTargetAccountPassword -AccountID $acc.TargetAccountID
+        $pwd= Get-SymantecPAMTargetAccountPassword -AccountID $acc.TargetAccountID
 
         $list.add( [PSCustomObject]@{
                             server=$($acc.TargetServerName); 

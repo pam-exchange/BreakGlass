@@ -23,31 +23,36 @@ SOFTWARE.
 
 #>
 #--------------------------------------------------------------------------------------
-
-function Get-SymTargetAccountPassword () 
+function Update-SymantecPAMTargetAccountPassword () 
 {
     Param(
         [Parameter(Mandatory=$true)][int] $AccountID,
-        [Parameter(Mandatory=$false)][string] $Reason= "Breakglass"
+        [Parameter(Mandatory=$false)][string] $Password
     )
     
-	process {
+    process {
 
-		try {
+        try {
             $params = @{
                 'TargetAccount.ID' = $AccountID
-                reason = $reason
-                reasonDetails = $reason
+                'allowUnsynchronized' = "true"
+                'TargetAccount.passwordVerified' = "false"
                 }
 
-            $res= Invoke-SymantecCLI -Cmd "viewAccountPassword" -Params $params
+            if ($password) {
+                $params+= @{
+                    'password'= $Password
+                    'confirmPassword'= $Password
+                }
+            }
+
+            $res= Invoke-SymantecCLI -Cmd "updateTargetAccountPassword" -Params $params
 
             $pwd= $res.'cr.result'.TargetAccount.password
             return $pwd
-		}
+        }
         catch
         {
-            #Write-Host $e_.Exception
             throw
         }
     }

@@ -30,7 +30,7 @@ function Get-KeePassXCEntry {
         [Parameter(Mandatory=$false)][string]$MasterPassword= $Script:kpMasterPassword,
         [Parameter(Mandatory=$false)][string]$Group= $Script:kpGroup,
         [Parameter(Mandatory=$false)][string]$Title,
-		
+        
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
         [Parameter(Mandatory=$false)][switch]$WhatIf= $false
     )
@@ -44,11 +44,11 @@ function Get-KeePassXCEntry {
         #
         # Fetch one entry
         #
-		if ($KeyFileFilename) {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$Title" 2>&1
-		} else {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabaseFilename "$Group/$Title" 2>&1
-		}
+        if ($KeyFileFilename) {
+            $e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$Title" 2>&1
+        } else {
+            $e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabaseFilename "$Group/$Title" 2>&1
+        }
 
         if ($e.length -lt 4) {
             # Array with length 4 is expected
@@ -75,20 +75,20 @@ function Get-KeePassXCEntry {
     # this includes groups, entries from groups, and empth
     # ignore all except entries from root level
     #
-	if ($KeyFileFilename) {
-		$list= $MasterPassword | keepassxc-cli ls --key-file $KeyFileFilename $DatabaseFilename $Group 2> $null | Where-Object {$_ -notmatch "\[empty\]|.*/$|^ "}
-	} else {
-		$list= $MasterPassword | keepassxc-cli ls $DatabaseFilename $Group 2> $null | Where-Object {$_ -notmatch "\[empty\]|.*/$|^ "}
-	}
+    if ($KeyFileFilename) {
+        $list= $MasterPassword | keepassxc-cli ls --key-file $KeyFileFilename $DatabaseFilename $Group 2> $null | Where-Object {$_ -notmatch "\[empty\]|.*/$|^ "}
+    } else {
+        $list= $MasterPassword | keepassxc-cli ls $DatabaseFilename $Group 2> $null | Where-Object {$_ -notmatch "\[empty\]|.*/$|^ "}
+    }
 
-	# TO-DO: Error handling, invalid parameters
+    # TO-DO: Error handling, invalid parameters
 
     foreach ($t in $list) {
-		if ($KeyFileFilename) {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$t" 2>&1
-		} else {
-			$e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabaseFilename "$Group/$t" 2>&1
-		}
+        if ($KeyFileFilename) {
+            $e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes --key-file $KeyFileFilename $DatabaseFilename "$Group/$t" 2>&1
+        } else {
+            $e= $MasterPassword | keepassxc-cli show --attributes Title --attributes UserName --attributes Password --attributes Notes $DatabaseFilename "$Group/$t" 2>&1
+        }
 
         if ($e.length -lt 4) {
             # Array with length 4 is expected

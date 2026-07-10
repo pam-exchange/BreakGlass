@@ -33,32 +33,32 @@ function Get-KeePassXCEntries {
 
     if ($WhatIf) {$quiet= $false}
 
-	if ($Single) {
-		return Get-KeePassXCEntry -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
-	}
-	else {
-		#
-		# Get KeePass passwords for individual KeePass database
-		#
-		$filePasswords= Get-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Quiet:$Quiet -WhatIf:$WhatIf
-		$vaultEntries= New-Object System.Collections.ArrayList
-		foreach ($file in $filePasswords) {
-			$filename= Get-KeePassXCDatabaseFilename -Title $file.title -Single:$Single
-			if (Test-Path $filename) {
-				$entry= Get-KeePassXCEntry -DatabaseFilename $filename -MasterPassword $file.password -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
+    if ($Single) {
+        return Get-KeePassXCEntry -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
+    }
+    else {
+        #
+        # Get KeePass passwords for individual KeePass database
+        #
+        $filePasswords= Get-KeePassXCEntry -Group $Script:kpFilePasswordGroup -Quiet:$Quiet -WhatIf:$WhatIf
+        $vaultEntries= New-Object System.Collections.ArrayList
+        foreach ($file in $filePasswords) {
+            $filename= Get-KeePassXCDatabaseFilename -Title $file.title -Single:$Single
+            if (Test-Path $filename) {
+                $entry= Get-KeePassXCEntry -DatabaseFilename $filename -MasterPassword $file.password -Group $Script:kpGroup -Quiet:$Quiet -WhatIf:$WhatIf
 
-				if ($entry) {
-					$options= [PSCustomObject]@{filename= $filename; password= $file.password}
-					$vaultEntries.Add( [PSCustomObject]@{title=$file.title; username=$entry.username; password=$entry.password.Trim();options= $options} ) | Out-Null
-				}
-			}
-			else {
-				$options= [PSCustomObject]@{filename= $filename; password= $file.password}
-				$vaultEntries.Add( [PSCustomObject]@{title=$file.title; username=$file.username; password=$null;options= $options} ) | Out-Null
-			}
-		}
-		return $vaultEntries		
-	}
+                if ($entry) {
+                    $options= [PSCustomObject]@{filename= $filename; password= $file.password}
+                    $vaultEntries.Add( [PSCustomObject]@{title=$file.title; username=$entry.username; password=$entry.password.Trim();options= $options} ) | Out-Null
+                }
+            }
+            else {
+                $options= [PSCustomObject]@{filename= $filename; password= $file.password}
+                $vaultEntries.Add( [PSCustomObject]@{title=$file.title; username=$file.username; password=$null;options= $options} ) | Out-Null
+            }
+        }
+        return $vaultEntries        
+    }
 }
 
 # --- end-of-file ---

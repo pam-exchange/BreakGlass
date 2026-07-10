@@ -23,15 +23,15 @@ SOFTWARE.
 
 #>
 #--------------------------------------------------------------------------------------
-function Get-PwsManagedAccountPassword () 
+function Get-PasswordSafeManagedAccountPassword () 
 {
     Param(
         [Parameter(Mandatory=$true)][int] $RequestID,
         [Parameter(Mandatory=$false)][switch]$useDSS
     )
     
-	process {
-		try {
+    process {
+        try {
 
             if ($useDSS) {
                 $pwd= PSafe-Get "Credentials/$($RequestID)?type=dsskey"
@@ -46,10 +46,10 @@ function Get-PwsManagedAccountPassword ()
                 $pwd= "Passphrase: "+$passphrase+"`n`n"+$pwd
             }
             else {
-			    $pwd= PSafe-Get "Credentials/$($RequestID)"
+                $pwd= PSafe-Get "Credentials/$($RequestID)"
             }
             return $pwd
-		}
+        }
         catch
         {
             if ($_.Exception.GetType().FullName -eq "PasswordSafeException") {throw}

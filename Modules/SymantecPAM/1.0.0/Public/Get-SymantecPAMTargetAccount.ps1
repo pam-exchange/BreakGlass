@@ -25,7 +25,7 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 
 $Script:cacheTargetAccountBase= New-Object System.Collections.ArrayList
-$Script:cacheTargetAccountByID= New-Object System.Collections.HashTable		# Index into cache array
+$Script:cacheTargetAccountByID= New-Object System.Collections.HashTable        # Index into cache array
 
 enum DETAILS {
     COMPACT
@@ -34,29 +34,29 @@ enum DETAILS {
 
 
 #--------------------------------------------------------------------------------------
-function Get-SymTargetAccount () 
+function Get-SymantecPAMTargetAccount () 
 {
     Param(
-		[Alias("AccountID")]
+        [Alias("AccountID")]
         [Parameter(Mandatory=$false)][int] $ID= -1,
-		
-		[Alias("AccountName")]
+        
+        [Alias("AccountName")]
         [Parameter(Mandatory=$false)][string] $Name,
 
-        [Parameter(Mandatory=$false)][int] $SystemID= -1,			# Filter by ManagedSystem ID
-        [Parameter(Mandatory=$false)][string] $SystemName,			# Filter by ManagedSystem Name
+        [Parameter(Mandatory=$false)][int] $SystemID= -1,            # Filter by ManagedSystem ID
+        [Parameter(Mandatory=$false)][string] $SystemName,            # Filter by ManagedSystem Name
         
 
         [Parameter(Mandatory=$false)][DETAILS] $details= "COMPACT",
 
         [Parameter(Mandatory=$false)][switch] $useRegex= $false,
         [Parameter(Mandatory=$false)][switch] $Single= $false,
-		[Parameter(Mandatory=$false)][switch] $Refresh= $false,
+        [Parameter(Mandatory=$false)][switch] $Refresh= $false,
         [Parameter(Mandatory=$false)][switch] $NoEmptySet= $false
     )
     
-	process {
-		try {
+    process {
+        try {
 
             #
             # To-Do: Needs a complete rework allowing filtering by AccountName, etc...
@@ -90,9 +90,9 @@ function Get-SymTargetAccount ()
                 [System.Collections.ArrayList]$res = @()
             }
 
-			#
-			# Check boundary conditions
-			#
+            #
+            # Check boundary conditions
+            #
             if ($res -eq $null) {$cnt= 0}
             elseif ($res.GetType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $res.count}
 
@@ -108,7 +108,7 @@ function Get-SymTargetAccount ()
             }
 
             return $res
-		}
+        }
         catch
         {
             throw

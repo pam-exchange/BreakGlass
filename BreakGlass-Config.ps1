@@ -2,28 +2,28 @@ $version= "1.0.0"
 
 $configKeePassXC= @{
         type="KeePassXC";
-		DatabasePath= "c:\temp\";
-        DatabaseName= "BreakGlass";
-		#KeyFileFilename= "c:\temp\BreakGlass.keyfile";
-		MasterPassword= "xxxxx";
-        Group= "BreakGlass";
-		FilePasswordGroup= "FilePassword";
+        DatabasePath= "c:\temp\";
+        DatabaseName= "Breakglass";
+        #KeyFileFilename= "c:\temp\Breakglass.keyfile";
+        MasterPassword= "xxxxx";
+        Group= "Breakglass";
+        FilePasswordGroup= "FilePassword";
     }
 
 $configPasswordSafe = @{
         type="PasswordSafe";
-		DNS= "xxxx.example.com";
-		username= "api_Breakglass";
-		password= "Kuxxxxxxxxxmq3T!";
-		apiKey= "4ef9xxxxxxxxxxxxx3ddcd5af146";
+        DNS= "xxxx.example.com";
+        username= "api_Breakglass";
+        password= "Kuxxxxxxxxxmq3T!";
+        apiKey= "4ef9xxxxxxxxxxxxx3ddcd5af146";
         Workgroup= "Default Workgroup";
     }
 
 $configSymantecPAM = @{
         type="SymantecPAM";
-		DNS= "192.168.242.5";
-		username= "cli_breakglass";
-		password= "xxxxx";
+        DNS= "192.168.242.5";
+        username= "cli_breakglass";
+        password= "xxxxx";
     }
 
 try {

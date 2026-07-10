@@ -25,64 +25,64 @@ SOFTWARE.
 #--------------------------------------------------------------------------------------
 
 $Script:cacheFunctionalAccountBase= New-Object System.Collections.ArrayList
-$Script:cacheFunctionalAccountByID= New-Object System.Collections.HashTable		# Index into cache array
+$Script:cacheFunctionalAccountByID= New-Object System.Collections.HashTable        # Index into cache array
 
-function Get-PwsFunctionalAccount () 
+function Get-PasswordSafeFunctionalAccount () 
 {
 
     Param(
-		[Alias("AccountID")]
+        [Alias("AccountID")]
         [Parameter(Mandatory=$false)][int] $ID= -1,
-		
-		[Alias("AccountName")]
+        
+        [Alias("AccountName")]
         [Parameter(Mandatory=$false)][string] $Name,
 
-		[Parameter(Mandatory=$false)][switch] $useRegex= $false,
+        [Parameter(Mandatory=$false)][switch] $useRegex= $false,
         [Parameter(Mandatory=$false)][switch] $Single= $false,
         [Parameter(Mandatory=$false)][switch] $Refresh= $false,
         [Parameter(Mandatory=$false)][switch] $NoEmptySet= $false
     )
     
-	process {
-		try {
-			#
-			# Fetch and build cache
-			#
-			if ($Refresh -or -not $Script:cacheFunctionalAccountBase) {
-				$Script:cacheFunctionalAccountBase.Clear()
-				$Script:cacheFunctionalAccountByID.Clear()
+    process {
+        try {
+            #
+            # Fetch and build cache
+            #
+            if ($Refresh -or -not $Script:cacheFunctionalAccountBase) {
+                $Script:cacheFunctionalAccountBase.Clear()
+                $Script:cacheFunctionalAccountByID.Clear()
 
-				$res = PSafe-Get "FunctionalAccounts";
-				$res | %{
-					$tmp= _Normalize-FunctionalAccount($_)
+                $res = PSafe-Get "FunctionalAccounts";
+                $res | %{
+                    $tmp= _Normalize-FunctionalAccount($_)
 
-					$key= $tmp.ID
-					$idx= $Script:cacheFunctionalAccountBase.Add( $tmp ) 
-					$Script:cacheFunctionalAccountByID.Add( $key, $idx ) | Out-Null		# External ID into array idx
-				}
-			}
-
-			#
-			# Apply filter
-			#
-            if ($ID -ge 0) {
-				# By ID
-				$idx= $Script:cacheFunctionalAccountByID[ [int]$ID ]		# External ID to array idx
-				$res= $Script:cacheFunctionalAccountBase[ [int]$idx ]
+                    $key= $tmp.ID
+                    $idx= $Script:cacheFunctionalAccountBase.Add( $tmp ) 
+                    $Script:cacheFunctionalAccountByID.Add( $key, $idx ) | Out-Null        # External ID into array idx
+                }
             }
-			else {
-				$res= $Script:cacheFunctionalAccountBase
-				if ($useRegex) {
-					if ($Name) {$res= $res | Where-Object {$_.Name -match $Name}}
-				}
-				else {
-					if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
-				}
-			}
 
-			#
-			# Check boundary conditions
-			#
+            #
+            # Apply filter
+            #
+            if ($ID -ge 0) {
+                # By ID
+                $idx= $Script:cacheFunctionalAccountByID[ [int]$ID ]        # External ID to array idx
+                $res= $Script:cacheFunctionalAccountBase[ [int]$idx ]
+            }
+            else {
+                $res= $Script:cacheFunctionalAccountBase
+                if ($useRegex) {
+                    if ($Name) {$res= $res | Where-Object {$_.Name -match $Name}}
+                }
+                else {
+                    if ($Name) {$res= $res | Where-Object {$_.Name -like $Name}}
+                }
+            }
+
+            #
+            # Check boundary conditions
+            #
             if ($res -eq $null) {$cnt= 0}
             elseif ($res.GetType().Name -eq "PSCustomObject") {$cnt= 1} else {$cnt= $res.count}
 
@@ -98,7 +98,7 @@ function Get-PwsFunctionalAccount ()
             }
 
             return $res
-		}
+        }
         catch
         {
             if ($_.Exception.GetType().FullName -eq "PasswordSafeException") {throw}

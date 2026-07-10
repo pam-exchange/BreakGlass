@@ -28,7 +28,7 @@ function Get-KeePassXCDatabaseFilename {
         [Parameter(Mandatory=$false)][string]$DatabasePath= $Script:kpDatabasePath,
         [Parameter(Mandatory=$false)][string]$DatabaseName= $Script:kpDatabaseName,
         [Parameter(Mandatory=$false)][string]$Title,
-		
+        
         [Parameter(Mandatory=$false)][switch]$Single= $false,
         [Parameter(Mandatory=$false)][switch]$Quiet= $false,
         [Parameter(Mandatory=$false)][switch]$WhatIf= $false

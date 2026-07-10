@@ -1,4 +1,4 @@
-﻿<#----------------------------------------------------------------------------------
+<#----------------------------------------------------------------------------------
 MIT License
 
 Copyright (c) 2025 PAM-Exchange
@@ -71,12 +71,19 @@ Import-Module Breakglass -Force
 # ----------------------------------------------------------------------------------
 try {
 
+    $modules= $(Get-Module).Name
+    if ($modules -notcontains "Logging") { throw "Module Logging not available" }
+    if ($modules -notcontains "Breakglass") { throw "Module Breakglass not available" }
+    if ($VaultType -eq "KeePassXC" -and $modules -notcontains "KeePassXC") { throw "Module KeePassXC not available" }
+    if ($PAMType -eq "SymantecPAM" -and $modules -notcontains "SymantecPAM") { throw "Module SymantecPAM not available" }
+    if ($PAMType -eq "PasswordSafe" -and $modules -notcontains "PasswordSafe") { throw "Module PasswordSafe not available" }
+
     Sync-Breakglass -PAMType $PAMType -VaultType $VaultType -ConfigPath $ConfigPath -Single:$Single -Update:$Update -Quiet:$Quiet -WhatIf:$WhatIf
 
 }
 catch {
-    Write-Log "Exception: $($_.Exception.GetType().FullName)`nMessage: $($_.Exception.Message)`nDetails: $($_.Exception.Details)" -Level Error
-    Write-Log $_.ScriptStackTrace -Level Debug
+    Write-Host "Exception: $($_.Exception.GetType().FullName)`nMessage: $($_.Exception.Message)`nDetails: $($_.Exception.Details)" -ForegroundColor Yellow
+    Write-Host $_.ScriptStackTrace -ForegroundColor Gray
 }
 finally {
     if (-not $Quiet -or $WhatIf) {
@@ -88,20 +95,15 @@ finally {
             $m= [int][Math]::Floor( ($t - $h*3600) / 60 )
             $s= [int][Math]::Floor( $t - $h*3600 -$m*60 )
 
-            #if ($h -gt 0)     {Write-Host "Run time: $h hours, $m minutes, $s seconds" -ForegroundColor Gray}
-            #elseif ($m -gt 0) {Write-Host "Run time: $m minutes, $s seconds" -ForegroundColor Gray}
-            #else              {Write-Host "Run time: $s seconds" -ForegroundColor Gray}
-
             $duration = if ($h -gt 0) { "$h hours, $m minutes, $s seconds" }
             elseif ($m -gt 0) { "$m minutes, $s seconds" }
             else { "$s seconds" }
 
-            Write-Log -Message "Run time: $duration" -Level Success
+            Write-Host "Run time: $duration" -ForegroundColor White
 
         } catch {}
 
-        #Write-Host "Finished aligning '$PAMType' accounts with '$VaultType' database" -ForegroundColor White
-        Write-Log "Finished aligning '$PAMType' accounts with '$VaultType' database" -Level Success
+        Write-Host "Finished aligning '$PAMType' accounts with '$VaultType' database" -ForegroundColor White
     }
 }
 

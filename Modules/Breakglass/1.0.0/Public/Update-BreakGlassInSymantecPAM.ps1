@@ -43,7 +43,7 @@ function Update-BreakglassInSymantecPAM {
             if (-not $Quiet) {Write-Log "$($acc.Server) | $($acc.accountType) | $($acc.accountName) -- " -Level Debug -NoNewline }
 
             if (-not $WhatIf) {
-                $res= Update-SymTargetAccountPassword -AccountID $acc.accountID -Password $Password
+                $res= Update-SymantecPAMTargetAccountPassword -AccountID $acc.accountID -Password $Password
             }
         } 
         catch {
@@ -53,9 +53,9 @@ function Update-BreakglassInSymantecPAM {
         }
 
         #if (-not $Quiet) {Write-Host "Password updated" -ForegroundColor Green}
-		if (-not $Quiet) { Write-Log "Password updated" -Level Info }
+        if (-not $Quiet) { Write-Log "Password updated" -Level Info }
 
-        $pwd= Get-SymTargetAccountPassword -AccountID $acc.accountID
+        $pwd= Get-SymantecPAMTargetAccountPassword -AccountID $acc.accountID
         $acc.accountpassword= $pwd
     }
 }
